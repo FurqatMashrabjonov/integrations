@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Integrations\Leetcode\LeetcodeConnector;
-use App\Http\Integrations\Leetcode\Requests\GetUserProfile;
+use App\Http\Integrations\Leetcode\Requests\GetUserRecentSubmissions;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -19,9 +19,13 @@ require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
 
 
-Route::get('/leetcode', function () {
-    $connector = new LeetcodeConnector();
-    $response = $connector->send(new \App\Http\Integrations\Leetcode\Requests\GetUserProfile('furqatmashrabjonov'));
+Route::get('/leetcode', function (\App\Services\Interfaces\LeetcodeServiceInterface $service, \Illuminate\Http\Request $request) {
+//    dd($service->getUser($request->input('username')));
+    dd($service->getUserRecentSubmissions($request->input('username')));
+});
 
-    return $response->json();
+
+Route::get('github', function () {
+    $connector = new App\Http\Integrations\Github\GithubConnector();
+    return redirect($connector->getAuthorizationUrl());
 });

@@ -2,6 +2,10 @@
 
 namespace App\Providers;
 
+use App\Services\GithubService;
+use App\Services\Interfaces\GithubServiceInterface;
+use App\Services\Interfaces\LeetcodeServiceInterface;
+use App\Services\LeetcodeService;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +23,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        $this->app->bind(GithubServiceInterface::class, GithubService::class);
+        $this->app->bind(LeetcodeServiceInterface::class, LeetcodeService::class);
     }
 }

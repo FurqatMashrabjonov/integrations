@@ -3,24 +3,27 @@
 namespace App\Http\Integrations\Leetcode\Requests;
 
 use App\Http\Integrations\Leetcode\GraphqlQueries\QueryBag;
+use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method;
 use Saloon\Http\Request;
+use Saloon\Traits\Body\HasJsonBody;
 
-class GetUserRecentSubmissions extends Request
+class GetUserRecentSubmissions extends Request implements HasBody
 {
+    use HasJsonBody;
+    /**
+     * The HTTP method of the request
+     */
+    protected Method $method = Method::POST;
 
     /**
      * Constructor to set the username and limit
      */
     public function __construct(
         protected string $username,
-        protected int $limit = 10,
+        protected int $limit = 20,
     ) {}
 
-    /**
-     * The HTTP method of the request
-     */
-    protected Method $method = Method::POST;
 
     /**
      * The endpoint for the request
@@ -33,7 +36,7 @@ class GetUserRecentSubmissions extends Request
     protected function defaultBody(): array
     {
         return [
-            'query' => QueryBag::getUserProfile(),
+            'query' => QueryBag::getUserRecentSubmissions(),
             'variables' => [
                 'username' => $this->username,
                 'limit' => $this->limit,
