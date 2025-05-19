@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Dtos\BaseDto;
 use App\Http\Integrations\Leetcode\Dtos\UserProfileData;
 use App\Http\Integrations\Leetcode\LeetcodeConnector;
+use App\Http\Integrations\Leetcode\Requests\GetUserProfile;
 use App\Http\Integrations\Leetcode\Requests\GetUserRecentSubmissions;
 use App\Services\Interfaces\LeetcodeServiceInterface;
 use Saloon\Exceptions\Request\FatalRequestException;
@@ -27,7 +28,7 @@ class LeetcodeService implements LeetcodeServiceInterface
      */
     public function getUser(string $username): BaseDto
     {
-        $user = $this->send(new GetUserRecentSubmissions($username))?->data?->matchedUser;
+        $user = $this->send(new GetUserProfile($username))?->data?->matchedUser;
 
         throw_if(!$user, new \Exception('User not found'));
 
