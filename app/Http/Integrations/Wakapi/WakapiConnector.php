@@ -9,20 +9,32 @@ class WakapiConnector extends Connector
 {
     use AcceptsJson;
 
+
+    public function __construct(
+        private readonly string $token
+    )
+    {
+    }
+
     /**
      * The Base URL of the API
      */
     public function resolveBaseUrl(): string
     {
-        return '';
+        return 'https://wakapi.dev/api/';
     }
 
     /**
+     *
      * Default headers for every request
      */
     protected function defaultHeaders(): array
     {
-        return [];
+        return [
+            'Content-Type' => 'application/json',
+            'Accept' => 'application/json',
+            'Authorization' => 'Basic ' . base64_encode($this->token)
+        ];
     }
 
     /**

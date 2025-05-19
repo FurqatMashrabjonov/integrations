@@ -29,3 +29,9 @@ Route::get('github', function () {
     $connector = new App\Http\Integrations\Github\GithubConnector();
     return redirect($connector->getAuthorizationUrl());
 });
+
+Route::get('wakapi', function () {
+    $connector = new \App\Http\Integrations\Wakapi\WakapiConnector('cab6f60f-3a1b-4092-b9e5-e8d8ee4a5dc1');
+    $user = $connector->send(new \App\Http\Integrations\Wakapi\Requests\GetUserProfile('furqatmashrabjonov'));
+    return response()->json($user->json());
+});
