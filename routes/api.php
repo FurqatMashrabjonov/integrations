@@ -34,3 +34,10 @@ Route::any('github/callback', function (Request $request) {
 
 
 });
+
+Route::any('wakatime', function (Request $request) {
+    Log::info('wakatime', $request->all());
+});
+
+
+//TODO: Wakapi Integration https://wakapi.dev/swagger-ui/swagger-ui/index.html#/wakatime/get-wakatimes-tats

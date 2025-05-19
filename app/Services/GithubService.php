@@ -8,7 +8,7 @@ use App\Services\Interfaces\GithubServiceInterface;
 class GithubService implements GithubServiceInterface
 {
 
-    public function getUser(): BaseDto
+    public function getUser(string $username): BaseDto
     {
 
     }
