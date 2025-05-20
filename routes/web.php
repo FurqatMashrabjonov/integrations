@@ -1,5 +1,6 @@
 <?php
 
+use App\Events\TestEvent;
 use App\Http\Integrations\Leetcode\LeetcodeConnector;
 use App\Http\Integrations\Leetcode\Requests\GetUserRecentSubmissions;
 use Illuminate\Support\Facades\Route;
@@ -34,4 +35,9 @@ Route::get('wakapi', function () {
     $connector = new \App\Http\Integrations\Wakapi\WakapiConnector('cab6f60f-3a1b-4092-b9e5-e8d8ee4a5dc1');
     $user = $connector->send(new \App\Http\Integrations\Wakapi\Requests\GetUserProfile('furqatmashrabjonov'));
     return response()->json($user->json());
+});
+
+
+Route::get('reverb', function (){
+    TestEvent::dispatch();
 });
