@@ -35,7 +35,7 @@ class FitbitService implements FitbitServiceInterface
     public function storeToken(): void
     {
         $user = User::find($this->user_id);
-        $
+
         $response = $this->connector->getAccessToken();
 
         $accessToken  = $response->json('access_token');
