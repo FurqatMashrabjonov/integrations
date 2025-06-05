@@ -2,10 +2,10 @@
 
 namespace App\Providers;
 
-use App\Services\GithubService;
-use App\Services\Interfaces\GithubServiceInterface;
-use App\Services\Interfaces\LeetcodeServiceInterface;
-use App\Services\LeetcodeService;
+use App\Services\Integrations\GithubService;
+use App\Services\Integrations\LeetcodeService;
+use App\Services\Integrations\Services\Integrations\Contracts\GithubServiceInterface;
+use App\Services\Integrations\Services\Integrations\Contracts\LeetcodeServiceInterface;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider

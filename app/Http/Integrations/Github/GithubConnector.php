@@ -26,12 +26,12 @@
          protected function defaultOauthConfig(): OAuthConfig
          {
              return OAuthConfig::make()
-                 ->setClientId('1593278d31d8116d2cb1')
-                 ->setClientSecret('98f6c8bdc78293beb31007b913b1055abbe4fe59')
-                 ->setRedirectUri('http://localhost:8000/api/github/callback')
-                 ->setDefaultScopes(['read:user', 'repo'])
-                 ->setAuthorizeEndpoint('https://github.com/login/oauth/authorize')
-                 ->setTokenEndpoint('https://github.com/login/oauth/access_token')
+                 ->setClientId(config('services.github.client_id'))
+                 ->setClientSecret(config('services.github.client_secret'))
+                 ->setRedirectUri(config('services.github.redirect'))
+                 ->setDefaultScopes(['read:user', 'user:email'])
+                 ->setAuthorizeEndpoint(config('services.github.authorize_url'))
+                 ->setTokenEndpoint(config('services.github.token_url'))
                  ->setUserEndpoint('/user');
          }
      }

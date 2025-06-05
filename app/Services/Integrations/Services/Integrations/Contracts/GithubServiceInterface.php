@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Interfaces;
+namespace App\Services\Integrations\Services\Integrations\Contracts;
 
 interface GithubServiceInterface extends IntegrationInterface
 {

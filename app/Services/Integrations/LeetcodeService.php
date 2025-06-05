@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Integrations;
 
 use App\Dtos\BaseDto;
 use App\Http\Integrations\Leetcode\Dtos\UserProfileData;
 use App\Http\Integrations\Leetcode\LeetcodeConnector;
 use App\Http\Integrations\Leetcode\Requests\GetUserProfile;
 use App\Http\Integrations\Leetcode\Requests\GetUserRecentSubmissions;
-use App\Services\Interfaces\LeetcodeServiceInterface;
+use App\Services\Integrations\Services\Integrations\Contracts\LeetcodeServiceInterface;
 use Saloon\Exceptions\Request\FatalRequestException;
 use Saloon\Exceptions\Request\RequestException;
 use Saloon\Http\Request;
@@ -15,7 +15,7 @@ use Saloon\Http\Request;
 class LeetcodeService implements LeetcodeServiceInterface
 {
 
-    public function __construct(private readonly LeetcodeConnector $connector)
+    public function __construct(private LeetcodeConnector $connector)
     {
     }
 

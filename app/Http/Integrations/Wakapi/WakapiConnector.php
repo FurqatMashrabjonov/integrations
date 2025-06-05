@@ -42,8 +42,6 @@ class WakapiConnector extends Connector
      */
     protected function defaultConfig(): array
     {
-        return [
-            'proxy' => 'http://192.168.7.251:3128'
-        ];
+        return [];
     }
 }
