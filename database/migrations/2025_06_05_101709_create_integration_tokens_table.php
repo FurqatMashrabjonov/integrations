@@ -23,7 +23,6 @@ return new class extends Migration
 
             $table->unique(['user_id', 'integration']); // Each user can only have one per integration
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->timestamps();
         });
     }
 
