@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('refresh_token')->nullable(); // Some may not use refresh tokens
             $table->timestamp('expires_at')->nullable(); // Token expiry time if available
             $table->json('meta')->nullable(); // Store additional data (like scopes, token type)
+            $table->string('serialized')->nullable(); // Serialized token data if needed
             $table->timestamps();
 
             $table->unique(['user_id', 'integration']); // Each user can only have one per integration

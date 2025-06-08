@@ -17,6 +17,6 @@ class GetUserStepsRequest extends Request
      */
     public function resolveEndpoint(): string
     {
-        return '/example';
+        return '/user/-/activities/list.json';
     }
 }

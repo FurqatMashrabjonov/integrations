@@ -28,7 +28,7 @@
              return OAuthConfig::make()
                  ->setClientId(config('services.github.client_id'))
                  ->setClientSecret(config('services.github.client_secret'))
-                 ->setRedirectUri(config('services.github.redirect'))
+                 ->setRedirectUri(config('services.github.redirect_uri'))
                  ->setDefaultScopes(['read:user', 'user:email'])
                  ->setAuthorizeEndpoint(config('services.github.authorize_url'))
                  ->setTokenEndpoint(config('services.github.token_url'))

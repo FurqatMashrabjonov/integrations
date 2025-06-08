@@ -14,6 +14,7 @@ class IntegrationToken extends Model
         'refresh_token',
         'expires_at',
         'meta',
+        'serialized'
     ];
 
     protected $casts = [

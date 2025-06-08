@@ -18,7 +18,7 @@ class FitbitConnector extends Connector
      */
     public function resolveBaseUrl(): string
     {
-        return '';
+        return 'https://api.fitbit.com/1/';
     }
 
     /**
@@ -31,7 +31,7 @@ class FitbitConnector extends Connector
             ->setClientSecret(config('services.fitbit.client_secret'))
             ->setRedirectUri(config('services.fitbit.redirect_uri'))
             ->setDefaultScopes(config('services.fitbit.scopes', []))
-            ->setAuthorizeEndpoint(config('services.fitbit.authorize_url')) // include response_type=code
+            ->setAuthorizeEndpoint(config('services.fitbit.authorize_url'))
             ->setTokenEndpoint(config('services.fitbit.token_url'))
             ->setUserEndpoint('https://api.fitbit.com/1/user/-/profile.json')
             ->setRequestModifier(function (Request $request) {

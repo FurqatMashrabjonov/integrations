@@ -12,6 +12,7 @@ class IntegrationTokenDTO extends BaseDto
         public ?string $refresh_token = null,
         public ?string $expires_at = null,
         public IntegrationEnum  $integration,
+        public ?string $serialized = null,
     )
     {
     }

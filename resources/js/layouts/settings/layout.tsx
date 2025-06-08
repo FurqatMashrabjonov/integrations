@@ -1,34 +1,31 @@
 import Heading from '@/components/heading';
-import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
 import { type PropsWithChildren } from 'react';
+import { ChevronRight, User, Brush, Link2 } from 'lucide-react';
 
 const sidebarNavItems: NavItem[] = [
     {
         title: 'Profile',
         href: '/settings/profile',
-        icon: null,
-    },
-    {
-        title: 'Password',
-        href: '/settings/password',
-        icon: null,
+        icon: <User className="w-4 h-4 text-muted-foreground" />,
     },
     {
         title: 'Appearance',
         href: '/settings/appearance',
-        icon: null,
+        icon: <Brush className="w-4 h-4 text-muted-foreground" />,
+    },
+    {
+        title: 'Integrations',
+        href: '/settings/integrations',
+        icon: <Link2 className="w-4 h-4 text-muted-foreground" />,
     },
 ];
 
 export default function SettingsLayout({ children }: PropsWithChildren) {
-    // When server-side rendering, we only render the layout on the client...
-    if (typeof window === 'undefined') {
-        return null;
-    }
+    if (typeof window === 'undefined') return null;
 
     const currentPath = window.location.pathname;
 
@@ -37,24 +34,32 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
             <Heading title="Settings" description="Manage your profile and account settings" />
 
             <div className="flex flex-col space-y-8 lg:flex-row lg:space-y-0 lg:space-x-12">
-                <aside className="w-full max-w-xl lg:w-48">
-                    <nav className="flex flex-col space-y-1 space-x-0">
-                        {sidebarNavItems.map((item, index) => (
-                            <Button
-                                key={`${item.href}-${index}`}
-                                size="sm"
-                                variant="ghost"
-                                asChild
-                                className={cn('w-full justify-start', {
-                                    'bg-muted': currentPath === item.href,
-                                })}
-                            >
-                                <Link href={item.href} prefetch>
-                                    {item.title}
+                <aside className="w-full max-w-xl lg:w-64">
+                    {/* iOS-style settings group */}
+                    <div className="rounded-xl border bg-background shadow-sm divide-y">
+                        {sidebarNavItems.map((item, index) => {
+                            const isActive = currentPath === item.href;
+
+                            return (
+                                <Link
+                                    key={index}
+                                    href={item.href}
+                                    prefetch
+                                    className={cn(
+                                        'flex items-center px-4 py-3 space-x-4 transition hover:bg-muted/50',
+                                        isActive && 'bg-muted', index == 0 ? 'rounded-t-xl' : '',
+                                        index === sidebarNavItems.length - 1 ? 'rounded-b-xl' : ''
+                                    )}
+                                >
+                                    <div className="flex items-center justify-center bg-muted rounded-md w-8 h-8">
+                                        {item.icon}
+                                    </div>
+                                    <span className="flex-1 text-sm">{item.title}</span>
+                                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
                                 </Link>
-                            </Button>
-                        ))}
-                    </nav>
+                            );
+                        })}
+                    </div>
                 </aside>
 
                 <Separator className="my-6 md:hidden" />

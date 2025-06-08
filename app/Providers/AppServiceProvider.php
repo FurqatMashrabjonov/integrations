@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Repositories\Contracts\FitbitAccountRepositoryInterface;
 use App\Repositories\Contracts\IntegrationTokenRepositoryInterface;
+use App\Repositories\FitbitAccountRepository;
 use App\Repositories\IntegrationTokenRepository;
 use App\Services\Integrations\FitbitService;
 use App\Services\Integrations\GithubService;
@@ -31,5 +33,6 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(LeetcodeServiceInterface::class, LeetcodeService::class);
         $this->app->bind(FitbitServiceInterface::class, FitbitService::class);
         $this->app->bind(IntegrationTokenRepositoryInterface::class, IntegrationTokenRepository::class);
+        $this->app->bind(FitbitAccountRepositoryInterface::class, FitbitAccountRepository::class);
     }
 }

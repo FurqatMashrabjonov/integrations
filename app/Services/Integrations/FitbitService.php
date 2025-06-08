@@ -3,96 +3,105 @@
 namespace App\Services\Integrations;
 
 use App\Dtos\BaseDto;
+use App\Dtos\FitbitAccountDTO;
 use App\Enums\IntegrationEnum;
 use App\Http\Integrations\Fitbit\FitbitConnector;
+use App\Http\Integrations\Fitbit\Requests\GetUserStepsRequest;
 use App\Models\User;
+use App\Repositories\Contracts\FitbitAccountRepositoryInterface;
 use App\Repositories\Contracts\IntegrationTokenRepositoryInterface;
 use App\Services\Integrations\Services\Integrations\Contracts\FitbitServiceInterface;
 use App\DTOs\IntegrationTokenDTO;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Saloon\Exceptions\InvalidStateException;
+use Saloon\Exceptions\Request\FatalRequestException;
+use Saloon\Exceptions\Request\RequestException;
+use Saloon\Http\Auth\AccessTokenAuthenticator;
 
 class FitbitService implements FitbitServiceInterface
 {
     protected $connector;
-    protected int $user_id;
 
     public function __construct(
         protected IntegrationTokenRepositoryInterface $repository,
+        protected FitbitAccountRepositoryInterface $fitbitAccountRepository
     ){
         $this->connector = new FitbitConnector();
-        $this->user_id = 1; // This should be dynamic in production
     }
 
     public function getUser(string $username): BaseDto
     {
-        $token = $this->getValidAccessToken();
-
-        $response = $this->connector->getUser($token);
-
-        return new BaseDto($response->json());
+        return new BaseDto();
     }
 
-    public function storeToken(): void
+    public function storeToken(IntegrationTokenDTO|BaseDto $dto): void
     {
-        $user = User::find($this->user_id);
-
-        $response = $this->connector->getAccessToken();
-
-        $accessToken  = $response->json('access_token');
-        $refreshToken = $response->json('refresh_token');
-        $expiresIn    = $response->json('expires_in');
-
-        $dto = new IntegrationTokenDTO(
-            user_id: $user->id,
-            access_token: $accessToken,
-            refresh_token: $refreshToken,
-            expires_at: Carbon::now()->addSeconds($expiresIn),
-            integration: IntegrationEnum::FITBIT
-        );
-
         $this->repository->storeOrUpdate($dto);
     }
 
-    private function checkExpiringToken(IntegrationTokenDTO $dto): bool
+
+    public function getRedirectUrl(): string
     {
-        return !$dto->expires_at || Carbon::parse($dto->expires_at)->isPast();
+        return $this->connector->getAuthorizationUrl();
     }
 
-    private function refreshToken(string $refreshToken): string
+    /**
+     * @throws FatalRequestException
+     * @throws \Throwable
+     * @throws RequestException
+     */
+    public function getUserSteps(int $userId, ?string $date = null)
     {
-        $response = $this->connector->refreshAccessToken($refreshToken);
+        if (!$date)
+            $date = now()->format('Y-m-d');
 
-        $newAccessToken  = $response->json('access_token');
-        $newRefreshToken = $response->json('refresh_token');
-        $expiresIn       = $response->json('expires_in');
+        $integration_token = $this->repository->findByUserIdAndType($userId, IntegrationEnum::FITBIT);
 
-        $dto = new IntegrationTokenDTO(
-            user_id: $this->user_id,
-            access_token: $newAccessToken,
-            refresh_token: $newRefreshToken,
-            expires_at: Carbon::now()->addSeconds($expiresIn),
-            integration: IntegrationEnum::FITBIT
-        );
+        throw_if(!$integration_token, new InvalidStateException('Fitbit integration token not found for user ID: ' . $userId));
 
-        $this->repository->storeOrUpdate($dto);
+        $auth = AccessTokenAuthenticator::unserialize($integration_token->serialized);
+        $connector = $this->connector->authenticate($auth);
+        $response = $connector->send(new GetUserStepsRequest());
 
-        return $newAccessToken;
+        return $response->object();
     }
 
-    private function getValidAccessToken(): string
+    /**
+     * @throws InvalidStateException
+     */
+    public function handleCallback(Request $request)
     {
-        $dto = $this->repository->findByUserAndType($this->user_id, IntegrationEnum::FITBIT->value);
+        try {
+            $authenticator = $this->connector->getAccessToken($request->input('code', ''));
+            $this->storeToken(new IntegrationTokenDTO(
+                user_id: auth()->id(),
+                access_token: $authenticator->getAccessToken(),
+                refresh_token: $authenticator->getRefreshToken(),
+                expires_at: $authenticator->getExpiresAt()->format('Y-m-d H:i:s'),
+                integration: IntegrationEnum::FITBIT,
+                serialized: $authenticator->serialize()
+            ));
 
-        if (!$dto) {
-            // No token found → fetch it
-            $this->storeToken();
-            $dto = $this->repository->findByUserAndType($this->user_id, IntegrationEnum::FITBIT->value);
+            $this->storeFitbitAccount($authenticator);
+
+        } catch (\Exception $e){
+            Log::error('Error during Fitbit callback handling: ' . $e->getMessage());
+            throw new InvalidStateException('Failed to handle Fitbit callback: ' . $e->getMessage());
         }
 
-        if ($this->checkExpiringToken($dto)) {
-            return $this->refreshToken($dto->refresh_token);
-        }
+    }
 
-        return $dto->access_token;
+    protected function storeFitbitAccount($authenticator): void
+    {
+        $user = $this->connector->getUser($authenticator)->object()?->user;
+
+        $this->fitbitAccountRepository->storeOrUpdate(new FitbitAccountDTO(
+            user_id: auth()->id(),
+            display_name: $user?->displayName ?? '',
+            full_name: $user?->fullName ?? '',
+            avatar: $user?->avatar ?? ''
+        ));
     }
 }

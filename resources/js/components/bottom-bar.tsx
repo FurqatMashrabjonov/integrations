@@ -3,41 +3,53 @@
  * @see https://v0.dev/t/mGVggH0RgOv
  * Documentation: https://v0.dev/docs#integrating-generated-code-into-your-nextjs-app
  */
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { SVGProps } from 'react'
 import { JSX } from 'react/jsx-runtime'
-import { Calendar, Calendar1Icon, ChartNoAxesColumn } from 'lucide-react';
+import { Calendar, ChartBar } from 'lucide-react';
 
 export default function BottomBar() {
+
+    const { url } = usePage();
+
+    const isActive = (href: string) => url === href;
+
     return (
         <nav className="bg-background fixed right-0 bottom-0 left-0 z-50 flex h-14 w-full items-center justify-around shadow-[0_-2px_4px_rgba(0,0,0,0.1)] md:h-16">
             <Link
                 href={route('dashboard')}
-                className="text-muted-foreground hover:text-primary focus:text-primary flex flex-col items-center justify-center gap-1 text-sm font-medium"
+                className={`flex flex-col items-center justify-center gap-1 text-sm font-medium
+                    ${isActive('/dashboard') ? 'text-primary' : 'text-muted-foreground hover:text-primary focus:text-primary'}`}
                 prefetch={false}
             >
                 <HomeIcon className="h-6 w-6" />
                 Asosiy
             </Link>
+
             <Link
                 href="#"
-                className="text-muted-foreground hover:text-primary focus:text-primary flex flex-col items-center justify-center gap-1 text-sm font-medium"
+                className={`flex flex-col items-center justify-center gap-1 text-sm font-medium
+                    ${url === '#' ? 'text-primary' : 'text-muted-foreground hover:text-primary focus:text-primary'}`}
                 prefetch={false}
             >
                 <Calendar className="h-6 w-6" />
                 Kalendar
             </Link>
+
             <Link
                 href="#"
-                className="text-muted-foreground hover:text-primary focus:text-primary flex flex-col items-center justify-center gap-1 text-sm font-medium"
+                className={`flex flex-col items-center justify-center gap-1 text-sm font-medium
+                    ${url === '#' ? 'text-primary' : 'text-muted-foreground hover:text-primary focus:text-primary'}`}
                 prefetch={false}
             >
-                <ChartNoAxesColumn className="h-6 w-6" />
+                <ChartBar className="h-6 w-6" />
                 Reyting
             </Link>
+
             <Link
                 href={route('profile.edit')}
-                className="text-muted-foreground hover:text-primary focus:text-primary flex flex-col items-center justify-center gap-1 text-sm font-medium"
+                className={`flex flex-col items-center justify-center gap-1 text-sm font-medium
+                    ${isActive('/settings/profile') ? 'text-primary' : 'text-muted-foreground hover:text-primary focus:text-primary'}`}
                 prefetch={false}
             >
                 <UserIcon className="h-6 w-6" />
@@ -67,47 +79,6 @@ function HomeIcon(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) {
     );
 }
 
-
-function SearchIcon(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) {
-    return (
-        <svg
-            {...props}
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-        >
-            <circle cx="11" cy="11" r="8" />
-            <path d="m21 21-4.3-4.3" />
-        </svg>
-    );
-}
-
-
-function SettingsIcon(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) {
-    return (
-        <svg
-            {...props}
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-        >
-            <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
-            <circle cx="12" cy="12" r="3" />
-        </svg>
-    );
-}
 
 
 function UserIcon(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) {

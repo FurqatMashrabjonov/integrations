@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\Api\Integrations\FitbitController;
 use App\Http\Integrations\Github\Requests\GetUserCommits;
+use App\Services\Integrations\Services\Integrations\Contracts\FitbitServiceInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -39,10 +41,15 @@ Route::any('wakatime', function (Request $request) {
     Log::info('wakatime', $request->all());
 });
 
-Route::any('fitbit/callback', function (Request $request) {
-    $connector = new \App\Http\Integrations\Fitbit\FitbitConnector();
-    $authenticator = $connector->getAccessToken($request->code);
-    $connector->authenticate($authenticator);
 
-    dd($connector->getUser($authenticator)->body());
-});
+//Route::get('/fitbit/redirect', function () {
+//    return redirect(app(FitbitServiceInterface::class)->getRedirectUrl());
+//});
+//
+//Route::any('fitbit/callback', function (Request $request) {
+//    $connector = new \App\Http\Integrations\Fitbit\FitbitConnector();
+//    $authenticator = $connector->getAccessToken($request->code);
+//    $connector->authenticate($authenticator);
+//
+//    dd($connector->getUser($authenticator)->body());
+//});

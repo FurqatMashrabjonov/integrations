@@ -40,16 +40,16 @@ return [
         'client_secret' => env('GITHUB_CLIENT_SECRET'),
         'redirect_uri' => env('GITHUB_REDIRECT_URI'),
         'scopes' => ['read:user', 'repo'],
-        'authorize_url' => env('GITHUB_AUTHORIZE_ENDPOINT'),
-        'token_url' => env('GITHUB_TOKEN_ENDPOINT'),
+        'authorize_url' => env('GITHUB_AUTHORIZE_URL'),
+        'token_url' => env('GITHUB_TOKEN_URL'),
     ],
     'fitbit' => [
         'client_id' => env('FITBIT_CLIENT_ID'),
         'client_secret' => env('FITBIT_CLIENT_SECRET'),
         'redirect_uri' => env('FITBIT_REDIRECT_URI'),
         'scopes' => ['activity', 'profile'],
-        'authorize_url' => env('FITBIT_AUTHORIZE_ENDPOINT'),
-        'token_url' => env('FITBIT_TOKEN_ENDPOINT'),
+        'authorize_url' => env('FITBIT_AUTHORIZE_URL'),
+        'token_url' => env('FITBIT_TOKEN_URL'),
     ],
 
 ];
