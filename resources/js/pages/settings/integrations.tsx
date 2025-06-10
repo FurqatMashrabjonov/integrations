@@ -1,4 +1,4 @@
-import { Head } from '@inertiajs/react';
+ import { Head } from '@inertiajs/react';
 
 import HeadingSmall from '@/components/heading-small';
 import { type BreadcrumbItem } from '@/types';
@@ -109,15 +109,6 @@ export default function Integrations() {
                                 <Button>Submit</Button>
                                 <DrawerClose>
                                     <Button variant="outline">Cancel</Button>
-                                    <div>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium
-                                        aspernatur assumenda cumque deleniti distinctio dolore, doloremque eaque, illo
-                                        iure magnam porro possimus quae quibusdam repellendus saepe sequi similique,
-                                        veritatis vero?
-                                    </div>
-                                    <div>Accusamus cum eligendi fuga illo in iusto nam placeat quas tenetur voluptates.
-                                        Asperiores cupiditate est neque reiciendis rem sed totam, voluptatibus? Deserunt
-                                        explicabo fugiat magnam neque officia reprehenderit, similique ut?
-                                    </div>
                                 </DrawerClose>
                             </DrawerFooter>
                         </DrawerContent>

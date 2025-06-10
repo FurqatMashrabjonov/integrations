@@ -53,8 +53,7 @@ class FitbitService implements FitbitServiceInterface
      */
     public function getUserSteps(int $userId, ?string $date = null)
     {
-        if (!$date)
-            $date = now()->format('Y-m-d');
+        if (!$date) $date = now()->format('Y-m-d');
 
         $integration_token = $this->repository->findByUserIdAndType($userId, IntegrationEnum::FITBIT);
 

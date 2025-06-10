@@ -2,6 +2,7 @@ import { ExampleChart } from '@/components/example-chart';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
+import StepsSection from '@/components/steps-section';
 // import { useEcho, useEchoPublic } from '@laravel/echo-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
