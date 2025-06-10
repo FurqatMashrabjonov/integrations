@@ -13,6 +13,7 @@ class IntegrationTokenDTO extends BaseDto
         public ?string $expires_at = null,
         public IntegrationEnum  $integration,
         public ?string $serialized = null,
+        public ?array $meta = null,
     )
     {
     }

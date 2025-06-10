@@ -7,12 +7,10 @@ use App\Dtos\FitbitAccountDTO;
 use App\Enums\IntegrationEnum;
 use App\Http\Integrations\Fitbit\FitbitConnector;
 use App\Http\Integrations\Fitbit\Requests\GetUserStepsRequest;
-use App\Models\User;
 use App\Repositories\Contracts\FitbitAccountRepositoryInterface;
 use App\Repositories\Contracts\IntegrationTokenRepositoryInterface;
 use App\Services\Integrations\Services\Integrations\Contracts\FitbitServiceInterface;
-use App\DTOs\IntegrationTokenDTO;
-use Carbon\Carbon;
+use App\Dtos\IntegrationTokenDTO;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Saloon\Exceptions\InvalidStateException;
@@ -26,8 +24,9 @@ class FitbitService implements FitbitServiceInterface
 
     public function __construct(
         protected IntegrationTokenRepositoryInterface $repository,
-        protected FitbitAccountRepositoryInterface $fitbitAccountRepository
-    ){
+        protected FitbitAccountRepositoryInterface    $fitbitAccountRepository
+    )
+    {
         $this->connector = new FitbitConnector();
     }
 
@@ -62,10 +61,12 @@ class FitbitService implements FitbitServiceInterface
         throw_if(!$integration_token, new InvalidStateException('Fitbit integration token not found for user ID: ' . $userId));
 
         $auth = AccessTokenAuthenticator::unserialize($integration_token->serialized);
-        $connector = $this->connector->authenticate($auth);
-        $response = $connector->send(new GetUserStepsRequest());
+        $this->connector->authenticate($auth);
+        $response = $this->connector->send(new GetUserStepsRequest($date));
 
-        return $response->object();
+        throw_if(isset($response?->error));
+
+        return $response?->object()?->summary?->steps ?? 0;
     }
 
     /**
@@ -81,12 +82,12 @@ class FitbitService implements FitbitServiceInterface
                 refresh_token: $authenticator->getRefreshToken(),
                 expires_at: $authenticator->getExpiresAt()->format('Y-m-d H:i:s'),
                 integration: IntegrationEnum::FITBIT,
-                serialized: $authenticator->serialize()
+                serialized: $authenticator->serialize(),
             ));
 
             $this->storeFitbitAccount($authenticator);
 
-        } catch (\Exception $e){
+        } catch (\Exception $e) {
             Log::error('Error during Fitbit callback handling: ' . $e->getMessage());
             throw new InvalidStateException('Failed to handle Fitbit callback: ' . $e->getMessage());
         }

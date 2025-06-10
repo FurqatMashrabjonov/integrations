@@ -47,7 +47,7 @@ return [
         'client_id' => env('FITBIT_CLIENT_ID'),
         'client_secret' => env('FITBIT_CLIENT_SECRET'),
         'redirect_uri' => env('FITBIT_REDIRECT_URI'),
-        'scopes' => ['activity', 'profile'],
+        'scopes' => ['activity', 'profile', 'heartrate', 'sleep', 'weight'],
         'authorize_url' => env('FITBIT_AUTHORIZE_URL'),
         'token_url' => env('FITBIT_TOKEN_URL'),
     ],
