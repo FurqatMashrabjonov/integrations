@@ -59,4 +59,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(UserFitbitStep::class);
     }
+
+    public function integrationTokens(): HasMany
+    {
+        return $this->hasMany(IntegrationToken::class);
+    }
 }

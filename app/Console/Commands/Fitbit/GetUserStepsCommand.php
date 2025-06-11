@@ -2,6 +2,8 @@
 
 namespace App\Console\Commands\Fitbit;
 
+use App\Enums\IntegrationEnum;
+use App\Jobs\UserFitbitStepGetter;
 use App\Models\User;
 use App\Services\Integrations\Services\Integrations\Contracts\FitbitServiceInterface;
 use Illuminate\Console\Command;
@@ -10,9 +12,7 @@ use Illuminate\Support\Number;
 
 class GetUserStepsCommand extends Command
 {
-    public function __construct(
-        private readonly FitbitServiceInterface $fitbitService,
-    )
+    public function __construct()
     {
         parent::__construct();
     }
@@ -36,7 +36,16 @@ class GetUserStepsCommand extends Command
      */
     public function handle()
     {
-        $steps = $this->fitbitService->getUserStepsAndStore(4, Carbon::today()->format('Y-m-d'));
-        $this->info(number_format($steps));
+        $users = User::query()->whereHas('integrationTokens', function ($query) {
+            $query->where('integration', '=', IntegrationEnum::FITBIT);
+        })->get();
+
+        foreach ($users as $user) {
+            try {
+                UserFitbitStepGetter::dispatch($user->id, Carbon::now()->format('Y-m-d'));
+            } catch (\Exception $e) {
+                $this->error("Failed to fetch steps for user: {$user->name}. Error: {$e->getMessage()}");
+            }
+        }
     }
 }

@@ -19,8 +19,7 @@ export default function Dashboard() {
     //     },
     // );
 
-    const { steps } = usePage<SharedData>().props;
-
+    const { steps,  steps_of_today} = usePage<SharedData>().props;
     console.log('steps', steps);
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -33,24 +32,8 @@ export default function Dashboard() {
                     <div className="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
                         <div className="flex items-center justify-center py-12">
                             <div className="text-center space-y-4">
-                                <div className="text-5xl font-bold text-foreground">14,525</div>
+                                <div className="text-5xl font-bold text-foreground">{ String(steps_of_today) }</div>
                                 <p className="text-muted-foreground">Qadamlar soni</p>
-                                { JSON.stringify(steps)}
-                                { JSON.stringify(steps)}
-                                { JSON.stringify(steps)}
-                                { JSON.stringify(steps)}
-                                { JSON.stringify(steps)}
-                                { JSON.stringify(steps)}
-                                { JSON.stringify(steps)}
-                                { JSON.stringify(steps)}
-                                { JSON.stringify(steps)}
-                                { JSON.stringify(steps)}
-                                { JSON.stringify(steps)}
-                                { JSON.stringify(steps)}
-                                { JSON.stringify(steps)}
-                                { JSON.stringify(steps)}
-                                { JSON.stringify(steps)}
-                                { JSON.stringify(steps)}
                             </div>
                         </div>
                     </div>
