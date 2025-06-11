@@ -10,7 +10,9 @@ Route::get('/', function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
-        return Inertia::render('dashboard');
+        return Inertia::render('dashboard', [
+            'steps' => auth()->user()->steps()->where('date', now()->format('Y-m-d'))->first(),
+        ]);
     })->name('dashboard');
 });
 

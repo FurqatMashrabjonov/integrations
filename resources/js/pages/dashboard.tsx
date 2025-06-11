@@ -1,9 +1,7 @@
 import { ExampleChart } from '@/components/example-chart';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/react';
-import StepsSection from '@/components/steps-section';
-// import { useEcho, useEchoPublic } from '@laravel/echo-react';
+import { type BreadcrumbItem, SharedData } from '@/types';
+import { Head, usePage } from '@inertiajs/react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -21,6 +19,9 @@ export default function Dashboard() {
     //     },
     // );
 
+    const { steps } = usePage<SharedData>().props;
+
+    console.log('steps', steps);
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
@@ -34,6 +35,22 @@ export default function Dashboard() {
                             <div className="text-center space-y-4">
                                 <div className="text-5xl font-bold text-foreground">14,525</div>
                                 <p className="text-muted-foreground">Qadamlar soni</p>
+                                { JSON.stringify(steps)}
+                                { JSON.stringify(steps)}
+                                { JSON.stringify(steps)}
+                                { JSON.stringify(steps)}
+                                { JSON.stringify(steps)}
+                                { JSON.stringify(steps)}
+                                { JSON.stringify(steps)}
+                                { JSON.stringify(steps)}
+                                { JSON.stringify(steps)}
+                                { JSON.stringify(steps)}
+                                { JSON.stringify(steps)}
+                                { JSON.stringify(steps)}
+                                { JSON.stringify(steps)}
+                                { JSON.stringify(steps)}
+                                { JSON.stringify(steps)}
+                                { JSON.stringify(steps)}
                             </div>
                         </div>
                     </div>

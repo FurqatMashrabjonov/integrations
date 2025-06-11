@@ -47,6 +47,7 @@ class PasswordController extends Controller
 //        $steps = app(FitbitServiceInterface::class)->getUserSteps(auth()->id());
 //        dd($steps);
         return Inertia::render('settings/integrations', [
+
         ]);
     }
 }

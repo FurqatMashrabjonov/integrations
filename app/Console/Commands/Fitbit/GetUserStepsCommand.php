@@ -36,7 +36,7 @@ class GetUserStepsCommand extends Command
      */
     public function handle()
     {
-        $steps = $this->fitbitService->getUserSteps(2, Carbon::today()->format('Y-m-d'));
+        $steps = $this->fitbitService->getUserStepsAndStore(4, Carbon::today()->format('Y-m-d'));
         $this->info(number_format($steps));
     }
 }

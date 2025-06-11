@@ -12,4 +12,6 @@ interface FitbitServiceInterface extends IntegrationInterface
     public function getRedirectUrl(): string;
 
     public function handleCallback(Request $request);
+
+    public function getUserStepsAndStore(int $userId, ?string $date = null);
 }

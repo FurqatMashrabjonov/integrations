@@ -4,11 +4,13 @@ namespace App\Services\Integrations;
 
 use App\Dtos\BaseDto;
 use App\Dtos\FitbitAccountDTO;
+use App\Dtos\UserFitbitStepDTO;
 use App\Enums\IntegrationEnum;
 use App\Http\Integrations\Fitbit\FitbitConnector;
 use App\Http\Integrations\Fitbit\Requests\GetUserStepsRequest;
 use App\Repositories\Contracts\FitbitAccountRepositoryInterface;
 use App\Repositories\Contracts\IntegrationTokenRepositoryInterface;
+use App\Repositories\Contracts\UserFitbitStepRepositoryInterface;
 use App\Services\Integrations\Services\Integrations\Contracts\FitbitServiceInterface;
 use App\Dtos\IntegrationTokenDTO;
 use Illuminate\Http\Request;
@@ -24,7 +26,8 @@ class FitbitService implements FitbitServiceInterface
 
     public function __construct(
         protected IntegrationTokenRepositoryInterface $repository,
-        protected FitbitAccountRepositoryInterface    $fitbitAccountRepository
+        protected FitbitAccountRepositoryInterface    $fitbitAccountRepository,
+        protected UserFitbitStepRepositoryInterface   $userFitbitStepRepository,
     )
     {
         $this->connector = new FitbitConnector();
@@ -51,7 +54,7 @@ class FitbitService implements FitbitServiceInterface
      * @throws \Throwable
      * @throws RequestException
      */
-    public function getUserSteps(int $userId, ?string $date = null)
+    public function getUserStepsAndStore(int $userId, ?string $date = null)
     {
         if (!$date) $date = now()->format('Y-m-d');
 
@@ -60,12 +63,31 @@ class FitbitService implements FitbitServiceInterface
         throw_if(!$integration_token, new InvalidStateException('Fitbit integration token not found for user ID: ' . $userId));
 
         $auth = AccessTokenAuthenticator::unserialize($integration_token->serialized);
+
+        $this->refreshIfExpired($auth);
+
         $this->connector->authenticate($auth);
         $response = $this->connector->send(new GetUserStepsRequest($date));
 
         throw_if(isset($response?->error));
 
-        return $response?->object()?->summary?->steps ?? 0;
+        $steps = $response?->object()?->summary?->steps ?? 0;
+
+        $this->userFitbitStepRepository->storeOrUpdate(new UserFitbitStepDTO(
+            user_id: $userId,
+            date: $date,
+            steps: $steps,
+        ));
+
+        return $steps;
+    }
+
+    public function refreshIfExpired(AccessTokenAuthenticator $authenticator): void
+    {
+        if ($authenticator->hasExpired()) {
+            $authenticator = $this->connector->refreshAccessToken($authenticator);
+            $this->connector->authenticate($authenticator);
+        }
     }
 
     /**
