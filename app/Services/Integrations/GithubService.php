@@ -7,11 +7,16 @@ use App\Dtos\IntegrationTokenDTO;
 use App\Enums\IntegrationEnum;
 use App\Http\Integrations\Fitbit\FitbitConnector;
 use App\Http\Integrations\Github\GithubConnector;
+use App\Http\Integrations\Github\Requests\GetUserCommits;
+use App\Http\Integrations\Github\Requests\GetUserRepos;
 use App\Repositories\Contracts\IntegrationTokenRepositoryInterface;
 use App\Services\Integrations\Services\Integrations\Contracts\GithubServiceInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Saloon\Exceptions\InvalidStateException;
+use Saloon\Exceptions\Request\FatalRequestException;
+use Saloon\Exceptions\Request\RequestException;
+use Saloon\Http\Auth\AccessTokenAuthenticator;
 
 class GithubService implements GithubServiceInterface
 {
@@ -48,16 +53,63 @@ class GithubService implements GithubServiceInterface
             $authenticator = $this->connector->getAccessToken($request->input('code', ''));
             $this->storeToken(new IntegrationTokenDTO(
                 user_id: auth()->id(),
+                integration: IntegrationEnum::GITHUB,
                 access_token: $authenticator->getAccessToken(),
                 refresh_token: $authenticator->getRefreshToken(),
                 expires_at: $authenticator->getExpiresAt()?->format('Y-m-d H:i:s') ?? null,
-                integration: IntegrationEnum::GITHUB,
                 serialized: $authenticator->serialize()
             ));
         } catch (\Exception $e){
             Log::error('Error during Github callback handling: ' . $e->getMessage());
             throw new InvalidStateException('Failed to handle Github callback: ' . $e->getMessage());
         }
+    }
 
+    /**
+     * @throws \Throwable
+     * @throws FatalRequestException
+     * @throws RequestException
+     * @throws \JsonException
+     */
+    public function getActivitiesAndStore(int $userId, ?string $date = null): void
+    {
+        if (!$date) $date = now()->format('Y-m-d');
+
+        $integration_token = $this->repository->findByUserIdAndType($userId, IntegrationEnum::GITHUB);
+
+        throw_if(!$integration_token, new InvalidStateException('Github integration token not found for user ID: ' . $userId));
+
+        $auth = AccessTokenAuthenticator::unserialize($integration_token->serialized);
+
+        $this->connector->authenticate($auth);
+        $response = $this->connector->send(new GetUserCommits('furqatmashrabjonov', 'mockapi'));
+
+        throw_if(isset($response?->error));
+
+        dd(json_encode($response->json()));
+
+//        $steps = $response?->object()?->summary?->steps ?? 0;
+//
+//        $this->userFitbitStepRepository->storeOrUpdate(new UserFitbitStepDTO(
+//            user_id: $userId,
+//            date: $date,
+//            steps: $steps,
+//        ));
+    }
+
+    public function getUserRepos(int $userId)
+    {
+        $integration_token = $this->repository->findByUserIdAndType($userId, IntegrationEnum::GITHUB);
+
+        throw_if(!$integration_token, new InvalidStateException('Github integration token not found for user ID: ' . $userId));
+
+        $auth = AccessTokenAuthenticator::unserialize($integration_token->serialized);
+
+        $this->connector->authenticate($auth);
+        $response = $this->connector->send(new GetUserRepos('furqatmashrabjonov'));
+
+        throw_if(isset($response?->error));
+
+        dd(json_encode($response->json()));
     }
 }

@@ -2,8 +2,6 @@
 
 namespace App\Dtos;
 
-use App\Enums\IntegrationEnum;
-
 class FitbitAccountDTO extends BaseDto
 {
     public function __construct(

@@ -14,7 +14,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
 
-Route::prefix('integrations')->as('integrations.')->group(function () {
+Route::middleware(['auth'])
+    ->prefix('integrations')->as('integrations.')->group(function () {
     require __DIR__.'/integrations.php';
 });
 

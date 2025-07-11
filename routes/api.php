@@ -40,16 +40,3 @@ Route::any('github/callback', function (Request $request) {
 Route::any('wakatime', function (Request $request) {
     Log::info('wakatime', $request->all());
 });
-
-
-//Route::get('/fitbit/redirect', function () {
-//    return redirect(app(FitbitServiceInterface::class)->getRedirectUrl());
-//});
-//
-//Route::any('fitbit/callback', function (Request $request) {
-//    $connector = new \App\Http\Integrations\Fitbit\FitbitConnector();
-//    $authenticator = $connector->getAccessToken($request->code);
-//    $connector->authenticate($authenticator);
-//
-//    dd($connector->getUser($authenticator)->body());
-//});

@@ -97,12 +97,13 @@ class FitbitService implements FitbitServiceInterface
     {
         try {
             $authenticator = $this->connector->getAccessToken($request->input('code', ''));
+
             $this->storeToken(new IntegrationTokenDTO(
-                user_id: auth()->id(),
+                user_id: auth()->id() ?? 1,
+                integration: IntegrationEnum::FITBIT,
                 access_token: $authenticator->getAccessToken(),
                 refresh_token: $authenticator->getRefreshToken(),
                 expires_at: $authenticator->getExpiresAt()->format('Y-m-d H:i:s'),
-                integration: IntegrationEnum::FITBIT,
                 serialized: $authenticator->serialize(),
             ));
 

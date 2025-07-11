@@ -5,10 +5,8 @@ namespace App\Console\Commands\Fitbit;
 use App\Enums\IntegrationEnum;
 use App\Jobs\UserFitbitStepGetter;
 use App\Models\User;
-use App\Services\Integrations\Services\Integrations\Contracts\FitbitServiceInterface;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Number;
 
 class GetUserStepsCommand extends Command
 {
@@ -36,7 +34,9 @@ class GetUserStepsCommand extends Command
      */
     public function handle()
     {
-        $users = User::query()->whereHas('integrationTokens', function ($query) {
+        $users = User::query()
+            ->select('id', 'name', 'email')
+            ->whereHas('integrationTokens', function ($query) {
             $query->where('integration', '=', IntegrationEnum::FITBIT);
         })->get();
 
