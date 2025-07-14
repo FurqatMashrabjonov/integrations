@@ -1,7 +1,15 @@
-import { ExampleChart } from '@/components/example-chart';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, SharedData } from '@/types';
 import { Head, usePage } from '@inertiajs/react';
+import {
+    Drawer,
+    DrawerContent,
+    DrawerDescription,
+    DrawerHeader,
+    DrawerTitle,
+    DrawerTrigger
+} from '@/components/ui/drawer';
+import { StepChart } from '@/components/step-chart';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {

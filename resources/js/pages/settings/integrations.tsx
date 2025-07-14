@@ -72,9 +72,9 @@ export default function Integrations() {
                         {/* Fitbit */}
                         <div
                             onClick={() => {
-                                if (!isIntegrated('fitbit')) {
-                                    window.location.href = route('integrations.github.redirect');
-                                }
+                                // if (!isIntegrated('fitbit')) {
+                                    window.location.href = route('integrations.fitbit.redirect');
+                                // }
                             }}
                             className="hover:bg-muted/50 flex cursor-pointer items-center space-x-4 px-4 py-3 transition"
                         >
