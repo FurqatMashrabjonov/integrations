@@ -18,7 +18,6 @@ test('can get user recent submissions', function () {
 
     $submissions = $service->getUserRecentSubmissions('furqatmashrabjonov');
 
-
     expect($submissions)->toBeInstanceOf(Collection::class)
         ->and($submissions->first())->toHaveKeys(['title', 'title_slug', 'status_display', 'date'])
         ->and(fn () => $service->getUserRecentSubmissions('wrong_username_that_does_not_exist'))

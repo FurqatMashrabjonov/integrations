@@ -2,9 +2,8 @@
 
 namespace App\Services\Integrations\Services\Integrations\Contracts;
 
-use App\Dtos\BaseDto;
-use App\Dtos\IntegrationTokenDTO;
 use Illuminate\Http\Request;
+use App\Dtos\IntegrationTokenDTO;
 
 interface FitbitServiceInterface extends IntegrationInterface
 {

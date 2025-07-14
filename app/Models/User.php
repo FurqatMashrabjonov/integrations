@@ -108,13 +108,11 @@ class User extends Authenticatable
 
     public function getIntegrationsAttribute(): array
     {
-        /* @var Collection<int, IntegrationToken> $integrations */
+        /** @var Collection<int, IntegrationToken> $integrations */
         $integrations = $this->integrationTokens()->get();
-        $keys         = [];
-        $integrations->each(function ($item) use (&$keys) {
-            $keys[] = $item->integration->value;
-        });
 
-        return $keys;
+        return $integrations->map(function (IntegrationToken $item) {
+            return $item->integration->value;
+        })->toArray();
     }
 }

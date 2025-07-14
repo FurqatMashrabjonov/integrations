@@ -2,8 +2,8 @@
 
 namespace App\Services\Integrations\Services\Integrations\Contracts;
 
-use App\Http\Integrations\Leetcode\Dtos\UserProfileData;
 use Illuminate\Support\Collection;
+use App\Http\Integrations\Leetcode\Dtos\UserProfileData;
 
 interface LeetcodeServiceInterface extends IntegrationInterface
 {

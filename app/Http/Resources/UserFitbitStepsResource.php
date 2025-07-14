@@ -2,8 +2,8 @@
 
 namespace App\Http\Resources;
 
-use App\Models\UserFitbitStep;
 use Illuminate\Http\Request;
+use App\Models\UserFitbitStep;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class UserFitbitStepsResource extends JsonResource
