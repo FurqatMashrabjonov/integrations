@@ -2,11 +2,10 @@
 
 namespace App\Providers;
 
-use App\Services\Integrations\Services\Integrations\Contracts\WakapiServiceInterface;
-use App\Services\Integrations\WakapiService;
 use Illuminate\Support\ServiceProvider;
 use App\Services\Integrations\FitbitService;
 use App\Services\Integrations\GithubService;
+use App\Services\Integrations\WakapiService;
 use App\Repositories\FitbitAccountRepository;
 use App\Repositories\UserFitbitStepRepository;
 use App\Services\Integrations\LeetcodeService;
@@ -16,6 +15,7 @@ use App\Repositories\Contracts\UserFitbitStepRepositoryInterface;
 use App\Repositories\Contracts\IntegrationTokenRepositoryInterface;
 use App\Services\Integrations\Services\Integrations\Contracts\FitbitServiceInterface;
 use App\Services\Integrations\Services\Integrations\Contracts\GithubServiceInterface;
+use App\Services\Integrations\Services\Integrations\Contracts\WakapiServiceInterface;
 use App\Services\Integrations\Services\Integrations\Contracts\LeetcodeServiceInterface;
 
 class AppServiceProvider extends ServiceProvider

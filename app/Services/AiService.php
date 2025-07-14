@@ -17,6 +17,6 @@ class AiService
 
     public function text(string $prompt)
     {
-        return $this->provider->withPrompt($prompt)->asText()?->text ?? '';
+        return $this->provider->withPrompt($prompt)->asText()->text ?? '';
     }
 }

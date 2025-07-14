@@ -69,9 +69,9 @@ class FitbitService implements FitbitServiceInterface
         $this->connector->authenticate($auth);
         $response = $this->connector->send(new GetUserStepsRequest($date));
 
-        throw_if(isset($response?->error));
+        throw_if(isset($response->error));
 
-        $steps = $response?->object()?->summary?->steps ?? 0;
+        $steps = $response?->object()?->summary->steps ?? 0;
 
         $this->userFitbitStepRepository->storeOrUpdate(new UserFitbitStepDTO(
             user_id: $userId,
@@ -121,9 +121,9 @@ class FitbitService implements FitbitServiceInterface
 
         $this->fitbitAccountRepository->storeOrUpdate(new FitbitAccountDTO(
             user_id: auth()->id(),
-            display_name: $user?->displayName ?? '',
-            full_name: $user?->fullName ?? '',
-            avatar: $user?->avatar ?? ''
+            display_name: $user->displayName ?? '',
+            full_name: $user->fullName ?? '',
+            avatar: $user->avatar ?? ''
         ));
     }
 }

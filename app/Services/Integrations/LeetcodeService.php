@@ -3,7 +3,6 @@
 namespace App\Services\Integrations;
 
 use App\Dtos\BaseDto;
-use Illuminate\Support\Carbon;
 use Saloon\Http\Request;
 use Illuminate\Support\Collection;
 use Saloon\Exceptions\Request\RequestException;
@@ -39,9 +38,9 @@ class LeetcodeService implements LeetcodeServiceInterface
             user_avatar: $user?->profile?->userAvatar,
             ranking: $user?->profile?->ranking,
             badges: (array) $user?->badges,
-            ac_submission_num_easy: $ac_submissions->where('difficulty', 'Easy')->first()?->count ?? 0,
-            ac_submission_num_medium: $ac_submissions->where('difficulty', 'Medium')->first()?->count ?? 0,
-            ac_submission_num_hard: $ac_submissions->where('difficulty', 'Hard')->first()?->count ?? 0,
+            ac_submission_num_easy: $ac_submissions->where('difficulty', 'Easy')->first()->count ?? 0,
+            ac_submission_num_medium: $ac_submissions->where('difficulty', 'Medium')->first()->count ?? 0,
+            ac_submission_num_hard: $ac_submissions->where('difficulty', 'Hard')->first()->count ?? 0,
         );
     }
 
@@ -51,7 +50,7 @@ class LeetcodeService implements LeetcodeServiceInterface
 
         throw_if(!$user, new \Exception('User not found'));
 
-        $submissions = collect($user?->recentAcSubmissionList ?? [])
+        return collect($user->recentAcSubmissionList ?? [])
             ->when($date, function ($query) use ($date) {
                 return $query->filter(fn ($sub) => $sub->timestamp && date('Y-m-d', $sub->timestamp) === $date);
             })
@@ -61,8 +60,6 @@ class LeetcodeService implements LeetcodeServiceInterface
                 'status_display' => $sub->statusDisplay,
                 'timestamp'      => $sub->timestamp ? date('Y-m-d H:i:s', $sub->timestamp) : null,
             ]);
-
-        return $submissions;
     }
 
     /**

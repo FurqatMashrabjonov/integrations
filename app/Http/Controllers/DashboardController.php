@@ -25,7 +25,7 @@ class DashboardController extends Controller
 
         return Inertia::render('dashboard', [
             'steps'          => UserFitbitStepsResource::collection($steps)->resolve(),
-            'steps_of_today' => number_format(UserFitbitStep::query()->where('user_id', auth()->id())->where('date', Carbon::today()->format('Y-m-d'))->first()?->steps ?? 0),
+            'steps_of_today' => number_format(UserFitbitStep::query()->where('user_id', auth()->id())->where('date', Carbon::today()->format('Y-m-d'))->first()->steps ?? 0),
         ]);
     }
 }

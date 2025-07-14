@@ -5,6 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property-read User|null $user
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Wakapi newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Wakapi newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Wakapi query()
+ *
+ * @mixin \Eloquent
+ */
 class Wakapi extends Model
 {
     protected $fillable = [

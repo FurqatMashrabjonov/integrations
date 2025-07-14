@@ -85,7 +85,7 @@ class GithubService implements GithubServiceInterface
         $this->connector->authenticate($auth);
         $response = $this->connector->send(new GetUserCommits('furqatmashrabjonov', 'mockapi'));
 
-        throw_if(isset($response?->error));
+        throw_if(isset($response->error));
 
         dd(json_encode($response->json()));
 
@@ -109,7 +109,7 @@ class GithubService implements GithubServiceInterface
         $this->connector->authenticate($auth);
         $response = $this->connector->send(new GetUserRepos('furqatmashrabjonov'));
 
-        throw_if(isset($response?->error));
+        throw_if(isset($response->error));
 
         dd(json_encode($response->json()));
     }

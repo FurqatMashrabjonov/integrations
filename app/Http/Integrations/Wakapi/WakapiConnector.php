@@ -24,7 +24,7 @@ class WakapiConnector extends Connector
     {
         return [
             'Content-Type' => 'application/json',
-            'Accept' => 'application/json',
+            'Accept'       => 'application/json',
         ];
     }
 }

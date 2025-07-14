@@ -25,4 +25,3 @@ class GetDailyActivities extends Request
         return '/compat/wakatime/v1/users/' . $this->username . '/stats/' . $this->range;
     }
 }
-
