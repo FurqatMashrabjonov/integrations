@@ -7,6 +7,48 @@ import AppLayout from '@/layouts/app-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 import { Check, ChevronRight, TimerIcon } from 'lucide-react';
 import { Appearance } from '@/hooks/use-appearance';
+import {
+    Drawer,
+    DrawerClose,
+    DrawerContent,
+    DrawerDescription,
+    DrawerFooter,
+    DrawerHeader,
+    DrawerTitle, DrawerTrigger
+} from '@/components/ui/drawer';
+import { Button } from '@/components/ui/button';
+import Markdown from 'react-markdown';
+
+const markdown = '# 🧠 LeetCode — Dasturchilar Uchun Algoritmik O‘yingoh\n' +
+    '\n' +
+    '![LeetCode Logo](https://leetcode.com/static/images/LeetCode_logo_rvs.png)\n' +
+    '\n' +
+    '> **“Practice makes perfect.”** — LeetCode shiori\n' +
+    '\n' +
+    '---\n' +
+    '\n' +
+    '## 📌 Nima bu LeetCode?\n' +
+    '\n' +
+    '**LeetCode** — bu onlayn platforma bo‘lib, u algoritmik masalalar, texnik intervyularga tayyorgarlik, va kod yozish ko‘nikmalarini oshirish uchun mo‘ljallangan.\n' +
+    '\n' +
+    '### 🎯 Asosiy xususiyatlari:\n' +
+    '\n' +
+    '- 2800+ dan ortiq masalalar\n' +
+    '- 14+ dasturlash tillarida yechim yozish imkoniyati\n' +
+    '- Real kompaniyalar (Google, Meta, Amazon) intervyu savollari\n' +
+    '- Har kuni yangi *“Daily Challenge”*\n' +
+    '- **Discussion**, **Contest** va **Explore** bo‘limlari\n' +
+    '\n' +
+    '---\n' +
+    '\n' +
+    '## 🛠 Platforma bo‘limlari\n' +
+    '\n' +
+    '### 📚 Masalalar\n' +
+    '\n' +
+    '```text\n' +
+    'Kategoriya: Array, Graph, DP, Binary Tree, HashMap va h.k.\n' +
+    'Daraja: Easy, Medium, Hard\n'
+
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -72,9 +114,9 @@ export default function Integrations() {
                         {/* Fitbit */}
                         <div
                             onClick={() => {
-                                if (!isIntegrated('fitbit')) {
-                                    window.location.href = route('integrations.github.redirect');
-                                }
+                                // if (!isIntegrated('fitbit')) {
+                                    window.location.href = route('integrations.fitbit.redirect');
+                                // }
                             }}
                             className="hover:bg-muted/50 flex cursor-pointer items-center space-x-4 px-4 py-3 transition"
                         >
@@ -97,12 +139,38 @@ export default function Integrations() {
                         </div>
 
                         {/* Leetcode */}
+
+                        <Drawer>
+                            <DrawerTrigger>Open</DrawerTrigger>
+                            <DrawerContent className="flex flex-col h-[90vh]"> {/* Important! */}
+                                <div className="sticky top-0 z-10 bg-background">
+                                    <DrawerHeader>
+                                        <DrawerTitle>
+                                            <Markdown>
+                                                {markdown}
+                                            </Markdown>
+                                        </DrawerTitle>
+                                        <DrawerDescription>This action cannot be undone.</DrawerDescription>
+                                    </DrawerHeader>
+                                </div>
+
+                                {/* Scrollable content */}
+                                <div className="overflow-y-auto px-4 py-2 flex-1">
+                                    {/* Your scrollable content here */}
+                                    <p>Bu yerda markdown content juda uzun bo‘lsa, scroll ishlaydi</p>
+                                    {/* qo‘shimcha content */}
+                                </div>
+
+                                <DrawerFooter className="bg-background sticky bottom-0 z-10">
+                                    <Button>Submit</Button>
+                                    <DrawerClose>
+                                        <Button variant="outline">Cancel</Button>
+                                    </DrawerClose>
+                                </DrawerFooter>
+                            </DrawerContent>
+                        </Drawer>
+
                         <div
-                            onClick={() => {
-                                if (!isIntegrated('leetcode')) {
-                                    window.location.href = route('integrations.github.redirect');
-                                }
-                            }}
                             className="hover:bg-muted/50 flex cursor-pointer items-center space-x-4 px-4 py-3 transition"
                         >
                             <div className="bg-muted flex h-10 w-10 items-center justify-center rounded-md">

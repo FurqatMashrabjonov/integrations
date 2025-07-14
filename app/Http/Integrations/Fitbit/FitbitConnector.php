@@ -2,16 +2,16 @@
 
 namespace App\Http\Integrations\Fitbit;
 
-use Saloon\Helpers\OAuth2\OAuthConfig;
-use Saloon\Http\Connector;
 use Saloon\Http\Request;
-use Saloon\Traits\OAuth2\AuthorizationCodeGrant;
+use Saloon\Http\Connector;
+use Saloon\Helpers\OAuth2\OAuthConfig;
 use Saloon\Traits\Plugins\AcceptsJson;
+use Saloon\Traits\OAuth2\AuthorizationCodeGrant;
 
 class FitbitConnector extends Connector
 {
-    use AuthorizationCodeGrant;
     use AcceptsJson;
+    use AuthorizationCodeGrant;
 
     /**
      * The Base URL of the API.
@@ -45,6 +45,5 @@ class FitbitConnector extends Connector
                     'Accept'        => 'application/json',
                 ]);
             });
-
     }
 }

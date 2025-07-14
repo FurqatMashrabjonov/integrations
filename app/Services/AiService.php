@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use Prism\Prism\Enums\Provider;
 use Prism\Prism\Prism;
+use Prism\Prism\Enums\Provider;
 
 class AiService
 {
@@ -17,6 +17,6 @@ class AiService
 
     public function text(string $prompt)
     {
-        return $this->provider->withPrompt($prompt)->asText()?->text ?? '';
+        return $this->provider->withPrompt($prompt)->asText()->text ?? '';
     }
 }

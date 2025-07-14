@@ -1,16 +1,14 @@
-import { ExampleChart } from '@/components/example-chart';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, SharedData } from '@/types';
 import { Head, usePage } from '@inertiajs/react';
 import {
-    Drawer, DrawerClose,
+    Drawer,
     DrawerContent,
-    DrawerDescription, DrawerFooter,
+    DrawerDescription,
     DrawerHeader,
     DrawerTitle,
     DrawerTrigger
 } from '@/components/ui/drawer';
-import { Button } from '@/components/ui/button';
 import { StepChart } from '@/components/step-chart';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -40,8 +38,9 @@ export default function Dashboard() {
                             <div className="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
                                 <div className="flex items-center justify-center py-12">
                                     <div className="text-center space-y-4">
-                                        <div className="text-5xl font-bold text-foreground">{ String(steps_of_today) }</div>
-                                        <p className="text-muted-foreground">Qadamlar soni</p>
+                                        <img src="/assets/images/shoe.png" alt="Qadamlar soni" loading="lazy" width={60} className="text-sm"/>
+                                        <div className="text-4xl font-bold text-foreground">{ String(steps_of_today) }</div>
+                                        <p className="text-muted-foreground">Qadamlar</p>
                                     </div>
                                 </div>
                             </div>
@@ -58,6 +57,7 @@ export default function Dashboard() {
                     </Drawer>
 
                 </div>
+
             </div>
         </AppLayout>
     );

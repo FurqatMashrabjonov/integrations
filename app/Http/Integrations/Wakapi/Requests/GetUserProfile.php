@@ -7,10 +7,7 @@ use Saloon\Http\Request;
 
 class GetUserProfile extends Request
 {
-    public function __construct(protected readonly string $username)
-    {
-    }
-
+    public function __construct(protected readonly string $username) {}
 
     /**
      * The HTTP method of the request

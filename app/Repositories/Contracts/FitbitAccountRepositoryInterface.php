@@ -2,7 +2,6 @@
 
 namespace App\Repositories\Contracts;
 
-use App\Dtos\BaseDto;
 use App\Dtos\FitbitAccountDTO;
 
 interface FitbitAccountRepositoryInterface

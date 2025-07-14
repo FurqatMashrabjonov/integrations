@@ -2,16 +2,14 @@
 
 namespace App\Repositories;
 
-use App\Dtos\IntegrationTokenDTO;
 use App\Enums\IntegrationEnum;
 use App\Models\IntegrationToken;
+use App\Dtos\IntegrationTokenDTO;
 use App\Repositories\Contracts\IntegrationTokenRepositoryInterface;
 
 class IntegrationTokenRepository implements IntegrationTokenRepositoryInterface
 {
-    public function __construct(protected IntegrationToken $model)
-    {
-    }
+    public function __construct(protected IntegrationToken $model) {}
 
     public function findByUserIdAndType(int $userId, IntegrationEnum $type)
     {
@@ -23,13 +21,13 @@ class IntegrationTokenRepository implements IntegrationTokenRepositoryInterface
     public function storeOrUpdate(IntegrationTokenDTO $dto): void
     {
         $this->model->newQuery()->updateOrCreate([
-            'user_id' => $dto->user_id,
+            'user_id'     => $dto->user_id,
             'integration' => $dto->integration,
         ], [
-            'access_token' => $dto->access_token,
+            'access_token'  => $dto->access_token,
             'refresh_token' => $dto->refresh_token,
-            'expires_at' => $dto->expires_at,
-            'serialized' => $dto->serialized,
+            'expires_at'    => $dto->expires_at,
+            'serialized'    => $dto->serialized,
         ]);
     }
 

@@ -2,33 +2,26 @@
 
 namespace App\Repositories;
 
-use App\Dtos\IntegrationTokenDTO;
-use App\Dtos\UserFitbitStepDTO;
-use App\Enums\IntegrationEnum;
-use App\Models\IntegrationToken;
 use App\Models\UserFitbitStep;
-use App\Repositories\Contracts\IntegrationTokenRepositoryInterface;
+use App\Dtos\UserFitbitStepDTO;
 use App\Repositories\Contracts\UserFitbitStepRepositoryInterface;
 
 class UserFitbitStepRepository implements UserFitbitStepRepositoryInterface
 {
-    public function __construct(protected UserFitbitStep $model)
-    {
-    }
-
+    public function __construct(protected UserFitbitStep $model) {}
 
     public function storeOrUpdate(UserFitbitStepDTO $dto): void
     {
-       $this->model->newQuery()
-           ->updateOrCreate(
-               [
-                   'user_id' => $dto->user_id,
-                   'date' => $dto->date,
-               ],
-               [
-                   'steps' => $dto->steps,
-               ]
-           );
+        $this->model->newQuery()
+            ->updateOrCreate(
+                [
+                    'user_id' => $dto->user_id,
+                    'date'    => $dto->date,
+                ],
+                [
+                    'steps' => $dto->steps,
+                ]
+            );
     }
 
     public function delete(int $userId, ?string $date = null): void

@@ -24,8 +24,8 @@ class LeetcodeConnector extends Connector
     {
         return [
             'Content-Type' => 'application/json',
-            'Accept' => 'application/json',
-            'Referer' => 'https://leetcode.com',
+            'Accept'       => 'application/json',
+            'Referer'      => 'https://leetcode.com',
         ];
     }
 

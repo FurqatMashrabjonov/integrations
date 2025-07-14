@@ -2,11 +2,11 @@
 
 namespace App\Http\Integrations\Leetcode\Requests;
 
-use App\Http\Integrations\Leetcode\GraphqlQueries\QueryBag;
 use Saloon\Enums\Method;
 use Saloon\Http\Request;
 use Saloon\Contracts\Body\HasBody;
 use Saloon\Traits\Body\HasJsonBody;
+use App\Http\Integrations\Leetcode\GraphqlQueries\QueryBag;
 
 class GetUserProfile extends Request implements HasBody
 {
@@ -38,10 +38,10 @@ class GetUserProfile extends Request implements HasBody
     protected function defaultBody(): array
     {
         return [
-            'query' => QueryBag::getUserProfile(),
+            'query'     => QueryBag::getUserProfile(),
             'variables' => [
                 'username' => $this->username,
-                'limit' => 1,
+                'limit'    => 1,
             ],
         ];
     }

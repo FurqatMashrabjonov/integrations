@@ -19,7 +19,7 @@ return [
     ],
 
     'ses' => [
-        'key' => env('AWS_ACCESS_KEY_ID'),
+        'key'    => env('AWS_ACCESS_KEY_ID'),
         'secret' => env('AWS_SECRET_ACCESS_KEY'),
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
@@ -31,25 +31,25 @@ return [
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),
-            'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
+            'channel'              => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
 
     'github' => [
-        'client_id' => env('GITHUB_CLIENT_ID'),
+        'client_id'     => env('GITHUB_CLIENT_ID'),
         'client_secret' => env('GITHUB_CLIENT_SECRET'),
-        'redirect_uri' => env('GITHUB_REDIRECT_URI'),
-        'scopes' => ['read:user', 'repo'],
+        'redirect_uri'  => env('GITHUB_REDIRECT_URI'),
+        'scopes'        => ['read:user', 'repo'],
         'authorize_url' => env('GITHUB_AUTHORIZE_URL'),
-        'token_url' => env('GITHUB_TOKEN_URL'),
+        'token_url'     => env('GITHUB_TOKEN_URL'),
     ],
     'fitbit' => [
-        'client_id' => env('FITBIT_CLIENT_ID'),
+        'client_id'     => env('FITBIT_CLIENT_ID'),
         'client_secret' => env('FITBIT_CLIENT_SECRET'),
-        'redirect_uri' => env('FITBIT_REDIRECT_URI'),
-        'scopes' => ['activity', 'profile', 'heartrate', 'sleep', 'weight'],
+        'redirect_uri'  => env('FITBIT_REDIRECT_URI'),
+        'scopes'        => ['activity', 'profile'],
         'authorize_url' => env('FITBIT_AUTHORIZE_URL'),
-        'token_url' => env('FITBIT_TOKEN_URL'),
+        'token_url'     => env('FITBIT_TOKEN_URL'),
     ],
 
 ];

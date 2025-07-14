@@ -2,8 +2,6 @@
 
 namespace App\Repositories\Contracts;
 
-use App\Dtos\BaseDto;
-use App\Dtos\FitbitAccountDTO;
 use App\Dtos\UserFitbitStepDTO;
 
 interface UserFitbitStepRepositoryInterface
