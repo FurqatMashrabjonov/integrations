@@ -25,6 +25,7 @@ class User extends Authenticatable
         'password',
     ];
 
+    protected $appends = ['integrations'];
     protected $with = ['fitbit'];
 
     /**
@@ -63,5 +64,16 @@ class User extends Authenticatable
     public function integrationTokens(): HasMany
     {
         return $this->hasMany(IntegrationToken::class);
+    }
+
+    public function getIntegrationsAttribute()
+    {
+        $integrations = $this->integrationTokens()->get() ?? collect();
+        $keys = [];
+        $integrations->each(function ($item) use (&$keys){
+            $keys[] = $item->integration->value;
+        });
+
+        return $keys;
     }
 }

@@ -22,3 +22,7 @@ Route::middleware(['auth'])
 Route::get('reverb', function (){
     TestEvent::dispatch();
 });
+
+Route::get('telegram', function (\Illuminate\Http\Request $request) {
+    dd($request->all());
+})->name('telegram');
