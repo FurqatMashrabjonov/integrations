@@ -2,7 +2,6 @@
 
 namespace App\Services\Integrations;
 
-use App\Dtos\BaseDto;
 use Saloon\Http\Request;
 use Illuminate\Support\Collection;
 use Saloon\Exceptions\Request\RequestException;
@@ -24,11 +23,11 @@ class LeetcodeService implements LeetcodeServiceInterface
      * @throws \Exception
      * @throws \Throwable
      */
-    public function getUser(string $username): BaseDto
+    public function getUser(string $username): UserProfileData
     {
         $user = $this->send(new GetUserProfile($username))?->data?->matchedUser;
 
-        throw_if(!$user, new \Exception('User not found'));
+        throw_if(!$user, new \Exception('Leetcode servisida "' . $username . '" foydalanuvchi topilmadi'));
 
         $ac_submissions = collect($user->submitStatsGlobal?->acSubmissionNum);
 
@@ -44,11 +43,16 @@ class LeetcodeService implements LeetcodeServiceInterface
         );
     }
 
+    /**
+     * @throws \Throwable
+     * @throws FatalRequestException
+     * @throws RequestException
+     * @throws \JsonException
+     */
     public function getUserRecentSubmissions(string $username, ?string $date = null): Collection
     {
         $user = $this->send(new GetUserRecentSubmissions($username))?->data;
-
-        throw_if(!$user, new \Exception('User not found'));
+        throw_if(!$user?->matchedUser?->username, new \Exception('Leetcode servisida "' . $username . '" foydalanuvchi topilmadi'));
 
         return collect($user->recentAcSubmissionList ?? [])
             ->when($date, function ($query) use ($date) {
@@ -58,7 +62,7 @@ class LeetcodeService implements LeetcodeServiceInterface
                 'title'          => $sub->title,
                 'title_slug'     => $sub->titleSlug,
                 'status_display' => $sub->statusDisplay,
-                'timestamp'      => $sub->timestamp ? date('Y-m-d H:i:s', $sub->timestamp) : null,
+                'date'           => $sub->timestamp ? date('Y-m-d H:i:s', $sub->timestamp) : null,
             ]);
     }
 

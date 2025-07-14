@@ -2,43 +2,68 @@
 
 namespace App\Providers;
 
+use ReflectionClass;
+use FilesystemIterator;
+use RecursiveIteratorIterator;
+use RecursiveDirectoryIterator;
 use Illuminate\Support\ServiceProvider;
-use App\Services\Integrations\FitbitService;
-use App\Services\Integrations\GithubService;
-use App\Services\Integrations\WakapiService;
-use App\Repositories\FitbitAccountRepository;
-use App\Repositories\UserFitbitStepRepository;
-use App\Services\Integrations\LeetcodeService;
-use App\Repositories\IntegrationTokenRepository;
-use App\Repositories\Contracts\FitbitAccountRepositoryInterface;
-use App\Repositories\Contracts\UserFitbitStepRepositoryInterface;
-use App\Repositories\Contracts\IntegrationTokenRepositoryInterface;
-use App\Services\Integrations\Services\Integrations\Contracts\FitbitServiceInterface;
-use App\Services\Integrations\Services\Integrations\Contracts\GithubServiceInterface;
-use App\Services\Integrations\Services\Integrations\Contracts\WakapiServiceInterface;
-use App\Services\Integrations\Services\Integrations\Contracts\LeetcodeServiceInterface;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
-    public function register(): void
-    {
-        //
-    }
-
-    /**
-     * Bootstrap any application services.
-     */
     public function boot(): void
     {
-        $this->app->bind(GithubServiceInterface::class, GithubService::class);
-        $this->app->bind(LeetcodeServiceInterface::class, LeetcodeService::class);
-        $this->app->bind(FitbitServiceInterface::class, FitbitService::class);
-        $this->app->bind(WakapiServiceInterface::class, WakapiService::class);
-        $this->app->bind(IntegrationTokenRepositoryInterface::class, IntegrationTokenRepository::class);
-        $this->app->bind(FitbitAccountRepositoryInterface::class, FitbitAccountRepository::class);
-        $this->app->bind(UserFitbitStepRepositoryInterface::class, UserFitbitStepRepository::class);
+        $this->bindServicesAutomatically();
+    }
+
+    private function bindServicesAutomatically(): void
+    {
+        $servicesPath     = app_path('Services');
+        $serviceNamespace = 'App\\Services\\';
+
+        $this->bindClassesInDirectory($servicesPath, $serviceNamespace);
+    }
+
+    private function bindClassesInDirectory(string $directory, string $namespace): void
+    {
+        if (!is_dir($directory)) {
+            return;
+        }
+
+        $files = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($directory, FilesystemIterator::SKIP_DOTS)
+        );
+
+        foreach ($files as $file) {
+            if ($file->getExtension() !== 'php') {
+                continue;
+            }
+
+            $relativePath = substr($file->getPathname(), strlen($directory) + 1);
+            $className    = $namespace . str_replace(
+                ['/', '.php'],
+                ['\\', ''],
+                $relativePath
+            );
+
+            if (!class_exists($className)) {
+                continue;
+            }
+
+            $reflection = new ReflectionClass($className);
+
+            if ($reflection->isAbstract() || $reflection->isInterface()) {
+                continue;
+            }
+
+            $interfaces = $reflection->getInterfaces();
+
+            if (empty($interfaces)) {
+                $this->app->bind($className, $className);
+            } else {
+                foreach ($interfaces as $interface) {
+                    $this->app->bind($interface->getName(), $className);
+                }
+            }
+        }
     }
 }

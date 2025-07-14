@@ -10,17 +10,17 @@ const sidebarNavItems: NavItem[] = [
     {
         title: 'Profile',
         href: '/settings/profile',
-        icon: <User className="w-4 h-4 text-muted-foreground" />,
+        icon: User,
     },
     {
         title: 'Appearance',
         href: '/settings/appearance',
-        icon: <Brush className="w-4 h-4 text-muted-foreground" />,
+        icon: Brush,
     },
     {
         title: 'Integrations',
         href: '/settings/integrations',
-        icon: <Link2 className="w-4 h-4 text-muted-foreground" />,
+        icon: Link2,
     },
 ];
 
@@ -52,7 +52,7 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
                                     )}
                                 >
                                     <div className="flex items-center justify-center bg-muted rounded-md w-8 h-8">
-                                        {item.icon}
+                                        {item.icon && <item.icon className="w-4 h-4 text-muted-foreground" />}
                                     </div>
                                     <span className="flex-1 text-sm">{item.title}</span>
                                     <ChevronRight className="w-4 h-4 text-muted-foreground" />

@@ -26,6 +26,7 @@
         "tightenco/ziggy": "^2.4"
     },
     "require-dev": {
+        "aaronfrancis/solo": "^0.5.0",
         "barryvdh/laravel-ide-helper": "^3.5",
         "fakerphp/faker": "^1.23",
         "larastan/larastan": "^3.0",

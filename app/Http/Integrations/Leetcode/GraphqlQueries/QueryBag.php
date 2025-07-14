@@ -37,6 +37,9 @@ class QueryBag
     {
         return <<<'GRAPHQL'
             query getACSubmissions ($username: String!, $limit: Int) {
+             matchedUser(username: $username) {
+                    username
+                }
                 recentAcSubmissionList(username: $username, limit: $limit) {
                     title
                     titleSlug
