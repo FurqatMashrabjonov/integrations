@@ -2,8 +2,8 @@
 
 namespace App\Repositories\Contracts;
 
-use App\Dtos\IntegrationTokenDTO;
 use App\Enums\IntegrationEnum;
+use App\Dtos\IntegrationTokenDTO;
 
 interface IntegrationTokenRepositoryInterface
 {

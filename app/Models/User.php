@@ -3,11 +3,11 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable
 {
@@ -26,7 +26,7 @@ class User extends Authenticatable
     ];
 
     protected $appends = ['integrations'];
-    protected $with = ['fitbit'];
+    protected $with    = ['fitbit'];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -47,7 +47,7 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'password'          => 'hashed',
         ];
     }
 
@@ -69,8 +69,8 @@ class User extends Authenticatable
     public function getIntegrationsAttribute()
     {
         $integrations = $this->integrationTokens()->get() ?? collect();
-        $keys = [];
-        $integrations->each(function ($item) use (&$keys){
+        $keys         = [];
+        $integrations->each(function ($item) use (&$keys) {
             $keys[] = $item->integration->value;
         });
 

@@ -14,13 +14,13 @@ class IntegrationToken extends Model
         'refresh_token',
         'expires_at',
         'meta',
-        'serialized'
+        'serialized',
     ];
 
     protected $casts = [
-        'expires_at' => 'datetime',
-        'meta' => 'array',
-        'integration' => IntegrationEnum::class
+        'expires_at'  => 'datetime',
+        'meta'        => 'array',
+        'integration' => IntegrationEnum::class,
     ];
 
     public function user()

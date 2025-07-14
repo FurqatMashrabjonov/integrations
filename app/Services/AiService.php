@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use Prism\Prism\Enums\Provider;
 use Prism\Prism\Prism;
+use Prism\Prism\Enums\Provider;
 
 class AiService
 {

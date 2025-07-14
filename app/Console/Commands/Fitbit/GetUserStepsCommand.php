@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands\Fitbit;
 
-use App\Enums\IntegrationEnum;
-use App\Jobs\UserFitbitStepGetter;
 use App\Models\User;
-use Illuminate\Console\Command;
+use App\Enums\IntegrationEnum;
 use Illuminate\Support\Carbon;
+use Illuminate\Console\Command;
+use App\Jobs\UserFitbitStepGetter;
 
 class GetUserStepsCommand extends Command
 {
@@ -37,13 +37,13 @@ class GetUserStepsCommand extends Command
         $users = User::query()
             ->select('id', 'name', 'email')
             ->whereHas('integrationTokens', function ($query) {
-            $query->where('integration', '=', IntegrationEnum::FITBIT);
-        })->get();
+                $query->where('integration', '=', IntegrationEnum::FITBIT);
+            })->get();
 
         foreach ($users as $user) {
             try {
                 $startDate = Carbon::now()->subMonths(3)->format('Y-m-d');
-                $endDate = Carbon::now()->format('Y-m-d');
+                $endDate   = Carbon::now()->format('Y-m-d');
 
                 foreach (Carbon::parse($startDate)->daysUntil($endDate) as $date) {
                     UserFitbitStepGetter::dispatch($user->id, $date->format('Y-m-d'));

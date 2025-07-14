@@ -5,17 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class FitbitAccount extends Model
+class Wakapi extends Model
 {
     protected $fillable = [
         'user_id',
-        'display_name',
-        'full_name',
-        'avatar',
+        'api_key',
     ];
 
     /**
-     * Get the user that owns the Fitbit account.
+     * Get the user that owns the Wakapi account.
      */
     public function user(): BelongsTo
     {

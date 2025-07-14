@@ -9,10 +9,8 @@ class UserRecentSubmissionData extends BaseDto
     public function __construct(
         public string $title,
         public string $title_slug,
-        public int    $timestamp,
+        public int $timestamp,
         public string $status_display,
         public string $lang,
-    )
-    {
-    }
+    ) {}
 }

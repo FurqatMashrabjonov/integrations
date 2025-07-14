@@ -2,15 +2,13 @@
 
 namespace App\Http\Controllers\Api\Integrations;
 
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Services\Integrations\Services\Integrations\Contracts\FitbitServiceInterface;
-use Illuminate\Http\Request;
 
 class FitbitController extends Controller
 {
-    public function __construct(private readonly FitbitServiceInterface $service)
-    {
-    }
+    public function __construct(private readonly FitbitServiceInterface $service) {}
 
     public function redirect()
     {

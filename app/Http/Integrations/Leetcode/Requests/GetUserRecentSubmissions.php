@@ -2,11 +2,11 @@
 
 namespace App\Http\Integrations\Leetcode\Requests;
 
-use App\Http\Integrations\Leetcode\GraphqlQueries\QueryBag;
-use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method;
 use Saloon\Http\Request;
+use Saloon\Contracts\Body\HasBody;
 use Saloon\Traits\Body\HasJsonBody;
+use App\Http\Integrations\Leetcode\GraphqlQueries\QueryBag;
 
 class GetUserRecentSubmissions extends Request implements HasBody
 {
@@ -24,7 +24,6 @@ class GetUserRecentSubmissions extends Request implements HasBody
         protected int $limit = 20,
     ) {}
 
-
     /**
      * The endpoint for the request
      */
@@ -36,10 +35,10 @@ class GetUserRecentSubmissions extends Request implements HasBody
     protected function defaultBody(): array
     {
         return [
-            'query' => QueryBag::getUserRecentSubmissions(),
+            'query'     => QueryBag::getUserRecentSubmissions(),
             'variables' => [
                 'username' => $this->username,
-                'limit' => $this->limit,
+                'limit'    => $this->limit,
             ],
         ];
     }

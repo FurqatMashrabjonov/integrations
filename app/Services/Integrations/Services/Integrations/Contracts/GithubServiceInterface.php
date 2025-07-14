@@ -2,7 +2,4 @@
 
 namespace App\Services\Integrations\Services\Integrations\Contracts;
 
-interface GithubServiceInterface extends IntegrationInterface
-{
-
-}
+interface GithubServiceInterface extends IntegrationInterface {}

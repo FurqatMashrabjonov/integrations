@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands\Github;
 
-use App\Services\Integrations\Services\Integrations\Contracts\GithubServiceInterface;
 use Illuminate\Console\Command;
+use App\Services\Integrations\Services\Integrations\Contracts\GithubServiceInterface;
 
 class GetUserCommitsCommand extends Command
 {
@@ -26,7 +26,7 @@ class GetUserCommitsCommand extends Command
      */
     public function handle()
     {
-//        app(GithubServiceInterface::class)->getActivitiesAndStore(8);
+        //        app(GithubServiceInterface::class)->getActivitiesAndStore(8);
         app(GithubServiceInterface::class)->getUserRepos(8);
     }
 }

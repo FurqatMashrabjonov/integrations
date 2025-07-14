@@ -28,7 +28,7 @@ class GetUserCommits extends Request
     public function __construct(string $owner, string $repo)
     {
         $this->owner = $owner;
-        $this->repo = $repo;
+        $this->repo  = $repo;
     }
 
     /**

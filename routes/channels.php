@@ -2,6 +2,6 @@
 
 use Illuminate\Support\Facades\Broadcast;
 
-//Broadcast::channel('test', function () {
+// Broadcast::channel('test', function () {
 //    return true;
-//});
+// });

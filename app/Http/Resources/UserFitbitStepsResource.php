@@ -15,9 +15,9 @@ class UserFitbitStepsResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'steps' => $this->steps,
+            'steps'           => $this->steps,
             'steps_formatted' => number_format($this->steps),
-            'date' => $this->date,
+            'date'            => $this->date,
         ];
     }
 }

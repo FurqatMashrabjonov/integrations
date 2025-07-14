@@ -2,9 +2,9 @@
 
 namespace App\Jobs;
 
-use App\Services\Integrations\Services\Integrations\Contracts\FitbitServiceInterface;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use App\Services\Integrations\Services\Integrations\Contracts\FitbitServiceInterface;
 
 class UserFitbitStepGetter implements ShouldQueue
 {

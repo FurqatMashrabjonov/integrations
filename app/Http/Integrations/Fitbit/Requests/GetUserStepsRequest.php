@@ -7,9 +7,7 @@ use Saloon\Http\Request;
 
 class GetUserStepsRequest extends Request
 {
-    public function __construct(public string $date)
-    {
-    }
+    public function __construct(public string $date) {}
 
     /**
      * The HTTP method of the request
@@ -21,6 +19,6 @@ class GetUserStepsRequest extends Request
      */
     public function resolveEndpoint(): string
     {
-        return '/user/-/activities/date/'. $this->date .'.json';
+        return '/user/-/activities/date/' . $this->date . '.json';
     }
 }

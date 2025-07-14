@@ -2,15 +2,13 @@
 
 namespace App\Repositories;
 
-use App\Dtos\FitbitAccountDTO;
 use App\Models\FitbitAccount;
+use App\Dtos\FitbitAccountDTO;
 use App\Repositories\Contracts\FitbitAccountRepositoryInterface;
 
 class FitbitAccountRepository implements FitbitAccountRepositoryInterface
 {
-    public function __construct(protected FitbitAccount $model)
-    {
-    }
+    public function __construct(protected FitbitAccount $model) {}
 
     public function findByUserId(int $userId)
     {
@@ -23,8 +21,8 @@ class FitbitAccountRepository implements FitbitAccountRepositoryInterface
             'user_id' => $dto->user_id,
         ], [
             'display_name' => $dto->display_name,
-            'full_name' => $dto->full_name,
-            'avatar' => $dto->avatar,
+            'full_name'    => $dto->full_name,
+            'avatar'       => $dto->avatar,
         ]);
     }
 

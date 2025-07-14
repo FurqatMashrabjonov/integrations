@@ -30,6 +30,6 @@ class GetUserRepos extends Request
      */
     public function resolveEndpoint(): string
     {
-        return "/user/repos?per_page=10";
+        return '/user/repos?per_page=10';
     }
 }
