@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
-use Database\Factories\UserFactory;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
+use Database\Factories\UserFactory;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -98,6 +98,9 @@ class User extends Authenticatable
         return $this->hasMany(UserFitbitStep::class);
     }
 
+    /**
+     * @property IntegrationToken $integration
+     */
     public function integrationTokens(): HasMany
     {
         return $this->hasMany(IntegrationToken::class);
@@ -105,6 +108,7 @@ class User extends Authenticatable
 
     public function getIntegrationsAttribute(): array
     {
+        /* @var Collection<int, IntegrationToken> $integrations */
         $integrations = $this->integrationTokens()->get();
         $keys         = [];
         $integrations->each(function ($item) use (&$keys) {

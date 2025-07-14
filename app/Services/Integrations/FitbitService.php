@@ -37,7 +37,7 @@ class FitbitService implements FitbitServiceInterface
         return new BaseDto;
     }
 
-    public function storeToken(IntegrationTokenDTO|BaseDto $dto): void
+    public function storeToken(IntegrationTokenDTO $dto): void
     {
         $this->repository->storeOrUpdate($dto);
     }
