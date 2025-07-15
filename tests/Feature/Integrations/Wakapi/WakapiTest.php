@@ -20,11 +20,13 @@ test('can get user profile', function () {
 })->skip(env('CI') ?? false, 'Skipped in CI')
     ->expect(true)->toBeTrue();
 
-// test('can get user activities', function () {
-//    $service = app(WakapiServiceInterface::class);
-//    $service->setToken(config('services.wakapi.token'));
-//
-//    $activities = $service->getDailyActivities();
-//
-//    dd($activities);
-// });
+test('can get user activities', function () {
+    $service = app(WakapiServiceInterface::class);
+    $service->setToken(config('services.wakapi.token'));
+
+    $activities = $service->getDailyActivities();
+
+    expect($activities)->toBeInstanceOf(App\Http\Integrations\Wakapi\Dtos\UserActivities::class)
+        ->and($activities->username)->toBe('furqatmashrabjonov');
+})->skip(env('CI') ?? false, 'Skipped in CI')
+    ->expect(true)->toBeTrue();
