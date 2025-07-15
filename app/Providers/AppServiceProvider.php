@@ -13,6 +13,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->bindServicesAutomatically();
+        $this->bindRepositoriesAutomatically(); // 🔁 NEW
     }
 
     private function bindServicesAutomatically(): void
@@ -21,6 +22,14 @@ class AppServiceProvider extends ServiceProvider
         $serviceNamespace = 'App\\Services\\';
 
         $this->bindClassesInDirectory($servicesPath, $serviceNamespace);
+    }
+
+    private function bindRepositoriesAutomatically(): void
+    {
+        $repositoriesPath     = app_path('Repositories');
+        $repositoryNamespace  = 'App\\Repositories\\';
+
+        $this->bindClassesInDirectory($repositoriesPath, $repositoryNamespace);
     }
 
     private function bindClassesInDirectory(string $directory, string $namespace): void
@@ -39,11 +48,7 @@ class AppServiceProvider extends ServiceProvider
             }
 
             $relativePath = substr($file->getPathname(), strlen($directory) + 1);
-            $className    = $namespace . str_replace(
-                ['/', '.php'],
-                ['\\', ''],
-                $relativePath
-            );
+            $className    = $namespace . str_replace(['/', '\\', '.php'], ['\\', '\\', ''], $relativePath);
 
             if (!class_exists($className)) {
                 continue;

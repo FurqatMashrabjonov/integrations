@@ -52,4 +52,8 @@ return [
         'token_url'     => env('FITBIT_TOKEN_URL'),
     ],
 
+    'wakapi' => [
+        'url'   => env('WAKAPI_URL', 'https://wakapi.dev/api'),
+        'token' => env('WAKAPI_API_KEY'),
+    ],
 ];

@@ -8,7 +8,6 @@ use Saloon\Http\Request;
 class GetDailyActivities extends Request
 {
     public function __construct(
-        protected readonly string $username,
         protected readonly string $range = 'today'
     ) {}
 
@@ -22,6 +21,6 @@ class GetDailyActivities extends Request
      */
     public function resolveEndpoint(): string
     {
-        return '/compat/wakatime/v1/users/' . $this->username . '/stats/' . $this->range;
+        return '/compat/wakatime/v1/users/current/stats/' . $this->range;
     }
 }
