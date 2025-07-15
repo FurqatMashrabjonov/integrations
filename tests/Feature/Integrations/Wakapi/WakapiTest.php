@@ -19,11 +19,11 @@ test('can get user profile', function () {
     expect(fn () => $service->getUser())->toThrow(Exception::class);
 });
 
-test('can get user activities', function () {
-    $service = app(WakapiServiceInterface::class);
-    $service->setToken(config('services.wakapi.token'));
-
-    $activities = $service->getDailyActivities();
-
-    dd($activities);
-});
+//test('can get user activities', function () {
+//    $service = app(WakapiServiceInterface::class);
+//    $service->setToken(config('services.wakapi.token'));
+//
+//    $activities = $service->getDailyActivities();
+//
+//    dd($activities);
+//});
