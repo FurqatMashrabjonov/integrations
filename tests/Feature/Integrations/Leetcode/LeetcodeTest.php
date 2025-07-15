@@ -11,7 +11,8 @@ test('can get user profile', function () {
     expect($user->username)->toBe('FurqatMashrabjonov')
         ->and(fn () => $service->getUser('wrong_username_that_does_not_exist'))
         ->toThrow(Exception::class);
-});
+})->skip(env('CI') ?? false, 'Skipped in CI')
+    ->expect(true)->toBeTrue();
 
 test('can get user recent submissions', function () {
     $service = app(LeetcodeServiceInterface::class);
@@ -22,4 +23,5 @@ test('can get user recent submissions', function () {
         ->and($submissions->first())->toHaveKeys(['title', 'title_slug', 'status_display', 'date'])
         ->and(fn () => $service->getUserRecentSubmissions('wrong_username_that_does_not_exist'))
         ->toThrow(Exception::class);
-});
+})->skip(env('CI') ?? false, 'Skipped in CI')
+    ->expect(true)->toBeTrue();

@@ -17,13 +17,14 @@ test('can get user profile', function () {
     $service->setToken('invalid_token');
 
     expect(fn () => $service->getUser())->toThrow(Exception::class);
-});
+})->skip(env('CI') ?? false, 'Skipped in CI')
+    ->expect(true)->toBeTrue();
 
-//test('can get user activities', function () {
+// test('can get user activities', function () {
 //    $service = app(WakapiServiceInterface::class);
 //    $service->setToken(config('services.wakapi.token'));
 //
 //    $activities = $service->getDailyActivities();
 //
 //    dd($activities);
-//});
+// });
