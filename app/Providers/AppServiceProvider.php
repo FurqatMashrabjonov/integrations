@@ -26,8 +26,8 @@ class AppServiceProvider extends ServiceProvider
 
     private function bindRepositoriesAutomatically(): void
     {
-        $repositoriesPath     = app_path('Repositories');
-        $repositoryNamespace  = 'App\\Repositories\\';
+        $repositoriesPath    = app_path('Repositories');
+        $repositoryNamespace = 'App\\Repositories\\';
 
         $this->bindClassesInDirectory($repositoriesPath, $repositoryNamespace);
     }
