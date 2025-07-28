@@ -8,7 +8,11 @@ import BottomBar from '@/components/bottom-bar';
 export default function AppHeaderLayout({ children, breadcrumbs }: PropsWithChildren<{ breadcrumbs?: BreadcrumbItem[] }>) {
     return (
         <AppShell>
+
+            <AppHeader breadcrumbs={breadcrumbs}/>
+
             <AppContent>{children}</AppContent>
+
             <BottomBar />
         </AppShell>
     );

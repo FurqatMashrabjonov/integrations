@@ -42,12 +42,7 @@ class GetUserStepsCommand extends Command
 
         foreach ($users as $user) {
             try {
-                $startDate = Carbon::now()->subMonths(3)->format('Y-m-d');
-                $endDate   = Carbon::now()->format('Y-m-d');
-
-                foreach (Carbon::parse($startDate)->daysUntil($endDate) as $date) {
-                    UserFitbitStepGetter::dispatch($user->id, $date->format('Y-m-d'));
-                }
+                UserFitbitStepGetter::dispatch($user->id, now()->format('Y-m-d'));
             } catch (\Exception $e) {
                 $this->error("Failed to fetch steps for user: {$user->name}. Error: {$e->getMessage()}");
             }

@@ -71,6 +71,8 @@ class FitbitService implements FitbitServiceInterface
 
         throw_if(isset($response->error));
 
+        Log::info($response->json());
+
         $steps = $response?->object()?->summary->steps ?? 0;
 
         $this->userFitbitStepRepository->storeOrUpdate(new UserFitbitStepDTO(
