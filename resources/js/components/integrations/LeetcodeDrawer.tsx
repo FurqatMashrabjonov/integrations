@@ -1,0 +1,203 @@
+import { useState } from 'react';
+import { useForm, router } from '@inertiajs/react';
+import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer';
+import { Button } from '@/components/ui/button';
+
+type LeetcodeProfile = {
+    user_avatar: string;
+    username: string;
+    real_name: string;
+    ranking: number;
+    ac_submission_num_easy: number;
+    ac_submission_num_medium: number;
+    ac_submission_num_hard: number;
+};
+
+type RecentSubmission = {
+    title: string;
+    date: string;
+};
+
+export default function LeetcodeDrawer({ getIntegrationIcon }: { getIntegrationIcon: (integration: string) => React.ReactNode, }) {
+    const [open, setOpen] = useState(false);
+    const [agreed, setAgreed] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [connected, setConnected] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const form = useForm({ username: '' });
+    const [profile, setProfile] = useState<LeetcodeProfile | null>(null);
+    const [recent, setRecent] = useState<RecentSubmission[]>([]);
+    const openDrawer = async () => {
+        try {
+            const existsRes = await fetch(route('integrations.leetcode.exists'));
+            // If backend returns JSON with forbidden/unauthorized, do nothing
+            if (existsRes.headers.get('content-type')?.includes('application/json')) {
+                const existsData = await existsRes.json();
+                if (existsData?.error || existsRes.status === 401 || existsRes.status === 403) {
+                    // Do nothing, don't open modal
+                    return;
+                }
+                if (existsData.exists) {
+                    setConnected(true);
+                    const showRes = await fetch(route('integrations.leetcode.show'), {
+                        headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+                    });
+                    // If backend returns JSON with error, do nothing
+                    if (showRes.headers.get('content-type')?.includes('application/json')) {
+                        const json = await showRes.json();
+                        if (json?.error || showRes.status === 401 || showRes.status === 403) {
+                            // Do nothing, don't open modal
+                            return;
+                        }
+                        setProfile(json.profile || null);
+                        setRecent(json.recent || []);
+                    }
+                } else setError('Failed to fetch Leetcode profile');
+            } else setConnected(false);
+        } catch {
+            setError('Server error');
+        }
+    };
+
+    const handleConnect = (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+        setError(null);
+        form.post(route('integrations.leetcode.store'), {
+            onSuccess: () => {
+                setConnected(true);
+                openDrawer();
+            },
+            onError: (errors) => setError(errors.username || 'Xatolik yuz berdi'),
+            onFinish: () => setLoading(false),
+        });
+    };
+
+    const handleDisconnect = () => {
+        setLoading(true);
+        setError(null);
+        router.delete(route('integrations.leetcode.destroy'), {
+            onSuccess: () => {
+                setConnected(false);
+                setProfile(null);
+                setRecent([]);
+            },
+            onError: () => setError('Xatolik yuz berdi'),
+            onFinish: () => setLoading(false),
+        });
+    };
+
+    return (
+        <Drawer open={open} onOpenChange={setOpen}>
+            <DrawerTrigger asChild>
+                <div className="hover:bg-muted/50 flex cursor-pointer items-center space-x-4 px-4 py-3 transition" onClick={openDrawer}>
+                    <div className="bg-muted flex h-10 w-10 items-center justify-center rounded-md">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="p-1" viewBox="0 0 24 24" id="leetcode">
+                            <path
+                                fill="#B3B1B0"
+                                d="M22 14.355c0-.742-.564-1.346-1.26-1.346H10.676c-.696 0-1.26.604-1.26 1.346s.563 1.346 1.26 1.346H20.74c.696.001 1.26-.603 1.26-1.346z"
+                            ></path>
+                            <path
+                                fill="#E7A41F"
+                                d="m3.482 18.187 4.313 4.361c.973.979 2.318 1.452 3.803 1.452 1.485 0 2.83-.512 3.805-1.494l2.588-2.637c.51-.514.492-1.365-.039-1.9-.531-.535-1.375-.553-1.884-.039l-2.676 2.607c-.462.467-1.102.662-1.809.662s-1.346-.195-1.81-.662l-4.298-4.363c-.463-.467-.696-1.15-.696-1.863 0-.713.233-1.357.696-1.824l4.285-4.38c.463-.467 1.116-.645 1.822-.645s1.346.195 1.809.662l2.676 2.606c.51.515 1.354.497 1.885-.038.531-.536.549-1.387.039-1.901l-2.588-2.636a4.994 4.994 0 0 0-2.392-1.33l-.034-.007 2.447-2.503c.512-.514.494-1.366-.037-1.901-.531-.535-1.376-.552-1.887-.038l-10.018 10.1C2.509 11.458 2 12.813 2 14.311c0 1.498.509 2.896 1.482 3.876z"
+                            ></path>
+                            <path
+                                fill="#070706"
+                                d="M8.115 22.814a2.109 2.109 0 0 1-.474-.361c-1.327-1.333-2.66-2.66-3.984-3.997-1.989-2.008-2.302-4.937-.786-7.32a6 6 0 0 1 .839-1.004L13.333.489c.625-.626 1.498-.652 2.079-.067.56.563.527 1.455-.078 2.066-.769.776-1.539 1.55-2.309 2.325-.041.122-.14.2-.225.287-.863.876-1.75 1.729-2.601 2.618-.111.116-.262.186-.372.305-1.423 1.423-2.863 2.83-4.266 4.272-1.135 1.167-1.097 2.938.068 4.127 1.308 1.336 2.639 2.65 3.961 3.974.067.067.136.132.204.198.468.303.474 1.25.183 1.671-.321.465-.74.75-1.333.728-.199-.006-.363-.086-.529-.179z"
+                            ></path>
+                        </svg>
+                    </div>
+                    <span className="flex-1 text-sm">Leetcodeni ulash</span>
+                    {getIntegrationIcon('leetcode')}
+                </div>
+            </DrawerTrigger>
+            <DrawerContent className="flex flex-col h-[90vh]">
+                <div className="sticky top-0 z-10 bg-background">
+                    <DrawerHeader>
+                        <DrawerTitle>LeetCode Integration</DrawerTitle>
+                        <DrawerDescription>LeetCode profilingiz va faoliyatingizni ko'ring</DrawerDescription>
+                    </DrawerHeader>
+                </div>
+                <div className="overflow-y-auto px-4 py-2 flex-1">
+                    {!agreed ? (
+                        <div>
+                            <div className="mb-4 text-xs p-4 bg-muted rounded">
+                                <div className="font-semibold text-base mb-2">Maxfiylik va Foydalanish shartlari:</div>
+                                <ul className="mt-2 space-y-1">
+                                    <li>• Sizning LeetCode profilingiz va faoliyatingiz 15 daqiqada bir marta yangilanadi</li>
+                                    <li>• Maʼlumotlaringiz faqat profilingizni ko'rsatish va statistikani hisoblash uchun ishlatiladi</li>
+                                    <li>• Hech qanday parol yoki maxfiy maʼlumotlar saqlanmaydi</li>
+                                    <li>• Istalgan vaqtda integratsiyani o'chirishingiz mumkin</li>
+                                </ul>
+                            </div>
+                            <div className="flex gap-2">
+                                <Button onClick={() => setAgreed(true)}>Roziman</Button>
+                                <DrawerClose>
+                                    <span className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md border border-input bg-background px-4 py-2 text-sm font-medium shadow-sm transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" role="button" tabIndex={0}>Bekor qilish</span>
+                                </DrawerClose>
+                            </div>
+                        </div>
+                    ) : loading ? (
+                        <div>Yuklanmoqda...</div>
+                    ) : error ? (
+                        <div className="text-red-500">{error}</div>
+                    ) : !connected ? (
+                        <form onSubmit={handleConnect} className="space-y-4">
+                            <label className="block">
+                                <span className="text-sm">Leetcode username</span>
+                                <input
+                                    type="text"
+                                    className="input input-bordered w-full mt-1"
+                                    value={form.data.username}
+                                    onChange={e => form.setData('username', e.target.value)}
+                                    disabled={loading}
+                                    required
+                                />
+                            </label>
+                            <Button type="submit" disabled={loading || !form.data.username}>
+                                Ulash
+                            </Button>
+                        </form>
+                    ) : profile ? (
+                        <div>
+                            <div className="mb-4">
+                                <div className="flex items-center space-x-3">
+                                    <img src={profile.user_avatar} alt="avatar" className="w-10 h-10 rounded-full" />
+                                    <div>
+                                        <div className="font-bold">{profile.username}</div>
+                                        <div className="text-xs text-muted-foreground">{profile.real_name}</div>
+                                        <div className="text-xs text-muted-foreground">Ranking: {profile.ranking}</div>
+                                    </div>
+                                </div>
+                                <div className="mt-2 text-xs">
+                                    <span className="mr-2">Easy: {profile.ac_submission_num_easy}</span>
+                                    <span className="mr-2">Medium: {profile.ac_submission_num_medium}</span>
+                                    <span>Hard: {profile.ac_submission_num_hard}</span>
+                                </div>
+                            </div>
+                            <div className="mb-4">
+                                <div className="font-semibold mb-1">So‘nggi yechimlar:</div>
+                                <ul className="text-xs space-y-1">
+                                    {recent.length === 0 && <li>Topilmadi</li>}
+                                    {recent.map((item, idx) => (
+                                        <li key={idx} className="flex justify-between">
+                                            <span>{item.title}</span>
+                                            <span className="text-muted-foreground">{item.date}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                            <Button variant="destructive" onClick={handleDisconnect} disabled={loading}>
+                                Hisobni uzish
+                            </Button>
+                        </div>
+                    ) : null}
+                </div>
+                <DrawerFooter className="bg-background sticky bottom-0 z-10">
+                    <DrawerClose>
+                    </DrawerClose>
+                </DrawerFooter>
+            </DrawerContent>
+        </Drawer>
+    );
+}

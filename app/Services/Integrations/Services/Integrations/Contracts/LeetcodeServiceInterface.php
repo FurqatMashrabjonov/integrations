@@ -10,4 +10,6 @@ interface LeetcodeServiceInterface extends IntegrationInterface
     public function getUserRecentSubmissions(string $username, ?string $date = null): Collection;
 
     public function getUser(string $username): UserProfileData;
+
+    public function syncProfile(int $userId): void;
 }

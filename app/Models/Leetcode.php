@@ -20,5 +20,8 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Leetcode extends Model
 {
-    //
+    protected $fillable = [
+        'user_id',
+        'username',
+    ];
 }

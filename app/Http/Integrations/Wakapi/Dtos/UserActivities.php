@@ -8,9 +8,11 @@ class UserActivities extends BaseDto
 {
     public function __construct(
         public string $username,
-        public string $started_at,
-        public string $ended_at,
-        public int $total_seconds,
-        public array $editors
+        public array $data,
+        public array $languages = [],
+        public array $projects = [],
+        public array $editors = [],
+        public array $operating_systems = [],
+        public int $total_seconds = 0
     ) {}
 }

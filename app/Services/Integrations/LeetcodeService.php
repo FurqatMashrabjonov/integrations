@@ -11,10 +11,14 @@ use App\Http\Integrations\Leetcode\Dtos\UserProfileData;
 use App\Http\Integrations\Leetcode\Requests\GetUserProfile;
 use App\Http\Integrations\Leetcode\Requests\GetUserRecentSubmissions;
 use App\Services\Integrations\Services\Integrations\Contracts\LeetcodeServiceInterface;
+use App\Repositories\Contracts\LeetcodeRepositoryInterface;
 
 class LeetcodeService implements LeetcodeServiceInterface
 {
-    public function __construct(private LeetcodeConnector $connector) {}
+    public function __construct(
+        private LeetcodeConnector $connector,
+        private LeetcodeRepositoryInterface $repository
+    ) {}
 
     /**
      * @throws FatalRequestException
@@ -80,5 +84,49 @@ class LeetcodeService implements LeetcodeServiceInterface
         }
 
         throw new \Exception('Failed to fetch data from Leetcode API');
+    }
+
+    public function store(int $userId, string $username)
+    {
+        return $this->repository->updateOrCreateByUserId($userId, $username);
+    }
+
+    public function exists(int $userId): bool
+    {
+        return $this->repository->existsByUserId($userId);
+    }
+
+    public function destroy(int $userId): void
+    {
+        $this->repository->deleteByUserId($userId);
+    }
+
+    public function getAccount(int $userId)
+    {
+        return $this->repository->findByUserId($userId);
+    }
+
+    public function syncProfile(int $userId): void
+    {
+        $leetcode = $this->repository->findByUserId($userId);
+        if (!$leetcode) {
+            throw new \Exception('Leetcode account not found for user');
+        }
+        $username = $leetcode->username;
+        // Fetch profile and recent submissions
+        $profile = $this->getUser($username);
+        $recent = $this->getUserRecentSubmissions($username)->toArray();
+        // Store or update LeetcodeProfile
+        \App\Models\LeetcodeProfile::updateOrCreate(
+            [
+                'leetcode_id' => $leetcode->id,
+            ],
+            [
+                'username'        => $username,
+                'profile'         => $profile,
+                'recent'          => $recent,
+                'last_synced_at'  => now(),
+            ]
+        );
     }
 }

@@ -53,11 +53,13 @@ class WakapiService implements WakapiServiceInterface
         $data     = $response->object()->data;
 
         return new UserActivities(
-            username: $data->username,
-            started_at: $data->started_at,
-            ended_at: $data->ended_at,
-            total_seconds: $data->total_seconds,
-            editors: $data->editors
+            username: $data->username ?? '',
+            data: (array) $data,
+            languages: (array) ($data->languages ?? []),
+            projects: (array) ($data->projects ?? []),
+            editors: (array) ($data->editors ?? []),
+            operating_systems: (array) ($data->operating_systems ?? []),
+            total_seconds: $data->total_seconds ?? 0
         );
     }
 
@@ -66,7 +68,7 @@ class WakapiService implements WakapiServiceInterface
      * @throws \Throwable
      * @throws RequestException
      */
-    private function send(Request $request)
+    protected function send(Request $request)
     {
         $response = $this->connector->send($request);
 

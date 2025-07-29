@@ -1,0 +1,158 @@
+import { useState } from 'react';
+import { useForm } from '@inertiajs/react';
+import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer';
+import { Button } from '@/components/ui/button';
+import { TimerIcon } from 'lucide-react';
+
+export default function WakapiDrawer({ getIntegrationIcon }: {
+    getIntegrationIcon: (integration: string) => React.ReactNode
+}) {
+    const [open, setOpen] = useState(false);
+    const [agreed, setAgreed] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [connected, setConnected] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const form = useForm({ api_key: '' });
+
+    const openDrawer = async () => {
+        setOpen(true);
+        setAgreed(false);
+        setLoading(false);
+        setError(null);
+        // Check if Wakapi is connected (you'll need to implement this endpoint)
+        try {
+            const existsRes = await fetch(route('integrations.wakapi.exists'));
+            const existsData = await existsRes.json();
+            setConnected(existsData.exists);
+        } catch {
+            setConnected(false);
+        }
+    };
+
+    const handleConnect = (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+        setError(null);
+        form.post(route('integrations.wakapi.store'), {
+            onSuccess: () => {
+                setConnected(true);
+            },
+            onError: (errors) => {
+                setError(errors.api_key || 'Xatolik yuz berdi');
+            },
+            onFinish: () => setLoading(false),
+        });
+    };
+
+    const handleDisconnect = () => {
+        setLoading(true);
+        setError(null);
+        // Implement disconnect logic
+        form.delete(route('integrations.wakapi.destroy'), {
+            onSuccess: () => {
+                setConnected(false);
+            },
+            onError: () => setError('Xatolik yuz berdi'),
+            onFinish: () => setLoading(false),
+        });
+    };
+
+    return (
+        <Drawer open={open} onOpenChange={setOpen}>
+            <DrawerTrigger asChild>
+                <div className="hover:bg-muted/50 flex cursor-pointer items-center space-x-4 px-4 py-3 transition" onClick={openDrawer}>
+                    <div className="bg-muted flex h-10 w-10 items-center justify-center rounded-md">
+                        <TimerIcon className="text-muted-foreground h-5 w-5" />
+                    </div>
+                    <span className="flex-1 text-sm">Wakapini ulash</span>
+                    {getIntegrationIcon('wakapi')}
+                </div>
+            </DrawerTrigger>
+            <DrawerContent className="flex flex-col h-[90vh]">
+                <div className="sticky top-0 z-10 bg-background">
+                    <DrawerHeader>
+                        <DrawerTitle>Wakapi Integration</DrawerTitle>
+                        <DrawerDescription>Kodlash faoliyatingizni kuzating</DrawerDescription>
+                    </DrawerHeader>
+                </div>
+                <div className="overflow-y-auto px-4 py-2 flex-1">
+                    {!agreed ? (
+                        <div>
+                            <div className="mb-4">
+                                <h3 className="font-semibold mb-2">Wakapi Integratsiyasi haqida</h3>
+                                <p className="text-sm text-muted-foreground mb-4">
+                                    Wakapi - bu WakaTime bilan mos keladigan kodlash vaqtini kuzatish xizmati. U sizning kodlash faoliyatingizni, qaysi dasturlash tillarini ishlatishingizni va loyihalar ustida qancha vaqt sarflashingizni kuzatadi.
+                                </p>
+                                <div className="mb-4 text-xs p-4 bg-muted rounded">
+                                    <b>Maxfiylik va Foydalanish shartlari:</b>
+                                    <ul className="mt-2 space-y-1">
+                                        <li>• Sizning kodlash statistikalaringiz (vaqt, dasturlash tillari, loyihalar) olinadi</li>
+                                        <li>• API kalitingiz xavfsiz saqlanadi va faqat ma'lumot olish uchun ishlatiladi</li>
+                                        <li>• Kod mazmuni yoki fayl nomlari saqlanmaydi</li>
+                                        <li>• Ma'lumotlar 15 daqiqada bir marta yangilanadi</li>
+                                        <li>• Istalgan vaqtda integratsiyani o'chirishingiz mumkin</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div className="flex gap-2">
+                                <Button onClick={() => setAgreed(true)}>Roziman</Button>
+                                <DrawerClose>
+                                    <Button variant="outline">Bekor qilish</Button>
+                                </DrawerClose>
+                            </div>
+                        </div>
+                    ) : loading ? (
+                        <div>Yuklanmoqda...</div>
+                    ) : error ? (
+                        <div className="text-red-500">{error}</div>
+                    ) : !connected ? (
+                        <div>
+                            <div className="mb-4">
+                                <h3 className="font-semibold mb-2">Wakapi API kalitini kiriting</h3>
+                                <p className="text-sm text-muted-foreground mb-4">
+                                    Wakapi hisobingizdan API kalitini oling va quyidagi maydonga kiriting:
+                                </p>
+                                <div className="text-xs text-muted-foreground mb-4 p-3 bg-muted rounded">
+                                    <b>API kalit qayerdan olish:</b>
+                                    <ol className="mt-2 space-y-1 list-decimal list-inside">
+                                        <li>Wakapi veb saytiga kiring</li>
+                                        <li>Settings → API Key bo'limiga o'ting</li>
+                                        <li>API kalitingizni nusxalang</li>
+                                    </ol>
+                                </div>
+                            </div>
+                            <form onSubmit={handleConnect} className="space-y-4">
+                                <label className="block">
+                                    <span className="text-sm">Wakapi API Key</span>
+                                    <input
+                                        type="password"
+                                        className="input input-bordered w-full mt-1"
+                                        value={form.data.api_key}
+                                        onChange={e => form.setData('api_key', e.target.value)}
+                                        disabled={loading}
+                                        required
+                                        placeholder="API kalitingizni kiriting..."
+                                    />
+                                </label>
+                                <Button type="submit" disabled={loading || !form.data.api_key}>
+                                    Ulash
+                                </Button>
+                            </form>
+                        </div>
+                    ) : (
+                        <div>
+                            <div className="mb-4">Wakapi hisobingiz muvaffaqiyatli ulangan.</div>
+                            <Button variant="destructive" onClick={handleDisconnect} disabled={loading}>
+                                Hisobni uzish
+                            </Button>
+                        </div>
+                    )}
+                </div>
+                <DrawerFooter className="bg-background sticky bottom-0 z-10">
+                    <DrawerClose>
+                    </DrawerClose>
+                </DrawerFooter>
+            </DrawerContent>
+        </Drawer>
+    );
+}
