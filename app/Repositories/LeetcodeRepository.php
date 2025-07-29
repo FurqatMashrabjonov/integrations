@@ -29,4 +29,3 @@ class LeetcodeRepository implements Contracts\LeetcodeRepositoryInterface
         Leetcode::where('user_id', $userId)->delete();
     }
 }
-

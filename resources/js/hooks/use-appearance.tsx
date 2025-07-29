@@ -10,18 +10,11 @@ const prefersDark = () => {
     return window.matchMedia('(prefers-color-scheme: dark)').matches;
 };
 
-const setCookie = (name: string, value: string, days = 365) => {
-    if (typeof document === 'undefined') {
-        return;
-    }
+// Always use system theme
+const setCookie = () => {};
 
-    const maxAge = days * 24 * 60 * 60;
-    document.cookie = `${name}=${value};path=/;max-age=${maxAge};SameSite=Lax`;
-};
-
-const applyTheme = (appearance: Appearance) => {
-    const isDark = appearance === 'dark' || (appearance === 'system' && prefersDark());
-
+const applyTheme = () => {
+    const isDark = prefersDark();
     document.documentElement.classList.toggle('dark', isDark);
 };
 
@@ -29,22 +22,20 @@ const mediaQuery = () => {
     if (typeof window === 'undefined') {
         return null;
     }
-
     return window.matchMedia('(prefers-color-scheme: dark)');
 };
 
 const handleSystemThemeChange = () => {
-    const currentAppearance = localStorage.getItem('appearance') as Appearance;
-    applyTheme(currentAppearance || 'system');
+    applyTheme();
 };
 
 export function initializeTheme() {
-    const savedAppearance = (localStorage.getItem('appearance') as Appearance) || 'system';
-
-    applyTheme(savedAppearance);
-
-    // Add the event listener for system theme changes...
-    mediaQuery()?.addEventListener('change', handleSystemThemeChange);
+    applyTheme();
+    // Listen for system theme changes
+    const mq = mediaQuery();
+    if (mq) {
+        mq.addEventListener('change', handleSystemThemeChange);
+    }
 }
 
 export function useAppearance() {

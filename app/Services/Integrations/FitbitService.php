@@ -71,7 +71,7 @@ class FitbitService implements FitbitServiceInterface
 
         throw_if(isset($response->error));
 
-        Log::info($response->json());
+        Log::info(json_encode($response->json()));
 
         $steps = $response?->object()?->summary->steps ?? 0;
 

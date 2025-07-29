@@ -1,12 +1,15 @@
 import { useState } from 'react';
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer';
 import { Button } from '@/components/ui/button';
+import { Check, ChevronRight } from 'lucide-react';
 
-export default function FitbitDrawer({ getIntegrationIcon }: {
-    getIntegrationIcon: (integration: string) => React.ReactNode
+export default function FitbitDrawer({ getIntegrationIcon, isIntegrated }: {
+    getIntegrationIcon: (integration: string) => React.ReactNode,
+    isIntegrated: (integration: string) => boolean
 }) {
     const [open, setOpen] = useState(false);
     const [agreed, setAgreed] = useState(false);
+    const integrated = isIntegrated('fitbit');
 
     const handleAgree = () => {
         setAgreed(true);
@@ -32,18 +35,20 @@ export default function FitbitDrawer({ getIntegrationIcon }: {
                         </svg>
                     </div>
                     <span className="flex-1 text-sm">Fitbitni ulash</span>
-                    {getIntegrationIcon('fitbit')}
+                    {integrated ? <Check className="text-muted-foreground h-4 w-4" /> : <ChevronRight className="text-muted-foreground h-4 w-4" />}
                 </div>
             </DrawerTrigger>
             <DrawerContent className="flex flex-col h-[90vh]">
                 <div className="sticky top-0 z-10 bg-background">
                     <DrawerHeader>
                         <DrawerTitle>Fitbit Integration</DrawerTitle>
-                        <DrawerDescription>Fitbit qurilmangizdan sog'liqni kuzatish ma'lumotlarini oling</DrawerDescription>
+                        <DrawerDescription>Fitbit hisobingizni ulash orqali sog'liq ma'lumotlaringizni ko'rishingiz mumkin.</DrawerDescription>
                     </DrawerHeader>
                 </div>
                 <div className="overflow-y-auto px-4 py-2 flex-1">
-                    {!agreed ? (
+                    {integrated ? (
+                        <div className="text-green-600">Fitbit integratsiyasi ulangan.</div>
+                    ) : !agreed ? (
                         <div>
                             <div className="mb-4">
                                 <h3 className="font-semibold mb-2">Fitbit Integratsiyasi haqida</h3>

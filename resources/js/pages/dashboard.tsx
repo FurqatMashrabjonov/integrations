@@ -9,6 +9,8 @@ import {
     DrawerTitle,
     DrawerTrigger
 } from '@/components/ui/drawer';
+
+import StepsSection from '@/components/steps-section';
 import { StepChart } from '@/components/step-chart';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -35,15 +37,16 @@ export default function Dashboard() {
                 <div className="grid auto-rows-min gap-4 md:grid-cols-3">
                     <Drawer>
                         <DrawerTrigger>
-                            <div className="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
-                                <div className="flex items-center justify-center py-12">
-                                    <div className="text-center space-y-4">
-                                        <img src="/assets/images/shoe.png" alt="Qadamlar soni" loading="lazy" width={60} className="text-sm"/>
-                                        <div className="text-4xl font-bold text-foreground">{ String(steps_of_today) }</div>
-                                        <p className="text-muted-foreground">Qadamlar</p>
-                                    </div>
-                                </div>
-                            </div>
+                            {/*<div className="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">*/}
+                            {/*    <div className="flex items-center justify-center py-12">*/}
+                            {/*        <div className="text-center space-y-4">*/}
+                            {/*            <img src="/assets/images/shoe.png" alt="Qadamlar soni" loading="lazy" width={60} className="text-sm"/>*/}
+                            {/*            <div className="text-4xl font-bold text-foreground">{ String(steps_of_today) }</div>*/}
+                            {/*            <p className="text-muted-foreground">Qadamlar</p>*/}
+                            {/*        </div>*/}
+                            {/*    </div>*/}
+                            {/*</div>*/}
+                            <StepsSection steps={String(steps_of_today)} />
                         </DrawerTrigger>
                         <DrawerContent>
                             <DrawerHeader>
@@ -55,9 +58,7 @@ export default function Dashboard() {
 
                         </DrawerContent>
                     </Drawer>
-
                 </div>
-
             </div>
         </AppLayout>
     );

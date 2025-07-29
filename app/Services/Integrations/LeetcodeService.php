@@ -9,9 +9,9 @@ use Saloon\Exceptions\Request\FatalRequestException;
 use App\Http\Integrations\Leetcode\LeetcodeConnector;
 use App\Http\Integrations\Leetcode\Dtos\UserProfileData;
 use App\Http\Integrations\Leetcode\Requests\GetUserProfile;
+use App\Repositories\Contracts\LeetcodeRepositoryInterface;
 use App\Http\Integrations\Leetcode\Requests\GetUserRecentSubmissions;
 use App\Services\Integrations\Services\Integrations\Contracts\LeetcodeServiceInterface;
-use App\Repositories\Contracts\LeetcodeRepositoryInterface;
 
 class LeetcodeService implements LeetcodeServiceInterface
 {
@@ -115,17 +115,17 @@ class LeetcodeService implements LeetcodeServiceInterface
         $username = $leetcode->username;
         // Fetch profile and recent submissions
         $profile = $this->getUser($username);
-        $recent = $this->getUserRecentSubmissions($username)->toArray();
+        $recent  = $this->getUserRecentSubmissions($username)->toArray();
         // Store or update LeetcodeProfile
         \App\Models\LeetcodeProfile::updateOrCreate(
             [
                 'leetcode_id' => $leetcode->id,
             ],
             [
-                'username'        => $username,
-                'profile'         => $profile,
-                'recent'          => $recent,
-                'last_synced_at'  => now(),
+                'username'       => $username,
+                'profile'        => $profile,
+                'recent'         => $recent,
+                'last_synced_at' => now(),
             ]
         );
     }

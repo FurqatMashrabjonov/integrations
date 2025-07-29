@@ -1,13 +1,13 @@
 import { Link, usePage } from '@inertiajs/react';
 import { SVGProps } from 'react'
 import { JSX } from 'react/jsx-runtime'
-import { Calendar, ChartBar } from 'lucide-react';
+import { Calendar, ChartBar, User } from 'lucide-react';
 
 export default function BottomBar() {
 
     const { url } = usePage();
 
-    const isActive = (href: string) => url === href;
+    const isActive = (href: string) => url.startsWith(href);
 
     return (
         <nav className="bg-background fixed right-0 bottom-0 left-0 z-50 flex h-14 w-full items-center justify-around shadow-[0_-2px_4px_rgba(0,0,0,0.1)] md:h-16">
@@ -39,6 +39,16 @@ export default function BottomBar() {
             >
                 <ChartBar className="h-6 w-6" />
                 Reyting
+            </Link>
+
+            <Link
+                href={route('integrations.edit')}
+                className={`flex flex-col items-center justify-center gap-1 text-sm font-medium
+                    ${isActive('/settings/integrations') ? 'text-primary' : 'text-muted-foreground hover:text-primary focus:text-primary'}`}
+                prefetch={false}
+            >
+                <User className="h-6 w-6" />
+                Profil
             </Link>
         </nav>
     );

@@ -44,11 +44,11 @@ export default function Integrations() {
                 <div className="space-y-6">
                     <HeadingSmall title="Integration settings" />
 
-                    <div className="bg-background text-foreground divide-y rounded-xl border shadow-sm">
+                    <div className="bg-background text-foreground divide-y rounded-xl border shadow-sm p-6">
                         <GithubDrawer getIntegrationIcon={getIntegrationIcon} isIntegrated={isIntegrated} />
-                        <FitbitDrawer getIntegrationIcon={getIntegrationIcon} />
-                        <LeetcodeDrawer getIntegrationIcon={getIntegrationIcon} />
-                        <WakapiDrawer getIntegrationIcon={getIntegrationIcon} />
+                        <FitbitDrawer getIntegrationIcon={getIntegrationIcon} isIntegrated={isIntegrated} />
+                        <LeetcodeDrawer getIntegrationIcon={getIntegrationIcon} isIntegrated={isIntegrated} />
+                        <WakapiDrawer getIntegrationIcon={getIntegrationIcon} isIntegrated={isIntegrated} />
                     </div>
                 </div>
             </SettingsLayout>

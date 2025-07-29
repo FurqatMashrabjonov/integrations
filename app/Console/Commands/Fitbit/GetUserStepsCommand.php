@@ -4,7 +4,6 @@ namespace App\Console\Commands\Fitbit;
 
 use App\Models\User;
 use App\Enums\IntegrationEnum;
-use Illuminate\Support\Carbon;
 use Illuminate\Console\Command;
 use App\Jobs\UserFitbitStepGetter;
 

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useForm, router } from '@inertiajs/react';
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer';
 import { Button } from '@/components/ui/button';
+import { Check, ChevronRight } from 'lucide-react';
 
 type LeetcodeProfile = {
     user_avatar: string;
@@ -18,7 +19,10 @@ type RecentSubmission = {
     date: string;
 };
 
-export default function LeetcodeDrawer({ getIntegrationIcon }: { getIntegrationIcon: (integration: string) => React.ReactNode, }) {
+export default function LeetcodeDrawer({ getIntegrationIcon, isIntegrated }: {
+    getIntegrationIcon: (integration: string) => React.ReactNode,
+    isIntegrated: (integration: string) => boolean
+}) {
     const [open, setOpen] = useState(false);
     const [agreed, setAgreed] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -27,6 +31,7 @@ export default function LeetcodeDrawer({ getIntegrationIcon }: { getIntegrationI
     const form = useForm({ username: '' });
     const [profile, setProfile] = useState<LeetcodeProfile | null>(null);
     const [recent, setRecent] = useState<RecentSubmission[]>([]);
+    const integrated = isIntegrated('leetcode');
     const openDrawer = async () => {
         try {
             const existsRes = await fetch(route('integrations.leetcode.exists'));
@@ -108,7 +113,7 @@ export default function LeetcodeDrawer({ getIntegrationIcon }: { getIntegrationI
                         </svg>
                     </div>
                     <span className="flex-1 text-sm">Leetcodeni ulash</span>
-                    {getIntegrationIcon('leetcode')}
+                    {integrated ? <Check className="text-muted-foreground h-4 w-4" /> : <ChevronRight className="text-muted-foreground h-4 w-4" />}
                 </div>
             </DrawerTrigger>
             <DrawerContent className="flex flex-col h-[90vh]">

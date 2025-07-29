@@ -18,4 +18,3 @@ class LeetcodeStoreRequest extends FormRequest
         ];
     }
 }
-

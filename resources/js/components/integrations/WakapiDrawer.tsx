@@ -2,10 +2,11 @@ import { useState } from 'react';
 import { useForm } from '@inertiajs/react';
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer';
 import { Button } from '@/components/ui/button';
-import { TimerIcon } from 'lucide-react';
+import { Check, ChevronRight, TimerIcon } from 'lucide-react';
 
-export default function WakapiDrawer({ getIntegrationIcon }: {
-    getIntegrationIcon: (integration: string) => React.ReactNode
+export default function WakapiDrawer({ getIntegrationIcon, isIntegrated }: {
+    getIntegrationIcon: (integration: string) => React.ReactNode,
+    isIntegrated: (integration: string) => boolean
 }) {
     const [open, setOpen] = useState(false);
     const [agreed, setAgreed] = useState(false);
@@ -13,6 +14,7 @@ export default function WakapiDrawer({ getIntegrationIcon }: {
     const [connected, setConnected] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const form = useForm({ api_key: '' });
+    const integrated = isIntegrated('wakapi');
 
     const openDrawer = async () => {
         setOpen(true);
@@ -57,6 +59,11 @@ export default function WakapiDrawer({ getIntegrationIcon }: {
         });
     };
 
+    const handleAgree = () => {
+        setAgreed(true);
+        window.location.href = '/integrations/wakapi/redirect';
+    };
+
     return (
         <Drawer open={open} onOpenChange={setOpen}>
             <DrawerTrigger asChild>
@@ -65,37 +72,37 @@ export default function WakapiDrawer({ getIntegrationIcon }: {
                         <TimerIcon className="text-muted-foreground h-5 w-5" />
                     </div>
                     <span className="flex-1 text-sm">Wakapini ulash</span>
-                    {getIntegrationIcon('wakapi')}
+                    {integrated ? <Check className="text-muted-foreground h-4 w-4" /> : <ChevronRight className="text-muted-foreground h-4 w-4" />}
                 </div>
             </DrawerTrigger>
             <DrawerContent className="flex flex-col h-[90vh]">
                 <div className="sticky top-0 z-10 bg-background">
                     <DrawerHeader>
                         <DrawerTitle>Wakapi Integration</DrawerTitle>
-                        <DrawerDescription>Kodlash faoliyatingizni kuzating</DrawerDescription>
+                        <DrawerDescription>Wakapi hisobingizni ulash orqali kodlash statistikangizni ko'rishingiz mumkin.</DrawerDescription>
                     </DrawerHeader>
                 </div>
                 <div className="overflow-y-auto px-4 py-2 flex-1">
-                    {!agreed ? (
+                    {integrated ? (
+                        <div className="text-green-600">Wakapi integratsiyasi ulangan.</div>
+                    ) : !agreed ? (
                         <div>
                             <div className="mb-4">
                                 <h3 className="font-semibold mb-2">Wakapi Integratsiyasi haqida</h3>
                                 <p className="text-sm text-muted-foreground mb-4">
-                                    Wakapi - bu WakaTime bilan mos keladigan kodlash vaqtini kuzatish xizmati. U sizning kodlash faoliyatingizni, qaysi dasturlash tillarini ishlatishingizni va loyihalar ustida qancha vaqt sarflashingizni kuzatadi.
+                                    Wakapi hisobingizni ulash orqali siz o'zingizning kodlash va faoliyat statistikangizni ko'rishingiz mumkin.
                                 </p>
                                 <div className="mb-4 text-xs p-4 bg-muted rounded">
                                     <b>Maxfiylik va Foydalanish shartlari:</b>
                                     <ul className="mt-2 space-y-1">
-                                        <li>• Sizning kodlash statistikalaringiz (vaqt, dasturlash tillari, loyihalar) olinadi</li>
-                                        <li>• API kalitingiz xavfsiz saqlanadi va faqat ma'lumot olish uchun ishlatiladi</li>
-                                        <li>• Kod mazmuni yoki fayl nomlari saqlanmaydi</li>
-                                        <li>• Ma'lumotlar 15 daqiqada bir marta yangilanadi</li>
+                                        <li>• Sizning Wakapi faoliyatingiz (kodlash vaqti, tillar) olinadi</li>
+                                        <li>• Ma'lumotlar faqat statistik ko'rsatkichlar uchun ishlatiladi</li>
                                         <li>• Istalgan vaqtda integratsiyani o'chirishingiz mumkin</li>
                                     </ul>
                                 </div>
                             </div>
                             <div className="flex gap-2">
-                                <Button onClick={() => setAgreed(true)}>Roziman</Button>
+                                <Button onClick={handleAgree}>Roziman va ulash</Button>
                                 <DrawerClose>
                                     <Button variant="outline">Bekor qilish</Button>
                                 </DrawerClose>
@@ -150,6 +157,7 @@ export default function WakapiDrawer({ getIntegrationIcon }: {
                 </div>
                 <DrawerFooter className="bg-background sticky bottom-0 z-10">
                     <DrawerClose>
+                        <Button variant="outline">Yopish</Button>
                     </DrawerClose>
                 </DrawerFooter>
             </DrawerContent>
