@@ -1,17 +1,12 @@
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, SharedData } from '@/types';
 import { Head, usePage } from '@inertiajs/react';
-import {
-    Drawer,
-    DrawerContent,
-    DrawerDescription,
-    DrawerHeader,
-    DrawerTitle,
-    DrawerTrigger
-} from '@/components/ui/drawer';
+import { useState } from 'react'
 
-import StepsSection from '@/components/steps-section';
-import { StepChart } from '@/components/step-chart';
+import FitbitCard from '@/components/integration-cards/FitbitCard'
+import GitHubCard from '@/components/integration-cards/GitHubCard'
+import WakapiCard from '@/components/integration-cards/WakapiCard'
+import LeetCodeCard from '@/components/integration-cards/LeetCodeCard'
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -20,44 +15,81 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Dashboard() {
-    // useEchoPublic(
-    //     `order`,
-    //     "TestEvent",
-    //     (e) => {
-    //         console.log(e);
-    //     },
-    // );
+type DateFilter = 'today' | 'weekly' | 'monthly'
 
+export default function Dashboard() {
+    const [dateFilter, setDateFilter] = useState<DateFilter>('today')
     const {steps_of_today} = usePage<SharedData>().props;
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-                <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-                    <Drawer>
-                        <DrawerTrigger>
-                            {/*<div className="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">*/}
-                            {/*    <div className="flex items-center justify-center py-12">*/}
-                            {/*        <div className="text-center space-y-4">*/}
-                            {/*            <img src="/assets/images/shoe.png" alt="Qadamlar soni" loading="lazy" width={60} className="text-sm"/>*/}
-                            {/*            <div className="text-4xl font-bold text-foreground">{ String(steps_of_today) }</div>*/}
-                            {/*            <p className="text-muted-foreground">Qadamlar</p>*/}
-                            {/*        </div>*/}
-                            {/*    </div>*/}
-                            {/*</div>*/}
-                            <StepsSection steps={String(steps_of_today)} calories={2166} distance={213} />
-                        </DrawerTrigger>
-                        <DrawerContent>
-                            <DrawerHeader>
-                                <DrawerTitle>Qadamlar soni</DrawerTitle>
-                                <DrawerDescription>Qadamlar bo'yicha statistika</DrawerDescription>
-                            </DrawerHeader>
+                <div className="flex flex-col gap-6">
+                    {/* Date Filter Buttons */}
+                    <div className="flex gap-2 justify-center">
+                        <button
+                            onClick={() => setDateFilter('today')}
+                            className={`px-4 py-2 rounded-full border transition-colors ${
+                                dateFilter === 'today'
+                                    ? 'bg-foreground text-background border-foreground'
+                                    : 'bg-background text-foreground border-border hover:bg-muted'
+                            }`}
+                        >
+                            Kunlik
+                        </button>
+                        <button
+                            onClick={() => setDateFilter('weekly')}
+                            className={`px-4 py-2 rounded-full border transition-colors ${
+                                dateFilter === 'weekly'
+                                    ? 'bg-foreground text-background border-foreground'
+                                    : 'bg-background text-foreground border-border hover:bg-muted'
+                            }`}
+                        >
+                            Haftalik
+                        </button>
+                        <button
+                            onClick={() => setDateFilter('monthly')}
+                            className={`px-4 py-2 rounded-full border transition-colors ${
+                                dateFilter === 'monthly'
+                                    ? 'bg-foreground text-background border-foreground'
+                                    : 'bg-background text-foreground border-border hover:bg-muted'
+                            }`}
+                        >
+                            Oylik
+                        </button>
+                    </div>
 
-                            <StepChart/>
+                    {/* Integration Cards */}
+                    <div className="space-y-6">
+                        <FitbitCard
+                            steps={12847}
+                            distance={8.2}
+                        />
 
-                        </DrawerContent>
-                    </Drawer>
+                        <GitHubCard
+                            username="furqat-dev"
+                            title="Full Stack Developer"
+                            prs={24}
+                            commits={156}
+                        />
+
+                        <WakapiCard
+                            todayHours="6h 42m"
+                            weekHours="38h 15m"
+                            languages={[
+                                { name: "TypeScript", percentage: 45, color: "#3178c6" },
+                                { name: "PHP", percentage: 35, color: "#777bb4" }
+                            ]}
+                        />
+
+                        <LeetCodeCard
+                            easy={127}
+                            medium={89}
+                            hard={23}
+                            todaySubmissions={3}
+                            streak={7}
+                        />
+                    </div>
                 </div>
             </div>
         </AppLayout>

@@ -19,7 +19,16 @@ export default defineConfig({
     },
     resolve: {
         alias: {
+            '@': resolve(__dirname, 'resources/js'),
             'ziggy-js': resolve(__dirname, 'vendor/tightenco/ziggy'),
+        },
+    },
+    ssr: {
+        noExternal: ['@inertiajs/react'],
+    },
+    build: {
+        rollupOptions: {
+            external: ['fs', 'path'],
         },
     },
 });

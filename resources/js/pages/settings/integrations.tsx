@@ -38,17 +38,36 @@ export default function Integrations() {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Integrations" />
+            <Head title="Integratsiyalar" />
 
             <SettingsLayout>
                 <div className="space-y-6">
-                    <HeadingSmall title="Integration settings" />
+                    {/* Integrations Group */}
+                    <div>
+                        <h3 className="px-4 text-xs font-semibold text-muted-foreground uppercase">Integratsiyalar</h3>
+                        <div className="mt-1 bg-light rounded-xl border divide-y shadow-sm overflow-hidden">
+                            <GithubDrawer getIntegrationIcon={getIntegrationIcon} isIntegrated={isIntegrated} />
+                            <FitbitDrawer getIntegrationIcon={getIntegrationIcon} isIntegrated={isIntegrated} />
+                            <LeetcodeDrawer getIntegrationIcon={getIntegrationIcon} isIntegrated={isIntegrated} />
+                            <WakapiDrawer getIntegrationIcon={getIntegrationIcon} isIntegrated={isIntegrated} />
+                        </div>
+                    </div>
 
-                    <div className="bg-background text-foreground divide-y rounded-xl border shadow-sm p-6">
-                        <GithubDrawer getIntegrationIcon={getIntegrationIcon} isIntegrated={isIntegrated} />
-                        <FitbitDrawer getIntegrationIcon={getIntegrationIcon} isIntegrated={isIntegrated} />
-                        <LeetcodeDrawer getIntegrationIcon={getIntegrationIcon} isIntegrated={isIntegrated} />
-                        <WakapiDrawer getIntegrationIcon={getIntegrationIcon} isIntegrated={isIntegrated} />
+                    {/* Other Settings Group */}
+                    <div>
+                        <h3 className="px-4 text-xs font-semibold text-muted-foreground uppercase">Preferences</h3>
+                        <div className="mt-1 bg-info rounded-xl divide-y border shadow-sm overflow-hidden">
+                            {['Notifications', 'Privacy', 'Language', 'About', 'Help'].map((item, idx) => (
+                                <button
+                                    type="button"
+                                    key={idx}
+                                    className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted"
+                                >
+                                    <span className="text-foreground">{item}</span>
+                                    <ChevronRight className="text-muted-foreground h-4 w-4" />
+                                </button>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </SettingsLayout>
