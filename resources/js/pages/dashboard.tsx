@@ -46,7 +46,7 @@ export default function Dashboard() {
                             {/*        </div>*/}
                             {/*    </div>*/}
                             {/*</div>*/}
-                            <StepsSection steps={String(steps_of_today)} />
+                            <StepsSection steps={String(steps_of_today)} calories={2166} distance={213} />
                         </DrawerTrigger>
                         <DrawerContent>
                             <DrawerHeader>
