@@ -29,7 +29,7 @@ export default function GitHubCard({
 }: GitHubCardProps) {
     return (
         <Card className="rounded-3xl w-full shadow-sm">
-            <CardHeader>
+            <CardHeader className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2 text-lg">
                     <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-muted">
                         <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 128 128" id="github">
@@ -39,17 +39,13 @@ export default function GitHubCard({
                             </g>
                         </svg>
                     </div>
-                    GitHub
                 </CardTitle>
+                <div className="flex items-center gap-3">
+                    <img src={avatarUrl} alt="GitHub Profile" className="w-8 h-8 rounded-full border-2 border-gray-200" />
+                    <p className="font-semibold text-foreground">@{username}</p>
+                </div>
             </CardHeader>
             <CardContent>
-                <div className="flex items-center gap-3 mb-4">
-                    <img src={avatarUrl} alt="GitHub Profile" className="w-12 h-12 rounded-full border-2 border-gray-200" />
-                    <div>
-                        <p className="font-semibold text-foreground">@{username}</p>
-                        <p className="text-sm text-muted-foreground">{title}</p>
-                    </div>
-                </div>
                 <div className="grid grid-cols-2 gap-4">
                     <div className="text-center p-3 bg-muted rounded-lg">
                         <div className="flex items-center justify-center gap-1 mb-1">

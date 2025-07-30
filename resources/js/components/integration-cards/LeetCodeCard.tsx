@@ -6,17 +6,18 @@ import {
 } from '@/components/ui/card'
 
 interface LeetCodeCardProps {
+    username: string
+    title: string
+    avatarUrl?: string
     easy: number
     medium: number
     hard: number
-    todaySubmissions: number
-    streak: number
 }
 
-export default function LeetCodeCard({ easy, medium, hard, todaySubmissions, streak }: LeetCodeCardProps) {
+export default function LeetCodeCard({ username, title, avatarUrl = "https://via.placeholder.com/48", easy, medium, hard }: LeetCodeCardProps) {
     return (
         <Card className="rounded-3xl w-full shadow-sm">
-            <CardHeader>
+            <CardHeader className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2 text-lg">
                     <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-muted">
                         <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" id="leetcode">
@@ -25,8 +26,11 @@ export default function LeetCodeCard({ easy, medium, hard, todaySubmissions, str
                             <path fill="#070706" d="M8.115 22.814a2.109 2.109 0 0 1-.474-.361c-1.327-1.333-2.66-2.66-3.984-3.997-1.989-2.008-2.302-4.937-.786-7.32a6 6 0 0 1 .839-1.004L13.333.489c.625-.626 1.498-.652 2.079-.067.56.563.527 1.455-.078 2.066-.769.776-1.539 1.55-2.309 2.325-.041.122-.14.2-.225.287-.863.876-1.75 1.729-2.601 2.618-.111.116-.262.186-.372.305-1.423 1.423-2.863 2.83-4.266 4.272-1.135 1.167-1.097 2.938.068 4.127 1.308 1.336 2.639 2.65 3.961 3.974.067.067.136.132.204.198.468.303.474 1.25.183 1.671-.321.465-.74.75-1.333.728-.199-.006-.363-.086-.529-.179z"/>
                         </svg>
                     </div>
-                    LeetCode
                 </CardTitle>
+                <div className="flex items-center gap-3">
+                    <img src={avatarUrl} alt="LeetCode Profile" className="w-8 h-8 rounded-full border-2 border-gray-200" />
+                    <p className="font-semibold text-foreground">@{username}</p>
+                </div>
             </CardHeader>
             <CardContent>
                 <div className="grid grid-cols-3 gap-3 mb-4">

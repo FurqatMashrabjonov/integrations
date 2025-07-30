@@ -22,9 +22,9 @@ export default function BottomBar() {
             </Link>
 
             <Link
-                href="#"
+                href={route('calendar')}
                 className={`flex flex-col items-center justify-center gap-1 text-sm font-medium
-                    ${url === '#' ? 'text-primary' : 'text-muted-foreground hover:text-primary focus:text-primary'}`}
+                    ${isActive('/calendar') ? 'text-primary' : 'text-muted-foreground hover:text-primary focus:text-primary'}`}
                 prefetch={false}
             >
                 <Calendar className="h-6 w-6" />
@@ -32,9 +32,9 @@ export default function BottomBar() {
             </Link>
 
             <Link
-                href="#"
+                href={route('rating')}
                 className={`flex flex-col items-center justify-center gap-1 text-sm font-medium
-                    ${url === '#' ? 'text-primary' : 'text-muted-foreground hover:text-primary focus:text-primary'}`}
+                    ${isActive('/rating') ? 'text-primary' : 'text-muted-foreground hover:text-primary focus:text-primary'}`}
                 prefetch={false}
             >
                 <ChartBar className="h-6 w-6" />

@@ -6,13 +6,10 @@ import {
 } from '@/components/ui/card'
 
 interface WakapiCardProps {
+    username: string
+    title: string
+    avatarUrl?: string
     todayHours: string
-    weekHours: string
-    languages: Array<{
-        name: string
-        percentage: number
-        color: string
-    }>
 }
 
 function getSystemThemeColor() {
@@ -22,10 +19,10 @@ function getSystemThemeColor() {
     return '#000';
 }
 
-export default function WakapiCard({ todayHours, weekHours, languages }: WakapiCardProps) {
+export default function WakapiCard({ username, title, avatarUrl = "https://via.placeholder.com/48", todayHours }: WakapiCardProps) {
     return (
         <Card className="rounded-3xl w-full shadow-sm">
-            <CardHeader>
+            <CardHeader className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2 text-lg">
                     <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-muted">
                         <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" id="Wakatime--Streamline-Simple-Icons" height="24" width="24">
@@ -33,8 +30,11 @@ export default function WakapiCard({ todayHours, weekHours, languages }: WakapiC
                                   fill={getSystemThemeColor()} strokeWidth="1"></path>
                         </svg>
                     </div>
-                    Wakapi
                 </CardTitle>
+                <div className="flex items-center gap-3">
+                    <img src={avatarUrl} alt="Wakapi Profile" className="w-8 h-8 rounded-full border-2 border-gray-200" />
+                    <p className="font-semibold text-foreground">@{username}</p>
+                </div>
             </CardHeader>
             <CardContent>
                 <div className="grid grid-cols-2 gap-4">

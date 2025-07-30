@@ -62,11 +62,15 @@ export default function Dashboard() {
                     {/* Integration Cards */}
                     <div className="space-y-6">
                         <FitbitCard
+                            avatarUrl="https://avatars.githubusercontent.com/u/45735?v=4"
+                            username="steshaw"
+                            title="Loves programming languages"
                             steps={12847}
                             distance={8.2}
                         />
 
                         <GitHubCard
+                            avatarUrl="https://avatars.githubusercontent.com/u/61729454?v=4"
                             username="furqat-dev"
                             title="Full Stack Developer"
                             prs={24}
@@ -74,6 +78,9 @@ export default function Dashboard() {
                         />
 
                         <WakapiCard
+                            avatarUrl="https://avatars.githubusercontent.com/u/185649?v=4"
+                            username="rowanoulton"
+                            title="Full Stack Developer"
                             todayHours="6h 42m"
                             weekHours="38h 15m"
                             languages={[
@@ -83,6 +90,9 @@ export default function Dashboard() {
                         />
 
                         <LeetCodeCard
+                            avatarUrl="https://avatars.githubusercontent.com/u/33031?v=4"
+                            username="sellout"
+                            title="Full Stack Developer"
                             easy={127}
                             medium={89}
                             hard={23}

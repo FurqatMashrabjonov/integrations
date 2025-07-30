@@ -2,19 +2,21 @@ import {
     Card,
     CardContent,
     CardHeader,
-    CardTitle,
-    CardDescription
+    CardTitle
 } from '@/components/ui/card'
 
 interface FitbitCardProps {
+    username: string
+    title: string
+    avatarUrl?: string
     steps: number
     distance: number
 }
 
-export default function FitbitCard({ steps, distance }: FitbitCardProps) {
+export default function FitbitCard({ username, title, avatarUrl = "https://via.placeholder.com/48", steps, distance }: FitbitCardProps) {
     return (
         <Card className="rounded-3xl w-full shadow-sm">
-            <CardHeader>
+            <CardHeader className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2 text-lg">
                     <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-muted">
                         <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" id="fitbit">
@@ -24,8 +26,11 @@ export default function FitbitCard({ steps, distance }: FitbitCardProps) {
                             <ellipse cx="1.46" cy="12.042" fill="#28B0B9" rx="1.459" ry="1.464"></ellipse>
                         </svg>
                     </div>
-                    Fitbit
                 </CardTitle>
+                <div className="flex items-center gap-3">
+                    <img src={avatarUrl} alt="Fitbit Profile" className="w-8 h-8 rounded-full border-2 border-gray-200" />
+                    <p className="font-semibold text-foreground">@{username}</p>
+                </div>
             </CardHeader>
             <CardContent>
                 <div className="grid grid-cols-2 gap-4">
