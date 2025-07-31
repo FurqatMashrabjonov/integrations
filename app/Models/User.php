@@ -106,6 +106,11 @@ class User extends Authenticatable
         return $this->hasMany(IntegrationToken::class);
     }
 
+    public function integrationAccounts(): HasMany
+    {
+        return $this->hasMany(IntegrationAccount::class);
+    }
+
     public function getIntegrationsAttribute(): array
     {
         /** @var Collection<int, IntegrationToken> $integrations */

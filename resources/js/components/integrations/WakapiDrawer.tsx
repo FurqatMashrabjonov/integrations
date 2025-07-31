@@ -79,7 +79,7 @@ export default function WakapiDrawer({ getIntegrationIcon, isIntegrated, autoOpe
                     <div className="bg-muted flex h-10 w-10 items-center justify-center rounded-md">
                         <TimerIcon className="text-muted-foreground h-5 w-5" />
                     </div>
-                    <span className="flex-1 text-sm">Wakapini ulash</span>
+                    <span className="flex-1 text-sm">Wakapi</span>
                     {integrated ? <Check className="text-muted-foreground h-4 w-4" /> : <ChevronRight className="text-muted-foreground h-4 w-4" />}
                 </div>
             </DrawerTrigger>

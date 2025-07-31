@@ -41,7 +41,7 @@ export default function FitbitDrawer({ getIntegrationIcon, isIntegrated, autoOpe
                             <ellipse cx="1.46" cy="12.042" fill="#28B0B9" rx="1.459" ry="1.464"></ellipse>
                         </svg>
                     </div>
-                    <span className="flex-1 text-sm">Fitbitni ulash</span>
+                    <span className="flex-1 text-sm">Fitbit</span>
                     {integrated ? <Check className="text-muted-foreground h-4 w-4" /> : <ChevronRight className="text-muted-foreground h-4 w-4" />}
                 </div>
             </DrawerTrigger>

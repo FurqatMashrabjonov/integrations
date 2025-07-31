@@ -1,7 +1,6 @@
 import { Head, usePage } from '@inertiajs/react';
 import { useEffect } from 'react';
 
-import HeadingSmall from '@/components/heading-small';
 import { type BreadcrumbItem, SharedData } from '@/types';
 
 import AppLayout from '@/layouts/app-layout';

@@ -47,7 +47,7 @@ export default function GithubDrawer({ getIntegrationIcon, isIntegrated, autoOpe
                             </g>
                         </svg>
                     </div>
-                    <span className="flex-1 text-sm">Githubni ulash</span>
+                    <span className="flex-1 text-sm">Github</span>
                     {getIntegrationIcon('github')}
                 </div>
             </DrawerTrigger>
