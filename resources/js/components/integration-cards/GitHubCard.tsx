@@ -4,6 +4,8 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card'
+import { Link } from '@inertiajs/react';
+import { ExternalLink } from 'lucide-react';
 
 interface GitHubCardProps {
     username: string
@@ -31,8 +33,19 @@ export default function GitHubCard({
     return (
         <div className="relative w-full h-full flex items-center justify-center">
             {showConnect && (
-                <div className="absolute inset-0 backdrop-blur-sm rounded-3xl bg-black/10 z-10 flex items-center justify-center">
-                    <span className="text-xl font-bold text-white">Github ni ulang</span>
+                <div className="absolute inset-0 backdrop-blur-sm rounded-3xl bg-black/10 z-10 flex flex-col items-center justify-center gap-4">
+                    <span className="text-md font-bold text-light text-center">
+                        GitHub akkountingizni qo'shmagansiz.
+                    </span>
+                    <Link
+                        href={route('integrations.edit', { open: 'github' })}
+                        className="px-5 py-2 rounded-lg font-semibold shadow transition bg-muted"
+                    >
+                        <div className="flex items-center gap-1">
+                            <span>Qo'shish</span>
+                            <ExternalLink size={15} />
+                        </div>
+                    </Link>
                 </div>
             )}
             <div className={showConnect ? "blur-sm pointer-events-none select-none opacity-60 w-full" : "w-full"}>

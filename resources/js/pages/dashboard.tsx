@@ -79,7 +79,7 @@ export default function Dashboard() {
 
                         <WakapiCard
                             avatarUrl="https://avatars.githubusercontent.com/u/185649?v=4"
-                            username="rowanoulton"
+                            username="rowanou=lton"
                             title="Full Stack Developer"
                             todayHours="6h 42m"
                             weekHours="38h 15m"

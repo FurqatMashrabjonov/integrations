@@ -26,14 +26,15 @@ export default function LeetCodeCard({ username, title, avatarUrl = "https://via
                         Leetcode akkountingizni qo'shmagansiz.
                     </span>
                     <Link
-                        href={route('integrations.edit')}
+                        href={route('integrations.edit', { open: 'leetcode' })}
                         className="px-5 py-2 rounded-lg font-semibold shadow transition bg-muted"
                     >
-                        <div className="flex gap-1">
-                            <h4>Qo'shish</h4>
+                        <div className="flex items-center gap-1">
+                            <span>Qo'shish</span>
                             <ExternalLink size={15} />
                         </div>
                     </Link>
+
                 </div>
             )}
             <div className={showConnect ? "blur-sm pointer-events-none select-none opacity-60 w-full" : "w-full"}>

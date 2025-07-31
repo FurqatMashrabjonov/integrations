@@ -1,7 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer';
 import { Button } from '@/components/ui/button';
-import { Appearance } from '@/hooks/use-appearance';
 
 function getSystemThemeColor() {
     if (typeof window !== 'undefined' && window.matchMedia) {
@@ -10,9 +9,10 @@ function getSystemThemeColor() {
     return '#181717';
 }
 
-export default function GithubDrawer({ getIntegrationIcon, isIntegrated }: {
+export default function GithubDrawer({ getIntegrationIcon, isIntegrated, autoOpen = false }: {
     getIntegrationIcon: (integration: string) => React.ReactNode,
-    isIntegrated: (integration: string) => boolean
+    isIntegrated: (integration: string) => boolean,
+    autoOpen?: boolean
 }) {
     const [open, setOpen] = useState(false);
     const [agreed, setAgreed] = useState(false);
@@ -24,6 +24,12 @@ export default function GithubDrawer({ getIntegrationIcon, isIntegrated }: {
             window.location.href = route('integrations.github.redirect');
         }
     };
+
+    useEffect(() => {
+        if (autoOpen) {
+            setOpen(true);
+        }
+    }, [autoOpen]);
 
     return (
         <Drawer open={open} onOpenChange={setOpen}>

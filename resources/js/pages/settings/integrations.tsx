@@ -1,4 +1,5 @@
 import { Head, usePage } from '@inertiajs/react';
+import { useEffect } from 'react';
 
 import HeadingSmall from '@/components/heading-small';
 import { type BreadcrumbItem, SharedData } from '@/types';
@@ -21,8 +22,20 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function Integrations() {
-    const { auth } = usePage<SharedData>().props;
+    const { auth, ziggy } = usePage<SharedData>().props;
     const integrations = auth.user.integrations || [];
+
+    // Get URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const openIntegration = urlParams.get('open');
+
+    useEffect(() => {
+        // Auto-open drawer if specified in URL
+        if (openIntegration) {
+            // Trigger the drawer opening based on the parameter
+            // This will be handled by passing a prop to the drawer components
+        }
+    }, [openIntegration]);
 
     const getIntegrationIcon = (integration: string) => {
         return Array.isArray(integrations) && integrations.indexOf(integration) !== -1 ? (
@@ -46,10 +59,10 @@ export default function Integrations() {
                     <div>
                         <h3 className="px-4 text-xs font-semibold text-muted-foreground uppercase">Integratsiyalar</h3>
                         <div className="mt-1 bg-light rounded-xl border divide-y shadow-sm overflow-hidden">
-                            <GithubDrawer getIntegrationIcon={getIntegrationIcon} isIntegrated={isIntegrated} />
-                            <FitbitDrawer getIntegrationIcon={getIntegrationIcon} isIntegrated={isIntegrated} />
-                            <LeetcodeDrawer getIntegrationIcon={getIntegrationIcon} isIntegrated={isIntegrated} />
-                            <WakapiDrawer getIntegrationIcon={getIntegrationIcon} isIntegrated={isIntegrated} />
+                            <GithubDrawer getIntegrationIcon={getIntegrationIcon} isIntegrated={isIntegrated} autoOpen={openIntegration === 'github'} />
+                            <FitbitDrawer getIntegrationIcon={getIntegrationIcon} isIntegrated={isIntegrated} autoOpen={openIntegration === 'fitbit'} />
+                            <LeetcodeDrawer getIntegrationIcon={getIntegrationIcon} isIntegrated={isIntegrated} autoOpen={openIntegration === 'leetcode'} />
+                            <WakapiDrawer getIntegrationIcon={getIntegrationIcon} isIntegrated={isIntegrated} autoOpen={openIntegration === 'wakapi'} />
                         </div>
                     </div>
 

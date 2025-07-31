@@ -1,11 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer';
 import { Button } from '@/components/ui/button';
 import { Check, ChevronRight } from 'lucide-react';
 
-export default function FitbitDrawer({ getIntegrationIcon, isIntegrated }: {
+export default function FitbitDrawer({ getIntegrationIcon, isIntegrated, autoOpen = false }: {
     getIntegrationIcon: (integration: string) => React.ReactNode,
-    isIntegrated: (integration: string) => boolean
+    isIntegrated: (integration: string) => boolean,
+    autoOpen?: boolean
 }) {
     const [open, setOpen] = useState(false);
     const [agreed, setAgreed] = useState(false);
@@ -15,6 +16,12 @@ export default function FitbitDrawer({ getIntegrationIcon, isIntegrated }: {
         setAgreed(true);
         window.location.href = route('integrations.fitbit.redirect');
     };
+
+    useEffect(() => {
+        if (autoOpen) {
+            setOpen(true);
+        }
+    }, [autoOpen]);
 
     return (
         <Drawer open={open} onOpenChange={setOpen}>

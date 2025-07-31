@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm, router } from '@inertiajs/react';
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer';
 import { Button } from '@/components/ui/button';
@@ -19,9 +19,10 @@ type RecentSubmission = {
     date: string;
 };
 
-export default function LeetcodeDrawer({ getIntegrationIcon, isIntegrated }: {
+export default function LeetcodeDrawer({ getIntegrationIcon, isIntegrated, autoOpen = false }: {
     getIntegrationIcon: (integration: string) => React.ReactNode,
-    isIntegrated: (integration: string) => boolean
+    isIntegrated: (integration: string) => boolean,
+    autoOpen?: boolean
 }) {
     const [open, setOpen] = useState(false);
     const [agreed, setAgreed] = useState(false);
@@ -91,6 +92,13 @@ export default function LeetcodeDrawer({ getIntegrationIcon, isIntegrated }: {
             onFinish: () => setLoading(false),
         });
     };
+
+    useEffect(() => {
+        if (autoOpen) {
+            setOpen(true);
+            openDrawer();
+        }
+    }, [autoOpen]);
 
     return (
         <Drawer open={open} onOpenChange={setOpen}>

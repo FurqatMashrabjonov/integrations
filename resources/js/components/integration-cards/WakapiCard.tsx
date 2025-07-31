@@ -4,6 +4,8 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card'
+import { Link } from '@inertiajs/react';
+import { ExternalLink } from 'lucide-react';
 
 interface WakapiCardProps {
     username: string
@@ -20,12 +22,23 @@ function getSystemThemeColor() {
     return '#000';
 }
 
-export default function WakapiCard({ username, title, avatarUrl = "https://via.placeholder.com/48", todayHours, showConnect = true }: WakapiCardProps) {
+export default function WakapiCard({ username, title, avatarUrl = "https://via.placeholder.com/48", todayHours, showConnect = false }: WakapiCardProps) {
     return (
         <div className="relative w-full h-full flex items-center justify-center">
             {showConnect && (
-                <div className="absolute inset-0 backdrop-blur-sm rounded-3xl bg-black/10 z-10 flex items-center justify-center">
-                    <span className="text-xl font-bold text-white">Wakapi ni ulang</span>
+                <div className="absolute inset-0 backdrop-blur-sm bg-black/30 z-10 flex flex-col items-center justify-center gap-4">
+                    <span className="text-md font-bold text-light text-center">
+                        Wakapi akkountingizni qo'shmagansiz.
+                    </span>
+                    <Link
+                        href={route('integrations.edit', { open: 'wakapi' })}
+                        className="px-5 py-2 rounded-lg font-semibold shadow transition bg-muted"
+                    >
+                        <div className="flex items-center gap-1">
+                            <span>Qo'shish</span>
+                            <ExternalLink size={15} />
+                        </div>
+                    </Link>
                 </div>
             )}
             <div className={showConnect ? "blur-sm pointer-events-none select-none opacity-60 w-full" : "w-full"}>

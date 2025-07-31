@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from '@inertiajs/react';
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer';
 import { Button } from '@/components/ui/button';
 import { Check, ChevronRight, TimerIcon } from 'lucide-react';
 
-export default function WakapiDrawer({ getIntegrationIcon, isIntegrated }: {
+export default function WakapiDrawer({ getIntegrationIcon, isIntegrated, autoOpen = false }: {
     getIntegrationIcon: (integration: string) => React.ReactNode,
-    isIntegrated: (integration: string) => boolean
+    isIntegrated: (integration: string) => boolean,
+    autoOpen?: boolean
 }) {
     const [open, setOpen] = useState(false);
     const [agreed, setAgreed] = useState(false);
@@ -63,6 +64,13 @@ export default function WakapiDrawer({ getIntegrationIcon, isIntegrated }: {
         setAgreed(true);
         window.location.href = '/integrations/wakapi/redirect';
     };
+
+    useEffect(() => {
+        if (autoOpen) {
+            setOpen(true);
+            openDrawer();
+        }
+    }, [autoOpen]);
 
     return (
         <Drawer open={open} onOpenChange={setOpen}>
