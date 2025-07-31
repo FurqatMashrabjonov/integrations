@@ -48,7 +48,7 @@ export default function LeetCodeCard({
             {showConnect && !isConnected && (
                 <div className="absolute inset-0 backdrop-blur-[5px] rounded-3xl bg-black/5 z-10 flex flex-col items-center justify-center gap-4">
                     <span className="text-md font-bold text-foreground text-center">
-                        LeetCode akkountingizni ulanmagan.
+                        LeetCode akkount ulanmagan.
                     </span>
                     <Link
                         href={route('integrations.edit', { open: 'leetcode' })}

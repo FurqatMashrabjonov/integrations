@@ -45,7 +45,8 @@ export default function Integrations() {
     };
 
     const isIntegrated = (integration: string) => {
-        return Array.isArray(integrations) && integrations.indexOf(integration) !== -1;
+        return false;
+        // return Array.isArray(integrations) && integrations.indexOf(integration) !== -1;
     };
 
     return (

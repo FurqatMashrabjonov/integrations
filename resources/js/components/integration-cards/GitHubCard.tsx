@@ -35,7 +35,7 @@ export default function GitHubCard({
             {showConnect && (
                 <div className="absolute inset-0 backdrop-blur-[5px] rounded-3xl bg-black/5 z-10 flex flex-col items-center justify-center gap-4">
                     <span className="text-md font-bold text-light text-center">
-                        GitHub akkountingizni qo'shmagansiz.
+                        GitHub akkount ulanmagan.
                     </span>
                     <Link
                         href={route('integrations.edit', { open: 'github' })}
