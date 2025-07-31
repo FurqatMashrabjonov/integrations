@@ -33,22 +33,22 @@ export default function GitHubCard({
     return (
         <div className="relative w-full h-full flex items-center justify-center">
             {showConnect && (
-                <div className="absolute inset-0 backdrop-blur-sm rounded-3xl bg-black/10 z-10 flex flex-col items-center justify-center gap-4">
+                <div className="absolute inset-0 backdrop-blur-[5px] rounded-3xl bg-black/5 z-10 flex flex-col items-center justify-center gap-4">
                     <span className="text-md font-bold text-light text-center">
                         GitHub akkountingizni qo'shmagansiz.
                     </span>
                     <Link
                         href={route('integrations.edit', { open: 'github' })}
-                        className="px-5 py-2 rounded-lg font-semibold shadow transition bg-muted"
+                         className="px-5 py-2 rounded-lg font-semibold shadow transition bg-primary text-primary-foreground hover:bg-primary/90"
                     >
                         <div className="flex items-center gap-1">
-                            <span>Qo'shish</span>
+                            <span>Ulash</span>
                             <ExternalLink size={15} />
                         </div>
                     </Link>
                 </div>
             )}
-            <div className={showConnect ? "blur-sm pointer-events-none select-none opacity-60 w-full" : "w-full"}>
+            <div className={showConnect ? "pointer-events-none select-none opacity-80 w-full" : "w-full"}>
                 <Card className="rounded-3xl w-full shadow-sm">
                     <CardHeader className="flex items-center justify-between">
                         <CardTitle className="flex items-center gap-2 text-lg">

@@ -46,7 +46,7 @@ export default function LeetCodeCard({
     return (
         <div className="relative w-full h-full flex items-center justify-center">
             {showConnect && !isConnected && (
-                <div className="absolute inset-0 backdrop-blur-sm rounded-3xl bg-black/10 z-10 flex flex-col items-center justify-center gap-4">
+                <div className="absolute inset-0 backdrop-blur-[5px] rounded-3xl bg-black/5 z-10 flex flex-col items-center justify-center gap-4">
                     <span className="text-md font-bold text-foreground text-center">
                         LeetCode akkountingizni ulanmagan.
                     </span>
@@ -61,7 +61,7 @@ export default function LeetCodeCard({
                     </Link>
                 </div>
             )}
-            <div className={showConnect && !isConnected ? "blur-sm pointer-events-none select-none opacity-60 w-full" : "w-full"}>
+            <div className={showConnect && !isConnected ? "pointer-events-none select-none opacity-80 w-full" : "w-full"}>
                 <Card className="rounded-3xl w-full shadow-sm">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
                         <div className="flex items-center gap-2">

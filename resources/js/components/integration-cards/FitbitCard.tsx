@@ -20,7 +20,7 @@ export default function FitbitCard({ username, title, avatarUrl = "https://via.p
     return (
         <div className="relative w-full h-full flex items-center justify-center">
             {showConnect && (
-                <div className="absolute inset-0 backdrop-blur-sm rounded-3xl bg-black/10 z-10 flex flex-col items-center justify-center gap-4">
+                <div className="absolute inset-0 backdrop-blur-[5px] rounded-3xl bg-black/5 z-10 flex flex-col items-center justify-center gap-4">
                     <span className="text-md font-bold text-light text-center">
                         Fitbit akkountingizni qo'shmagansiz.
                     </span>
@@ -35,7 +35,7 @@ export default function FitbitCard({ username, title, avatarUrl = "https://via.p
                     </Link>
                 </div>
             )}
-            <div className={showConnect ? "blur-sm pointer-events-none select-none opacity-60 w-full" : "w-full"}>
+            <div className={showConnect ? "pointer-events-none select-none opacity-80 w-full" : "w-full"}>
                 <Card className="rounded-3xl w-full shadow-sm">
                     <CardHeader className="flex items-center justify-between">
                         <CardTitle className="flex items-center gap-2 text-lg">
