@@ -8,7 +8,9 @@ use App\Dtos\FitbitAccountDTO;
 use App\Enums\IntegrationEnum;
 use App\Dtos\UserFitbitStepDTO;
 use App\Dtos\IntegrationTokenDTO;
+use App\Services\IntegrationAccountService;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use Saloon\Exceptions\InvalidStateException;
 use Saloon\Http\Auth\AccessTokenAuthenticator;
 use Saloon\Exceptions\Request\RequestException;
@@ -101,15 +103,16 @@ class FitbitService implements FitbitServiceInterface
             $authenticator = $this->connector->getAccessToken($request->input('code', ''));
 
             $this->storeToken(new IntegrationTokenDTO(
-                user_id: auth()->id() ?? 1,
+                user_id: Auth::id() ?? 1,
                 integration: IntegrationEnum::FITBIT,
                 access_token: $authenticator->getAccessToken(),
                 refresh_token: $authenticator->getRefreshToken(),
                 expires_at: $authenticator->getExpiresAt()->format('Y-m-d H:i:s'),
-                serialized: $authenticator->serialize(),
+                serialized: serialize($authenticator),
             ));
 
             $this->storeFitbitAccount($authenticator);
+            $this->createIntegrationAccount($authenticator);
         } catch (\Exception $e) {
             Log::error('Error during Fitbit callback handling: ' . $e->getMessage());
 
@@ -122,10 +125,32 @@ class FitbitService implements FitbitServiceInterface
         $user = $this->connector->getUser($authenticator)->object()?->user;
 
         $this->fitbitAccountRepository->storeOrUpdate(new FitbitAccountDTO(
-            user_id: auth()->id(),
+            user_id: Auth::id(),
             display_name: $user->displayName ?? '',
             full_name: $user->fullName ?? '',
             avatar: $user->avatar ?? ''
         ));
+    }
+
+    protected function createIntegrationAccount($authenticator): void
+    {
+        $user = $this->connector->getUser($authenticator)->object()?->user;
+        
+        // Use IntegrationAccount directly via repository
+        $integrationAccountRepo = app(\App\Repositories\Contracts\IntegrationAccountRepositoryInterface::class);
+        
+        $integrationAccountRepo->createOrUpdate([
+            'user_id'      => Auth::id(),
+            'integration'  => IntegrationEnum::FITBIT,
+            'display_name' => $user->displayName ?? '',
+            'full_name'    => $user->fullName ?? '',
+            'avatar'       => $user->avatar ?? '',
+            'data'         => [
+                'display_name' => $user->displayName ?? '',
+                'full_name'    => $user->fullName ?? '',
+                'avatar'       => $user->avatar ?? '',
+                'connected_at' => now()->toISOString(),
+            ],
+        ]);
     }
 }

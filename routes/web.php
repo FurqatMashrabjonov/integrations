@@ -26,6 +26,10 @@ Route::get('reverb', function () {
     TestEvent::dispatch();
 });
 
+Route::get('csrf-token', function () {
+    return response()->json(['csrf_token' => csrf_token()]);
+});
+
 Route::get('telegram', function (Illuminate\Http\Request $request) {
     dd($request->all());
 })->name('telegram');

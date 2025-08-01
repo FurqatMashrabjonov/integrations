@@ -60,6 +60,12 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'telegram_id',
+        'telegram_username',
+        'telegram_first_name',
+        'telegram_last_name',
+        'telegram_photo_url',
+        'telegram_language_code',
     ];
 
     protected $appends = ['integrations'];

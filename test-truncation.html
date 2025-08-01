@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Truncation Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="p-8 bg-gray-100">
+    <h1 class="text-2xl font-bold mb-6">Username Truncation Test</h1>
+    
+    <!-- Before fix - without truncation -->
+    <div class="bg-white rounded-lg p-4 mb-6 shadow">
+        <h2 class="text-lg font-semibold mb-4">Before fix (without truncation):</h2>
+        <div class="w-80 bg-gray-50 rounded-lg p-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
+                        LC
+                    </div>
+                    <span>LeetCode</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-orange-200"></div>
+                    <p class="font-semibold text-gray-800">@this_is_a_very_very_long_username_that_overflows</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- After fix - with truncation -->
+    <div class="bg-white rounded-lg p-4 shadow">
+        <h2 class="text-lg font-semibold mb-4">After fix (with truncation):</h2>
+        <div class="w-80 bg-gray-50 rounded-lg p-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2 flex-shrink-0">
+                    <div class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
+                        LC
+                    </div>
+                    <span>LeetCode</span>
+                </div>
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-8 h-8 rounded-full bg-orange-200 flex-shrink-0"></div>
+                    <p class="font-semibold text-gray-800 truncate">@this_is_a_very_very_long_username_that_overflows</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+        <h3 class="font-semibold text-blue-800 mb-2">Changes made:</h3>
+        <ul class="text-blue-700 space-y-1">
+            <li>• Added <code class="bg-white px-1 rounded">truncate</code> class to username text</li>
+            <li>• Added <code class="bg-white px-1 rounded">min-w-0</code> to parent container for proper flexbox truncation</li>
+            <li>• Added <code class="bg-white px-1 rounded">flex-shrink-0</code> to avatar images to prevent them from shrinking</li>
+            <li>• Updated CardHeader layout to use proper flex row layout</li>
+        </ul>
+    </div>
+</body>
+</html>

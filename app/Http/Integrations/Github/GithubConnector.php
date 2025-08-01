@@ -2,10 +2,12 @@
 
 namespace App\Http\Integrations\Github;
 
+use Saloon\Http\Response;
 use Saloon\Http\Connector;
 use Saloon\Helpers\OAuth2\OAuthConfig;
 use Saloon\Traits\Plugins\AcceptsJson;
 use Saloon\Traits\OAuth2\AuthorizationCodeGrant;
+use App\Http\Integrations\Github\Requests\GetUserInfo;
 
 class GithubConnector extends Connector
 {
@@ -33,5 +35,14 @@ class GithubConnector extends Connector
             ->setAuthorizeEndpoint(config('services.github.authorize_url'))
             ->setTokenEndpoint(config('services.github.token_url'))
             ->setUserEndpoint('/user');
+    }
+
+    /**
+     * Get the authenticated user information
+     */
+    public function getUser($authenticator): Response
+    {
+        $this->authenticate($authenticator);
+        return $this->send(new GetUserInfo());
     }
 }

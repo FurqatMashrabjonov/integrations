@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto-Sorted Dashboard Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .card {
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-4 max-w-md mx-auto">
+    <h1 class="text-xl font-bold mb-6 text-center">Auto-Sorted Dashboard ✨</h1>
+    
+    <!-- Compact Filter Only - Centered -->
+    <div class="flex items-center justify-center mb-6">
+        <div class="flex gap-1 bg-gray-200 p-1 rounded-xl border max-w-md w-full">
+            <button class="flex-1 px-2 py-1.5 rounded-lg font-medium bg-blue-500 text-white shadow-sm scale-105 text-xs">
+                📅 Bugun
+            </button>
+            <button class="flex-1 px-2 py-1.5 rounded-lg font-medium text-gray-600 hover:text-gray-800 text-xs">
+                📊 Hafta
+            </button>
+            <button class="flex-1 px-2 py-1.5 rounded-lg font-medium text-gray-600 hover:text-gray-800 text-xs">
+                📈 Oy
+            </button>
+        </div>
+    </div>
+
+    <!-- Auto-Sorted Cards (Integrated first) -->
+    <div class="space-y-6">
+        
+        <!-- INTEGRATED CARDS (Automatically sorted to top) -->
+        <div class="bg-green-50 border-l-4 border-green-400 p-3 rounded-r-lg mb-4">
+            <h3 class="text-green-800 font-semibold text-sm">✅ Integrated Services</h3>
+            <p class="text-green-600 text-xs">These cards are automatically shown first</p>
+        </div>
+        
+        <div class="card bg-white rounded-lg shadow-sm border p-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                        <span class="text-green-600">♥</span>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold flex items-center gap-2">
+                            Fitbit 
+                            <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">Connected</span>
+                        </h3>
+                        <p class="text-sm text-gray-600">12,847 qadamlar</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card bg-white rounded-lg shadow-sm border p-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                        <span class="text-blue-600">G</span>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold flex items-center gap-2">
+                            GitHub
+                            <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">Connected</span>
+                        </h3>
+                        <p class="text-sm text-gray-600">24 PRs, 156 commits</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- NON-INTEGRATED CARDS (Automatically sorted to bottom) -->
+        <div class="bg-orange-50 border-l-4 border-orange-400 p-3 rounded-r-lg mb-4 mt-8">
+            <h3 class="text-orange-800 font-semibold text-sm">⚠️ Not Connected</h3>
+            <p class="text-orange-600 text-xs">These cards are automatically shown last</p>
+        </div>
+
+        <div class="card bg-white rounded-lg shadow-sm border p-4 opacity-75">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                        <span class="text-purple-600">W</span>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold flex items-center gap-2">
+                            WakaTime
+                            <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">Not Connected</span>
+                        </h3>
+                        <p class="text-sm text-gray-500">Connect to see data</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card bg-white rounded-lg shadow-sm border p-4 opacity-75">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                        <span class="text-orange-600">L</span>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold flex items-center gap-2">
+                            LeetCode
+                            <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">Not Connected</span>
+                        </h3>
+                        <p class="text-sm text-gray-500">Connect to see progress</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-8 p-4 bg-blue-50 rounded-lg border border-blue-200">
+        <h3 class="font-semibold text-blue-800 mb-2">🎯 Perfect Solution!</h3>
+        <ul class="text-blue-700 space-y-1 text-sm">
+            <li>✅ No more drag-and-drop complexity</li>
+            <li>✅ Auto-sorted by integration status</li>
+            <li>✅ Integrated cards always shown first</li>
+            <li>✅ Clean, simple interface</li>
+            <li>✅ Perfect mobile experience</li>
+            <li>✅ No pull-to-refresh conflicts</li>
+        </ul>
+    </div>
+
+    <div class="mt-4 p-3 bg-green-50 rounded-lg border border-green-200">
+        <h4 class="font-semibold text-green-800 mb-1">How it works:</h4>
+        <p class="text-green-700 text-sm">Cards are automatically sorted by integration status. Connected services appear at the top, not connected services at the bottom. No manual sorting needed!</p>
+    </div>
+</body>
+</html>

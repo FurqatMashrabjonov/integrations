@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Enums\IntegrationEnum;
 use App\Dtos\IntegrationTokenDTO;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use Saloon\Exceptions\InvalidStateException;
 use Saloon\Http\Auth\AccessTokenAuthenticator;
 use Saloon\Exceptions\Request\RequestException;
@@ -50,13 +51,15 @@ class GithubService implements GithubServiceInterface
         try {
             $authenticator = $this->connector->getAccessToken($request->input('code', ''));
             $this->storeToken(new IntegrationTokenDTO(
-                user_id: auth()->id(),
+                user_id: Auth::id(),
                 integration: IntegrationEnum::GITHUB,
                 access_token: $authenticator->getAccessToken(),
                 refresh_token: $authenticator->getRefreshToken(),
                 expires_at: $authenticator->getExpiresAt()?->format('Y-m-d H:i:s') ?? null,
-                serialized: $authenticator->serialize()
+                serialized: serialize($authenticator)
             ));
+
+            $this->createIntegrationAccount($authenticator);
         } catch (\Exception $e) {
             Log::error('Error during Github callback handling: ' . $e->getMessage());
 
@@ -112,5 +115,28 @@ class GithubService implements GithubServiceInterface
         throw_if(isset($response->error));
 
         dd(json_encode($response->json()));
+    }
+
+    protected function createIntegrationAccount($authenticator): void
+    {
+        $user = $this->connector->getUser($authenticator)->object();
+        
+        // Use IntegrationAccount directly via repository
+        $integrationAccountRepo = app(\App\Repositories\Contracts\IntegrationAccountRepositoryInterface::class);
+        
+        $integrationAccountRepo->createOrUpdate([
+            'user_id'      => Auth::id(),
+            'integration'  => IntegrationEnum::GITHUB,
+            'display_name' => $user->login ?? '',
+            'full_name'    => $user->name ?? '',
+            'avatar'       => $user->avatar_url ?? '',
+            'data'         => [
+                'display_name' => $user->login ?? '',
+                'full_name'    => $user->name ?? '',
+                'avatar'       => $user->avatar_url ?? '',
+                'login'        => $user->login ?? '',
+                'connected_at' => now()->toISOString(),
+            ],
+        ]);
     }
 }

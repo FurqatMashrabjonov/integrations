@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Telegram Web App SDK</title>
+    <meta name="csrf-token" content="">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .result {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 5px;
+            background: #f5f5f5;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .telegram-data {
+            background: #e7f3ff;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+    <!-- Include Telegram Web App SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+    <h1>Telegram Web App SDK Test</h1>
+    
+    <div class="telegram-data">
+        <h3>Telegram Web App Data:</h3>
+        <pre id="telegramData">Loading...</pre>
+    </div>
+    
+    <button onclick="showTelegramData()">Refresh Telegram Data</button>
+    <button onclick="testTelegramAuth()">Test Authentication</button>
+    
+    <div id="result" class="result" style="display: none;"></div>
+
+    <script>
+        function showTelegramData() {
+            const telegramDataDiv = document.getElementById('telegramData');
+            const resultDiv = document.getElementById('result');
+            
+            if (window.Telegram && window.Telegram.WebApp) {
+                const webApp = window.Telegram.WebApp;
+                
+                // Initialize WebApp
+                webApp.ready();
+                
+                const data = {
+                    platform: webApp.platform,
+                    version: webApp.version,
+                    initData: webApp.initData || 'No initData (not in Telegram)',
+                    user: webApp.initDataUnsafe?.user || null,
+                    colorScheme: webApp.colorScheme,
+                    isExpanded: webApp.isExpanded,
+                    viewportHeight: webApp.viewportHeight,
+                    themeParams: webApp.themeParams
+                };
+                
+                telegramDataDiv.textContent = JSON.stringify(data, null, 2);
+                
+                if (!webApp.initData) {
+                    resultDiv.innerHTML = '<strong>⚠️ Warning:</strong> No initData found. This app must be opened from Telegram to get real user data.';
+                    resultDiv.className = 'result warning';
+                    resultDiv.style.display = 'block';
+                } else {
+                    resultDiv.innerHTML = '<strong>✅ Success:</strong> Telegram Web App detected with user data!';
+                    resultDiv.className = 'result success';
+                    resultDiv.style.display = 'block';
+                }
+            } else {
+                telegramDataDiv.textContent = 'Telegram Web App not available';
+                resultDiv.innerHTML = '<strong>❌ Error:</strong> Telegram Web App SDK not loaded or not running in Telegram.';
+                resultDiv.className = 'result error';
+                resultDiv.style.display = 'block';
+            }
+        }
+
+        async function testTelegramAuth() {
+            const resultDiv = document.getElementById('result');
+            
+            if (!window.Telegram || !window.Telegram.WebApp) {
+                resultDiv.innerHTML = '<strong>❌ Error:</strong> Telegram WebApp not available';
+                resultDiv.className = 'result error';
+                resultDiv.style.display = 'block';
+                return;
+            }
+
+            const webApp = window.Telegram.WebApp;
+            
+            if (!webApp.initData) {
+                resultDiv.innerHTML = '<strong>❌ Error:</strong> No initData available. This test must be run inside Telegram Web App.';
+                resultDiv.className = 'result error';
+                resultDiv.style.display = 'block';
+                return;
+            }
+            
+            try {
+                resultDiv.innerHTML = '<strong>🔄 Authenticating...</strong> Please wait...';
+                resultDiv.className = 'result';
+                resultDiv.style.display = 'block';
+
+                // Get CSRF token
+                const tokenResponse = await fetch('/csrf-token');
+                const tokenData = await tokenResponse.json();
+
+                const response = await fetch('/telegram', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': tokenData.csrf_token
+                    },
+                    body: JSON.stringify({
+                        telegram_data: webApp.initData,
+                        user_data: webApp.initDataUnsafe.user
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <strong>✅ Authentication Successful!</strong><br>
+                        User: ${data.user.name || data.user.telegram_username}<br>
+                        ID: ${data.user.id}<br>
+                        Telegram ID: ${data.user.telegram_id}<br>
+                        Status: ${data.message}
+                    `;
+                    resultDiv.className = 'result success';
+                } else {
+                    resultDiv.innerHTML = `<strong>❌ Authentication Failed:</strong><br>${data.message || 'Unknown error'}`;
+                    resultDiv.className = 'result error';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<strong>❌ Network Error:</strong><br>${error.message}`;
+                resultDiv.className = 'result error';
+            }
+            
+            resultDiv.style.display = 'block';
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            showTelegramData();
+        });
+    </script>
+</body>
+</html>

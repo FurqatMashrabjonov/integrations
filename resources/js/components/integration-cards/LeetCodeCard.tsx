@@ -4,43 +4,122 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton';
 import { Link } from '@inertiajs/react';
-import { ExternalLink, RefreshCw } from 'lucide-react';
+import { ExternalLink, RefreshCw, Trophy, Calendar } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { toast } from "sonner";
+
+interface LeetCodeProfile {
+    username: string;
+    real_name?: string;
+    user_avatar: string;
+    ranking: number;
+    ac_submission_num_easy: number;
+    ac_submission_num_medium: number;
+    ac_submission_num_hard: number;
+}
+
+interface RecentSubmission {
+    title: string;
+    date: string;
+    title_slug?: string;
+    status_display?: string;
+}
 
 interface LeetCodeCardProps {
-    username?: string
-    title?: string
-    avatarUrl?: string
-    easy?: number
-    medium?: number
-    hard?: number
-    showConnect?: boolean
-    isConnected?: boolean
-    lastSyncedAt?: string
+    isIntegrated?: (integration: string) => boolean;
+    showConnect?: boolean;
 }
 
 export default function LeetCodeCard({
-    username,
-    title,
-    avatarUrl,
-    easy = 0,
-    medium = 0,
-    hard = 0,
-    showConnect = true,
-    isConnected = false,
-    lastSyncedAt
+    isIntegrated,
+    showConnect = true
 }: LeetCodeCardProps) {
+    const [isConnected, setIsConnected] = useState(false);
+    const [profile, setProfile] = useState<LeetCodeProfile | null>(null);
+    const [recent, setRecent] = useState<RecentSubmission[]>([]);
+    const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        checkConnection();
+    }, []);
+
+    const checkConnection = async () => {
+        try {
+            setLoading(true);
+            const existsRes = await fetch(route('integrations.leetcode.exists'), {
+                headers: { 'Accept': 'application/json' }
+            });
+
+            if (existsRes.ok) {
+                const existsData = await existsRes.json();
+                setIsConnected(existsData.exists);
+
+                if (existsData.exists) {
+                    await fetchProfileData();
+                }
+            }
+        } catch (error) {
+            console.error('Error checking LeetCode connection:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchProfileData = async () => {
+        try {
+            const showRes = await fetch(route('integrations.leetcode.show'), {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (showRes.ok) {
+                const data = await showRes.json();
+                setProfile(data.profile || null);
+                setRecent(data.recent || []);
+                setLastSyncedAt(data.last_synced_at);
+            } else if (showRes.status === 404) {
+                // Profile not yet synced
+                setProfile(null);
+            }
+        } catch (error) {
+            console.error('Error fetching LeetCode profile:', error);
+        }
+    };
+
     const formatDate = (dateString?: string) => {
         if (!dateString) return null;
         try {
             const date = new Date(dateString);
-            return date.toLocaleDateString('uz-UZ', {
+            return date.toLocaleString('uz-UZ', {
                 month: 'short',
-                day: 'numeric'
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
             });
         } catch {
             return null;
         }
+    };
+
+    const getTotalSolved = () => {
+        if (!profile) return 0;
+        return profile.ac_submission_num_easy + profile.ac_submission_num_medium + profile.ac_submission_num_hard;
+    };
+
+    const getRecentSubmissionsToday = () => {
+        const today = new Date().toDateString();
+        return recent.filter(submission => {
+            try {
+                return new Date(submission.date).toDateString() === today;
+            } catch {
+                return false;
+            }
+        }).length;
     };
 
     return (
@@ -72,19 +151,22 @@ export default function LeetCodeCard({
                                     <path fill="#070706" d="M8.115 22.814a2.109 2.109 0 0 1-.474-.361c-1.327-1.333-2.66-2.66-3.984-3.997-1.989-2.008-2.302-4.937-.786-7.32a6 6 0 0 1 .839-1.004L13.333.489c.625-.626 1.498-.652 2.079-.067.56.563.527 1.455-.078 2.066-.769.776-1.539 1.55-2.309 2.325-.041.122-.14.2-.225.287-.863.876-1.75 1.729-2.601 2.618-.111.116-.262.186-.372.305-1.423 1.423-2.863 2.83-4.266 4.272-1.135 1.167-1.097 2.938.068 4.127 1.308 1.336 2.639 2.65 3.961 3.974.067.067.136.132.204.198.468.303.474 1.25.183 1.671-.321.465-.74.75-1.333.728-.199-.006-.363-.086-.529-.179z"/>
                                 </svg>
                             </div>
-                            <CardTitle className="text-lg font-bold">LeetCode</CardTitle>
                         </div>
-                        {isConnected && username && (
+                        {isConnected && profile && (
                             <div className="flex items-center gap-3">
-                                {avatarUrl && (
+                                {profile.user_avatar && (
                                     <img
-                                        src={avatarUrl}
+                                        src={profile.user_avatar}
                                         alt="LeetCode Profile"
                                         className="w-8 h-8 rounded-full border-2 border-orange-200"
+                                        loading="lazy"
+                                        onError={(e) => {
+                                            e.currentTarget.src = 'https://via.placeholder.com/32?text=LC';
+                                        }}
                                     />
                                 )}
-                                <div className="text-right">
-                                    <p className="font-semibold text-foreground text-sm">@{username}</p>
+                                <div className="text-right min-w-0 flex-shrink">
+                                    <p className="font-semibold text-foreground text-sm truncate">@{profile.username}</p>
                                     {lastSyncedAt && (
                                         <div className="flex items-center gap-1 text-xs text-muted-foreground">
                                             <RefreshCw className="w-3 h-3" />
@@ -96,25 +178,96 @@ export default function LeetCodeCard({
                         )}
                     </CardHeader>
                     <CardContent>
-                        {isConnected ? (
-                            <div className="grid grid-cols-3 gap-3">
-                                <div className="text-center p-3 bg-green-50 rounded-lg border border-green-200">
-                                    <div className="flex items-center justify-center gap-1 mb-1">
-                                        <span className="text-lg font-bold text-green-600">{easy}</span>
+                        {loading ? (
+                            <div className="space-y-4">
+                                {/* Main Stats Skeleton */}
+                                <div className="grid grid-cols-3 gap-3">
+                                    <div className="text-center p-3 bg-green-50 rounded-lg border border-green-200">
+                                        <Skeleton className="h-6 w-8 mx-auto mb-1" />
+                                        <Skeleton className="h-3 w-8 mx-auto" />
                                     </div>
-                                    <p className="text-xs text-green-600 font-medium">Easy</p>
+                                    <div className="text-center p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                                        <Skeleton className="h-6 w-8 mx-auto mb-1" />
+                                        <Skeleton className="h-3 w-12 mx-auto" />
+                                    </div>
+                                    <div className="text-center p-3 bg-red-50 rounded-lg border border-red-200">
+                                        <Skeleton className="h-6 w-8 mx-auto mb-1" />
+                                        <Skeleton className="h-3 w-8 mx-auto" />
+                                    </div>
                                 </div>
-                                <div className="text-center p-3 bg-yellow-50 rounded-lg border border-yellow-200">
-                                    <div className="flex items-center justify-center gap-1 mb-1">
-                                        <span className="text-lg font-bold text-yellow-600">{medium}</span>
-                                    </div>
-                                    <p className="text-xs text-yellow-600 font-medium">Medium</p>
+
+                                {/* Additional Info Skeleton */}
+                                <div className="grid grid-cols-2 gap-3 text-xs">
+                                    <Skeleton className="h-4 w-20" />
+                                    <Skeleton className="h-4 w-16" />
                                 </div>
-                                <div className="text-center p-3 bg-red-50 rounded-lg border border-red-200">
-                                    <div className="flex items-center justify-center gap-1 mb-1">
-                                        <span className="text-lg font-bold text-red-600">{hard}</span>
+
+                                {/* Total solved skeleton */}
+                                <div className="text-center">
+                                    <Skeleton className="h-4 w-32 mx-auto" />
+                                </div>
+                            </div>
+                        ) : isConnected && profile ? (
+                            <div className="space-y-4">
+                                {/* Main Stats */}
+                                <div className="grid grid-cols-3 gap-3">
+                                    <div className="text-center p-3 bg-green-50 rounded-lg border border-green-200">
+                                        <div className="flex items-center justify-center gap-1 mb-1">
+                                            <span className="text-lg font-bold text-green-600">{profile.ac_submission_num_easy}</span>
+                                        </div>
+                                        <p className="text-xs text-green-600 font-medium">Easy</p>
                                     </div>
-                                    <p className="text-xs text-red-600 font-medium">Hard</p>
+                                    <div className="text-center p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                                        <div className="flex items-center justify-center gap-1 mb-1">
+                                            <span className="text-lg font-bold text-yellow-600">{profile.ac_submission_num_medium}</span>
+                                        </div>
+                                        <p className="text-xs text-yellow-600 font-medium">Medium</p>
+                                    </div>
+                                    <div className="text-center p-3 bg-red-50 rounded-lg border border-red-200">
+                                        <div className="flex items-center justify-center gap-1 mb-1">
+                                            <span className="text-lg font-bold text-red-600">{profile.ac_submission_num_hard}</span>
+                                        </div>
+                                        <p className="text-xs text-red-600 font-medium">Hard</p>
+                                    </div>
+                                </div>
+
+                                {/* Additional Info */}
+                                <div className="grid grid-cols-2 gap-3 text-xs">
+                                    <div className="flex items-center gap-1 text-muted-foreground">
+                                        <Trophy className="w-3 h-3" />
+                                        <span>Rank: {profile.ranking?.toLocaleString() || 'N/A'}</span>
+                                    </div>
+                                    <div className="flex items-center gap-1 text-muted-foreground">
+                                        <Calendar className="w-3 h-3" />
+                                        <span>Bugun: {getRecentSubmissionsToday()}</span>
+                                    </div>
+                                </div>
+
+                                {/* Total solved */}
+                                <div className="text-center text-sm text-muted-foreground">
+                                    Jami yechilgan: <span className="font-semibold text-foreground">{getTotalSolved()}</span>
+                                </div>
+                            </div>
+                        ) : isConnected && !profile ? (
+                            <div className="space-y-4">
+                                {/* Main Stats Skeleton */}
+                                <div className="grid grid-cols-3 gap-3">
+                                    <div className="text-center p-3 bg-green-50 rounded-lg border border-green-200">
+                                        <Skeleton className="h-6 w-8 mx-auto mb-1" />
+                                        <Skeleton className="h-3 w-8 mx-auto" />
+                                    </div>
+                                    <div className="text-center p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                                        <Skeleton className="h-6 w-8 mx-auto mb-1" />
+                                        <Skeleton className="h-3 w-12 mx-auto" />
+                                    </div>
+                                    <div className="text-center p-3 bg-red-50 rounded-lg border border-red-200">
+                                        <Skeleton className="h-6 w-8 mx-auto mb-1" />
+                                        <Skeleton className="h-3 w-8 mx-auto" />
+                                    </div>
+                                </div>
+
+                                <div className="text-center">
+                                    <Skeleton className="h-4 w-48 mx-auto" />
                                 </div>
                             </div>
                         ) : (

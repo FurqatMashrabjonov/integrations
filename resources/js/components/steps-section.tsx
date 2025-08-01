@@ -55,26 +55,11 @@ export default function StepsSection({
 
             {/* Integration Cards */}
             <div className="space-y-6">
-                <FitbitCard
-                    steps={12847}
-                    distance={8.2}
-                />
+                <FitbitCard />
 
-                <GitHubCard
-                    username="furqat-dev"
-                    title="Full Stack Developer"
-                    prs={24}
-                    commits={156}
-                />
+                <GitHubCard />
 
-                <WakapiCard
-                    todayHours="6h 42m"
-                    weekHours="38h 15m"
-                    languages={[
-                        { name: "TypeScript", percentage: 45, color: "#3178c6" },
-                        { name: "PHP", percentage: 35, color: "#777bb4" }
-                    ]}
-                />
+                <WakapiCard />
 
                 <LeetCodeCard
                     easy={127}

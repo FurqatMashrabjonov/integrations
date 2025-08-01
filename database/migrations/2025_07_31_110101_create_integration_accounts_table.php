@@ -1,0 +1,36 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('integration_accounts', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->string('display_name')->nullable();
+            $table->string('full_name')->nullable();
+            $table->string('avatar')->nullable();
+            $table->enum('integration', ['fitbit', 'github', 'leetcode', 'wakapi']);
+            $table->json('data'); // Full response data from the integration
+            $table->timestamps();
+
+            $table->unique(['user_id', 'integration']);
+            $table->index(['user_id', 'integration']);
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('integration_accounts');
+    }
+};

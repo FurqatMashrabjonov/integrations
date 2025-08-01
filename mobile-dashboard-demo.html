@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Dashboard Demo - Final</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .animate-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .5; }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-4 max-w-md mx-auto">
+    <h1 class="text-xl font-bold mb-6 text-center">Mobile Dashboard Demo - Final</h1>
+    
+    <!-- Compact Filter Buttons (Card Style) -->
+    <div class="flex gap-1 bg-gray-200 p-1 rounded-xl border mb-4">
+        <button class="flex-1 px-3 py-2 rounded-lg font-medium bg-blue-500 text-white shadow-sm scale-105">
+            <div class="flex flex-col items-center gap-1">
+                <span class="text-sm">📅</span>
+                <span class="text-xs font-semibold">Bugun</span>
+            </div>
+        </button>
+        <button class="flex-1 px-3 py-2 rounded-lg font-medium text-gray-600 hover:text-gray-800">
+            <div class="flex flex-col items-center gap-1">
+                <span class="text-sm">📊</span>
+                <span class="text-xs font-semibold">Hafta</span>
+            </div>
+        </button>
+        <button class="flex-1 px-3 py-2 rounded-lg font-medium text-gray-600 hover:text-gray-800">
+            <div class="flex flex-col items-center gap-1">
+                <span class="text-sm">📈</span>
+                <span class="text-xs font-semibold">Oy</span>
+            </div>
+        </button>
+    </div>
+
+    <!-- View Mode Controls -->
+    <div class="flex justify-between items-center mb-4">
+        <h3 class="text-sm font-medium text-gray-600">Ko'rinish</h3>
+        <div class="flex gap-3 items-center">
+            <button class="border border-gray-300 rounded px-2 py-1 h-8">
+                <span class="text-xs">↻</span>
+            </button>
+            <div class="flex gap-1 bg-gray-200 p-1 rounded-lg border">
+                <button class="px-2 h-7 bg-blue-500 text-white rounded" title="Oddiy">
+                    <span class="text-xs">⊞</span>
+                </button>
+                <button class="px-2 h-7 text-gray-600 hover:bg-gray-100 rounded" title="2x2 Grid">
+                    <span class="text-xs">⊟</span>
+                </button>
+                <button class="px-2 h-7 text-gray-600 hover:bg-gray-100 rounded" title="List">
+                    <span class="text-xs">≡</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Drag and Drop Hint -->
+    <div class="text-center bg-gray-100 rounded-lg p-3 border border-dashed border-gray-300 mb-4">
+        <p class="text-sm text-gray-600">
+            <span class="inline-block mr-1">⋮⋮</span>
+            Kartalarni bosib ushlab suring
+        </p>
+    </div>
+
+    <!-- Demo: Normal View -->
+    <div class="mb-8">
+        <h2 class="text-lg font-semibold mb-3">Normal View (Big Mode)</h2>
+        <div class="space-y-6">
+            <div class="bg-white rounded-lg shadow-sm border p-4 relative group hover:shadow-md transition-all">
+                <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 bg-gray-100 p-2 rounded-lg shadow-sm cursor-grab">
+                    <span class="text-gray-600 text-lg">⋮⋮</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                            <span class="text-green-600">♥</span>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold">Fitbit</h3>
+                            <p class="text-sm text-gray-600">12,847 qadamlar</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Demo: 2x2 Grid View -->
+    <div class="mb-8">
+        <h2 class="text-lg font-semibold mb-3">Small View (2x2 Grid)</h2>
+        <div class="grid grid-cols-2 gap-3">
+            <div class="transform scale-75 bg-white rounded-lg shadow-sm border p-1 relative group hover:shadow-md">
+                <div class="absolute top-1 right-1 opacity-0 group-hover:opacity-100 bg-gray-100 p-1 rounded shadow-sm cursor-grab">
+                    <span class="text-gray-600 text-sm">⋮⋮</span>
+                </div>
+                <div class="py-1 px-2">
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                            <span class="text-green-600 text-xs">♥</span>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-semibold">Fitbit</h4>
+                            <p class="text-xs text-gray-600">12K steps</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="transform scale-75 bg-white rounded-lg shadow-sm border p-1 relative group hover:shadow-md">
+                <div class="absolute top-1 right-1 opacity-0 group-hover:opacity-100 bg-gray-100 p-1 rounded shadow-sm cursor-grab">
+                    <span class="text-gray-600 text-sm">⋮⋮</span>
+                </div>
+                <div class="py-1 px-2">
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                            <span class="text-blue-600 text-xs">G</span>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-semibold">GitHub</h4>
+                            <p class="text-xs text-gray-600">24 PRs</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="transform scale-75 bg-white rounded-lg shadow-sm border p-1 relative group hover:shadow-md">
+                <div class="absolute top-1 right-1 opacity-0 group-hover:opacity-100 bg-gray-100 p-1 rounded shadow-sm cursor-grab">
+                    <span class="text-gray-600 text-sm">⋮⋮</span>
+                </div>
+                <div class="py-1 px-2">
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                            <span class="text-purple-600 text-xs">W</span>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-semibold">WakaTime</h4>
+                            <p class="text-xs text-gray-600">6h 42m</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="transform scale-75 bg-white rounded-lg shadow-sm border p-1 relative group hover:shadow-md">
+                <div class="absolute top-1 right-1 opacity-0 group-hover:opacity-100 bg-gray-100 p-1 rounded shadow-sm cursor-grab">
+                    <span class="text-gray-600 text-sm">⋮⋮</span>
+                </div>
+                <div class="py-1 px-2">
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+                            <span class="text-orange-600 text-xs">L</span>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-semibold">LeetCode</h4>
+                            <p class="text-xs text-gray-600">127 solved</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Demo: List View -->
+    <div class="mb-8">
+        <h2 class="text-lg font-semibold mb-3">List View</h2>
+        <div class="space-y-1">
+            <div class="border rounded-lg bg-white shadow-sm transform scale-90 pl-6 relative hover:shadow-md">
+                <div class="absolute top-1/2 left-2 -translate-y-1/2 opacity-70 p-1 cursor-grab">
+                    <span class="text-gray-600 text-lg">⋮⋮</span>
+                </div>
+                <div class="py-2 px-3">
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                            <span class="text-green-600 text-xs">♥</span>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-semibold">Fitbit</h4>
+                            <p class="text-xs text-gray-600">12,847 qadamlar</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-8 p-4 bg-green-50 rounded-lg border border-green-200">
+        <h3 class="font-semibold text-green-800 mb-2">✅ All Issues Fixed:</h3>
+        <ul class="text-green-700 space-y-1 text-sm">
+            <li>✅ Removed "Filtrlar" text, compact filter design</li>
+            <li>✅ Drag handles moved INSIDE cards, bigger size</li>
+            <li>✅ Small view = 2x2 grid layout</li>
+            <li>✅ Perfect mobile touch experience</li>
+            <li>✅ Card-style filter buttons</li>
+        </ul>
+    </div>
+</body>
+</html>
