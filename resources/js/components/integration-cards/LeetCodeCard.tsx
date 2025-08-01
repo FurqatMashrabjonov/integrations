@@ -5,50 +5,60 @@ import {
     CardTitle,
 } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton';
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { ExternalLink, RefreshCw, Trophy, Calendar } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { toast } from "sonner";
 
-interface LeetCodeProfile {
-    username: string;
-    real_name?: string;
-    user_avatar: string;
+interface LeetCodeStats {
+    problems_solved_easy: number;
+    problems_solved_medium: number;
+    problems_solved_hard: number;
+    submissions_today: number;
     ranking: number;
-    ac_submission_num_easy: number;
-    ac_submission_num_medium: number;
-    ac_submission_num_hard: number;
-}
-
-interface RecentSubmission {
-    title: string;
-    date: string;
-    title_slug?: string;
-    status_display?: string;
+    last_updated: string | null;
 }
 
 interface LeetCodeCardProps {
     isIntegrated?: (integration: string) => boolean;
     showConnect?: boolean;
+    dateFilter?: 'today' | 'weekly' | 'monthly';
+}
+
+interface PageProps {
+    auth: {
+        user: {
+            id: number;
+            name: string;
+            email: string;
+        }
+    };
+    [key: string]: any;
 }
 
 export default function LeetCodeCard({
     isIntegrated,
-    showConnect = true
+    showConnect = true,
+    dateFilter = 'today'
 }: LeetCodeCardProps) {
+    const { props } = usePage<PageProps>();
+    const userId = props.auth?.user?.id;
+    
     const [isConnected, setIsConnected] = useState(false);
-    const [profile, setProfile] = useState<LeetCodeProfile | null>(null);
-    const [recent, setRecent] = useState<RecentSubmission[]>([]);
-    const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(null);
+    const [stats, setStats] = useState<LeetCodeStats | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         checkConnection();
     }, []);
 
+    useEffect(() => {
+        if (isConnected) {
+            fetchStats();
+        }
+    }, [isConnected, dateFilter]);
+
     const checkConnection = async () => {
         try {
-            setLoading(true);
             const existsRes = await fetch(route('integrations.leetcode.exists'), {
                 headers: { 'Accept': 'application/json' }
             });
@@ -56,10 +66,6 @@ export default function LeetCodeCard({
             if (existsRes.ok) {
                 const existsData = await existsRes.json();
                 setIsConnected(existsData.exists);
-
-                if (existsData.exists) {
-                    await fetchProfileData();
-                }
             }
         } catch (error) {
             console.error('Error checking LeetCode connection:', error);
@@ -68,26 +74,57 @@ export default function LeetCodeCard({
         }
     };
 
-    const fetchProfileData = async () => {
+    const fetchStats = async () => {
         try {
-            const showRes = await fetch(route('integrations.leetcode.show'), {
+            if (!userId) return;
+
+            const today = new Date();
+            let startDate: string;
+            let endDate = today.toISOString().split('T')[0];
+
+            switch (dateFilter) {
+                case 'weekly':
+                    startDate = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+                    break;
+                case 'monthly':
+                    startDate = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+                    break;
+                default:
+                    startDate = endDate;
+            }
+
+            const params = new URLSearchParams({
+                user_id: userId.toString(),
+                provider: 'leetcode',
+                start_date: startDate,
+                end_date: endDate
+            });
+
+            const response = await fetch(`/api/daily-stats-aggregated?${params}`, {
                 headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json'
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
                 }
             });
 
-            if (showRes.ok) {
-                const data = await showRes.json();
-                setProfile(data.profile || null);
-                setRecent(data.recent || []);
-                setLastSyncedAt(data.last_synced_at);
-            } else if (showRes.status === 404) {
-                // Profile not yet synced
-                setProfile(null);
+            if (response.ok) {
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    const aggregatedData = data.data;
+                    
+                    setStats({
+                        problems_solved_easy: aggregatedData.problems_solved_easy?.total || 0,
+                        problems_solved_medium: aggregatedData.problems_solved_medium?.total || 0,
+                        problems_solved_hard: aggregatedData.problems_solved_hard?.total || 0,
+                        submissions_today: aggregatedData.submissions_today?.total || 0,
+                        ranking: aggregatedData.ranking?.total || 0,
+                        last_updated: aggregatedData.problems_solved_easy?.values?.[0]?.date || null
+                    });
+                }
             }
         } catch (error) {
-            console.error('Error fetching LeetCode profile:', error);
+            console.error('Error fetching LeetCode stats:', error);
         }
     };
 
@@ -107,20 +144,24 @@ export default function LeetCodeCard({
     };
 
     const getTotalSolved = () => {
-        if (!profile) return 0;
-        return profile.ac_submission_num_easy + profile.ac_submission_num_medium + profile.ac_submission_num_hard;
+        if (!stats) return 0;
+        return stats.problems_solved_easy + stats.problems_solved_medium + stats.problems_solved_hard;
     };
 
-    const getRecentSubmissionsToday = () => {
-        const today = new Date().toDateString();
-        return recent.filter(submission => {
-            try {
-                return new Date(submission.date).toDateString() === today;
-            } catch {
-                return false;
-            }
-        }).length;
+    const getDisplayStats = () => {
+        if (!stats) return { easy: 0, medium: 0, hard: 0, ranking: 0, todaySubmissions: 0, period: 'Bugun' };
+        
+        return {
+            easy: stats.problems_solved_easy,
+            medium: stats.problems_solved_medium,
+            hard: stats.problems_solved_hard,
+            ranking: stats.ranking,
+            todaySubmissions: stats.submissions_today,
+            period: dateFilter === 'weekly' ? 'Bu hafta' : dateFilter === 'monthly' ? 'Bu oy' : 'Bugun'
+        };
     };
+
+    const displayStats = getDisplayStats();
 
     return (
         <div className="relative w-full h-full flex items-center justify-center">
@@ -152,27 +193,11 @@ export default function LeetCodeCard({
                                 </svg>
                             </div>
                         </div>
-                        {isConnected && profile && (
-                            <div className="flex items-center gap-3">
-                                {profile.user_avatar && (
-                                    <img
-                                        src={profile.user_avatar}
-                                        alt="LeetCode Profile"
-                                        className="w-8 h-8 rounded-full border-2 border-orange-200"
-                                        loading="lazy"
-                                        onError={(e) => {
-                                            e.currentTarget.src = 'https://via.placeholder.com/32?text=LC';
-                                        }}
-                                    />
-                                )}
-                                <div className="text-right min-w-0 flex-shrink">
-                                    <p className="font-semibold text-foreground text-sm truncate">@{profile.username}</p>
-                                    {lastSyncedAt && (
-                                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                                            <RefreshCw className="w-3 h-3" />
-                                            {formatDate(lastSyncedAt)}
-                                        </div>
-                                    )}
+                        {isConnected && stats?.last_updated && (
+                            <div className="text-right">
+                                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                                    <RefreshCw className="w-3 h-3" />
+                                    {formatDate(stats.last_updated)}
                                 </div>
                             </div>
                         )}
@@ -207,25 +232,25 @@ export default function LeetCodeCard({
                                     <Skeleton className="h-4 w-32 mx-auto" />
                                 </div>
                             </div>
-                        ) : isConnected && profile ? (
+                        ) : isConnected && stats ? (
                             <div className="space-y-4">
                                 {/* Main Stats */}
                                 <div className="grid grid-cols-3 gap-3">
                                     <div className="text-center p-3 bg-green-50 rounded-lg border border-green-200">
                                         <div className="flex items-center justify-center gap-1 mb-1">
-                                            <span className="text-lg font-bold text-green-600">{profile.ac_submission_num_easy}</span>
+                                            <span className="text-lg font-bold text-green-600">{displayStats.easy}</span>
                                         </div>
                                         <p className="text-xs text-green-600 font-medium">Easy</p>
                                     </div>
                                     <div className="text-center p-3 bg-yellow-50 rounded-lg border border-yellow-200">
                                         <div className="flex items-center justify-center gap-1 mb-1">
-                                            <span className="text-lg font-bold text-yellow-600">{profile.ac_submission_num_medium}</span>
+                                            <span className="text-lg font-bold text-yellow-600">{displayStats.medium}</span>
                                         </div>
                                         <p className="text-xs text-yellow-600 font-medium">Medium</p>
                                     </div>
                                     <div className="text-center p-3 bg-red-50 rounded-lg border border-red-200">
                                         <div className="flex items-center justify-center gap-1 mb-1">
-                                            <span className="text-lg font-bold text-red-600">{profile.ac_submission_num_hard}</span>
+                                            <span className="text-lg font-bold text-red-600">{displayStats.hard}</span>
                                         </div>
                                         <p className="text-xs text-red-600 font-medium">Hard</p>
                                     </div>
@@ -235,39 +260,17 @@ export default function LeetCodeCard({
                                 <div className="grid grid-cols-2 gap-3 text-xs">
                                     <div className="flex items-center gap-1 text-muted-foreground">
                                         <Trophy className="w-3 h-3" />
-                                        <span>Rank: {profile.ranking?.toLocaleString() || 'N/A'}</span>
+                                        <span>Rank: {displayStats.ranking?.toLocaleString() || 'N/A'}</span>
                                     </div>
                                     <div className="flex items-center gap-1 text-muted-foreground">
                                         <Calendar className="w-3 h-3" />
-                                        <span>Bugun: {getRecentSubmissionsToday()}</span>
+                                        <span>{displayStats.period}: {displayStats.todaySubmissions}</span>
                                     </div>
                                 </div>
 
                                 {/* Total solved */}
                                 <div className="text-center text-sm text-muted-foreground">
                                     Jami yechilgan: <span className="font-semibold text-foreground">{getTotalSolved()}</span>
-                                </div>
-                            </div>
-                        ) : isConnected && !profile ? (
-                            <div className="space-y-4">
-                                {/* Main Stats Skeleton */}
-                                <div className="grid grid-cols-3 gap-3">
-                                    <div className="text-center p-3 bg-green-50 rounded-lg border border-green-200">
-                                        <Skeleton className="h-6 w-8 mx-auto mb-1" />
-                                        <Skeleton className="h-3 w-8 mx-auto" />
-                                    </div>
-                                    <div className="text-center p-3 bg-yellow-50 rounded-lg border border-yellow-200">
-                                        <Skeleton className="h-6 w-8 mx-auto mb-1" />
-                                        <Skeleton className="h-3 w-12 mx-auto" />
-                                    </div>
-                                    <div className="text-center p-3 bg-red-50 rounded-lg border border-red-200">
-                                        <Skeleton className="h-6 w-8 mx-auto mb-1" />
-                                        <Skeleton className="h-3 w-8 mx-auto" />
-                                    </div>
-                                </div>
-
-                                <div className="text-center">
-                                    <Skeleton className="h-4 w-48 mx-auto" />
                                 </div>
                             </div>
                         ) : (
@@ -277,7 +280,7 @@ export default function LeetCodeCard({
                                         <path fill="currentColor" d="M22 14.355c0-.742-.564-1.346-1.26-1.346H10.676c-.696 0-1.26.604-1.26 1.346s.563 1.346 1.26 1.346H20.74c.696.001 1.26-.603 1.26-1.346z"/>
                                     </svg>
                                 </div>
-                                <p className="text-sm">Akkaunt ulanmagan</p>
+                                <p className="text-sm text-muted-foreground">Ma'lumot mavjud emas</p>
                             </div>
                         )}
                     </CardContent>

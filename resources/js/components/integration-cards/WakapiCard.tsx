@@ -5,26 +5,32 @@ import {
     CardTitle,
 } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton';
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { ExternalLink, RefreshCw, Clock, Code } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
-interface WakapiProfile {
-    display_name: string;
-    full_name?: string;
-    today_hours: number;
-    today_seconds: number;
-    week_hours: number;
-    week_seconds: number;
-    languages: Array<{name: string, total_seconds: number, percent: number}>;
-    projects: Array<{name: string, total_seconds: number, percent: number}>;
-    last_synced_at?: string;
-    avatar?: string;
+interface WakapiStats {
+    coding_time: number;
+    languages_count: number;
+    projects_count: number;
+    last_updated: string | null;
 }
 
 interface WakapiCardProps {
     isIntegrated?: boolean;
     showConnect?: boolean;
+    dateFilter?: 'today' | 'weekly' | 'monthly';
+}
+
+interface PageProps {
+    auth: {
+        user: {
+            id: number;
+            name: string;
+            email: string;
+        }
+    };
+    [key: string]: any;
 }
 
 function getSystemThemeColor() {
@@ -36,20 +42,28 @@ function getSystemThemeColor() {
 
 export default function WakapiCard({
     isIntegrated,
-    showConnect = true
+    showConnect = true,
+    dateFilter = 'today'
 }: WakapiCardProps) {
+    const { props } = usePage<PageProps>();
+    const userId = props.auth?.user?.id;
+    
     const [isConnected, setIsConnected] = useState(false);
-    const [profile, setProfile] = useState<WakapiProfile | null>(null);
-    const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(null);
+    const [stats, setStats] = useState<WakapiStats | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         checkConnection();
     }, []);
 
+    useEffect(() => {
+        if (isConnected) {
+            fetchStats();
+        }
+    }, [isConnected, dateFilter]);
+
     const checkConnection = async () => {
         try {
-            setLoading(true);
             const existsRes = await fetch(route('integrations.wakapi.exists'), {
                 headers: { 'Accept': 'application/json' }
             });
@@ -57,10 +71,6 @@ export default function WakapiCard({
             if (existsRes.ok) {
                 const existsData = await existsRes.json();
                 setIsConnected(existsData.exists);
-
-                if (existsData.exists) {
-                    await fetchProfileData();
-                }
             }
         } catch (error) {
             console.error('Error checking Wakapi connection:', error);
@@ -69,25 +79,55 @@ export default function WakapiCard({
         }
     };
 
-    const fetchProfileData = async () => {
+    const fetchStats = async () => {
         try {
-            const showRes = await fetch(route('integrations.wakapi.show'), {
+            if (!userId) return;
+
+            const today = new Date();
+            let startDate: string;
+            let endDate = today.toISOString().split('T')[0];
+
+            switch (dateFilter) {
+                case 'weekly':
+                    startDate = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+                    break;
+                case 'monthly':
+                    startDate = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+                    break;
+                default:
+                    startDate = endDate;
+            }
+
+            const params = new URLSearchParams({
+                user_id: userId.toString(),
+                provider: 'wakapi',
+                start_date: startDate,
+                end_date: endDate
+            });
+
+            const response = await fetch(`/api/daily-stats-aggregated?${params}`, {
                 headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json'
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
                 }
             });
 
-            if (showRes.ok) {
-                const data = await showRes.json();
-                setProfile(data);
-                setLastSyncedAt(data.last_synced_at);
-            } else if (showRes.status === 404) {
-                // Profile not yet synced
-                setProfile(null);
+            if (response.ok) {
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    const aggregatedData = data.data;
+                    
+                    setStats({
+                        coding_time: aggregatedData.coding_time?.total || 0,
+                        languages_count: aggregatedData.languages_count?.total || 0,
+                        projects_count: aggregatedData.projects_count?.total || 0,
+                        last_updated: aggregatedData.coding_time?.values?.[0]?.date || null
+                    });
+                }
             }
         } catch (error) {
-            console.error('Error fetching Wakapi profile:', error);
+            console.error('Error fetching Wakapi stats:', error);
         }
     };
 
@@ -114,14 +154,32 @@ export default function WakapiCard({
         }
     };
 
-    const formatHours = (seconds: number) => {
-        const hours = Math.floor(seconds / 3600);
-        const minutes = Math.floor((seconds % 3600) / 60);
-        if (hours > 0) {
-            return `${hours}s ${minutes}d`;
+    const getDisplayStats = () => {
+        if (!stats) return { codingTime: 0, languagesCount: 0, period: 'Bugun' };
+        
+        switch (dateFilter) {
+            case 'weekly':
+                return { 
+                    codingTime: stats.coding_time, 
+                    languagesCount: stats.languages_count, 
+                    period: 'Bu hafta' 
+                };
+            case 'monthly':
+                return { 
+                    codingTime: stats.coding_time, 
+                    languagesCount: stats.languages_count, 
+                    period: 'Bu oy' 
+                };
+            default:
+                return { 
+                    codingTime: stats.coding_time, 
+                    languagesCount: stats.languages_count, 
+                    period: 'Bugun' 
+                };
         }
-        return `${minutes}d`;
     };
+
+    const displayStats = getDisplayStats();
 
     return (
         <div className="relative w-full h-full flex items-center justify-center">
@@ -152,27 +210,11 @@ export default function WakapiCard({
                                 </svg>
                             </div>
                         </div>
-                        {isConnected && profile && (
-                            <div className="flex items-center gap-3">
-                                {profile.avatar && (
-                                    <img
-                                        src={profile.avatar}
-                                        alt="Wakapi Profile"
-                                        className="w-8 h-8 rounded-full border-2 border-gray-200"
-                                        loading="lazy"
-                                        onError={(e) => {
-                                            e.currentTarget.src = 'https://via.placeholder.com/32?text=W';
-                                        }}
-                                    />
-                                )}
-                                <div className="text-right min-w-0 flex-shrink">
-                                    <p className="font-semibold text-foreground text-sm truncate">@{profile.display_name}</p>
-                                    {lastSyncedAt && (
-                                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                                            <RefreshCw className="w-3 h-3" />
-                                            {formatDate(lastSyncedAt)}
-                                        </div>
-                                    )}
+                        {isConnected && stats?.last_updated && (
+                            <div className="text-right">
+                                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                                    <RefreshCw className="w-3 h-3" />
+                                    {formatDate(stats.last_updated)}
                                 </div>
                             </div>
                         )}
@@ -189,19 +231,19 @@ export default function WakapiCard({
                                     <Skeleton className="h-3 w-8 mx-auto" />
                                 </div>
                             </div>
-                        ) : isConnected && profile ? (
+                        ) : isConnected && stats ? (
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="text-center p-3 bg-orange-50 rounded-lg border border-orange-200">
                                     <div className="flex items-center justify-center gap-1 mb-1">
                                         <Clock className="w-4 h-4 text-orange-600" />
-                                        <span className="text-lg font-bold text-orange-600">{formatHours(profile.today_seconds)}</span>
+                                        <span className="text-lg font-bold text-orange-600">{Math.floor(displayStats.codingTime / 3600)}h {Math.floor((displayStats.codingTime % 3600) / 60)}m</span>
                                     </div>
-                                    <p className="text-xs text-orange-600 font-medium">Bugungi vaqt</p>
+                                    <p className="text-xs text-orange-600 font-medium">{displayStats.period} vaqt</p>
                                 </div>
                                 <div className="text-center p-3 bg-blue-50 rounded-lg border border-blue-200">
                                     <div className="flex items-center justify-center gap-1 mb-1">
                                         <Code className="w-4 h-4 text-blue-600" />
-                                        <span className="text-lg font-bold text-blue-600">{profile.languages?.length || 0}</span>
+                                        <span className="text-lg font-bold text-blue-600">{displayStats.languagesCount}</span>
                                     </div>
                                     <p className="text-xs text-blue-600 font-medium">Tillar</p>
                                 </div>
@@ -213,7 +255,7 @@ export default function WakapiCard({
                                         <path fill="currentColor" d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12 -5.373 12 -12S18.627 0 12 0zm0 2.824a9.176 9.176 0 1 1 0 18.352 9.176 9.176 0 0 1 0 -18.352zm5.097 5.058c-0.327 0 -0.61 0.19 -0.764 0.45 -1.025 1.463 -2.21 3.162 -3.288 4.706l-0.387 -0.636a0.897 0.897 0 0 0 -0.759 -0.439 0.901 0.901 0 0 0 -0.788 0.492l-0.357 0.581 -1.992 -2.943a0.897 0.897 0 0 0 -0.761 -0.446c-0.514 0 -0.903 0.452 -0.903 0.96a1 1 0 0 0 0.207 0.61l2.719 3.96c0.152 0.272 0.44 0.47 0.776 0.47a0.91 0.91 0 0 0 0.787 -0.483c0.046 -0.071 0.23 -0.368 0.314 -0.504l0.324 0.52c-0.035 -0.047 0.076 0.113 0.087 0.13 0.024 0.031 0.054 0.059 0.078 0.085 0.019 0.019 0.04 0.036 0.058 0.052 0.036 0.033 0.08 0.056 0.115 0.08 0.025 0.016 0.052 0.028 0.076 0.04 0.029 0.015 0.06 0.024 0.088 0.035 0.058 0.025 0.122 0.027 0.18 0.04 0.031 0.004 0.064 0.003 0.092 0.005 0.29 0 0.546 -0.149 0.707 -0.36 1.4 -2 2.842 -4.055 4.099 -5.849A0.995 0.995 0 0 0 18 8.842c0 -0.508 -0.389 -0.96 -0.903 -0.96"/>
                                     </svg>
                                 </div>
-                                <p className="text-sm">Akkaunt ulanmagan</p>
+                                <p className="text-sm text-muted-foreground">Ma'lumot mavjud emas</p>
                             </div>
                         )}
                     </CardContent>
