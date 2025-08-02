@@ -66,9 +66,9 @@ class GithubController extends Controller
         );
 
         if ($removed) {
-            return response()->json(['message' => 'GitHub account disconnected successfully']);
+            return back()->with('success', 'GitHub akkaunt muvaffaqiyatli uzildi!');
         }
 
-        return response()->json(['message' => 'Failed to disconnect GitHub account'], 500);
+        return back()->with('error', 'GitHub akkuantni uzishda xatolik yuz berdi');
     }
 }

@@ -1,6 +1,8 @@
 'use client'
 
 import { useState } from 'react'
+import { usePage } from '@inertiajs/react'
+import { SharedData } from '@/types'
 
 import FitbitCard from '@/components/integration-cards/FitbitCard'
 import GitHubCard from '@/components/integration-cards/GitHubCard'
@@ -10,12 +12,16 @@ import LeetCodeCard from '@/components/integration-cards/LeetCodeCard'
 type DateFilter = 'today' | 'weekly' | 'monthly'
 
 export default function StepsSection({
+    steps,
+    distance,
+    calories
 }: {
-    steps: string
-    distance: number
-    calories: number
+    steps: string;
+    distance: number;
+    calories: number;
 }) {
-    const [dateFilter, setDateFilter] = useState<DateFilter>('today')
+    const { integrationData } = usePage<SharedData>().props;
+    const [dateFilter, setDateFilter] = useState<DateFilter>('today');
 
     return (
         <div className="flex flex-col gap-6">
@@ -55,18 +61,26 @@ export default function StepsSection({
 
             {/* Integration Cards */}
             <div className="space-y-6">
-                <FitbitCard />
+                <FitbitCard 
+                    isConnected={(integrationData as any)?.fitbit?.isConnected || false}
+                    profile={(integrationData as any)?.fitbit?.profile || null}
+                />
 
-                <GitHubCard />
+                <GitHubCard 
+                    isConnected={(integrationData as any)?.github?.isConnected || false}
+                    profile={(integrationData as any)?.github?.profile || null}
+                />
 
-                <WakapiCard />
+                <WakapiCard 
+                    dateFilter={dateFilter}
+                    isConnected={(integrationData as any)?.wakapi?.isConnected || false}
+                    stats={(integrationData as any)?.wakapi?.stats || null}
+                />
 
                 <LeetCodeCard
-                    easy={127}
-                    medium={89}
-                    hard={23}
-                    todaySubmissions={3}
-                    streak={7}
+                    dateFilter={dateFilter}
+                    isConnected={(integrationData as any)?.leetcode?.isConnected || false}
+                    stats={(integrationData as any)?.leetcode?.stats || null}
                 />
             </div>
         </div>

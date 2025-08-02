@@ -5,9 +5,10 @@ import {
     CardTitle,
 } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton';
-import { Link, usePage } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
+import { log } from 'console';
+import { stat } from 'fs';
 import { ExternalLink, RefreshCw, Clock, Code } from 'lucide-react';
-import { useState, useEffect } from 'react';
 
 interface WakapiStats {
     coding_time: number;
@@ -20,17 +21,8 @@ interface WakapiCardProps {
     isIntegrated?: boolean;
     showConnect?: boolean;
     dateFilter?: 'today' | 'weekly' | 'monthly';
-}
-
-interface PageProps {
-    auth: {
-        user: {
-            id: number;
-            name: string;
-            email: string;
-        }
-    };
-    [key: string]: any;
+    isConnected?: boolean;
+    stats?: WakapiStats | null;
 }
 
 function getSystemThemeColor() {
@@ -43,93 +35,10 @@ function getSystemThemeColor() {
 export default function WakapiCard({
     isIntegrated,
     showConnect = true,
-    dateFilter = 'today'
+    dateFilter = 'today',
+    isConnected = false,
+    stats = null
 }: WakapiCardProps) {
-    const { props } = usePage<PageProps>();
-    const userId = props.auth?.user?.id;
-    
-    const [isConnected, setIsConnected] = useState(false);
-    const [stats, setStats] = useState<WakapiStats | null>(null);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        checkConnection();
-    }, []);
-
-    useEffect(() => {
-        if (isConnected) {
-            fetchStats();
-        }
-    }, [isConnected, dateFilter]);
-
-    const checkConnection = async () => {
-        try {
-            const existsRes = await fetch(route('integrations.wakapi.exists'), {
-                headers: { 'Accept': 'application/json' }
-            });
-
-            if (existsRes.ok) {
-                const existsData = await existsRes.json();
-                setIsConnected(existsData.exists);
-            }
-        } catch (error) {
-            console.error('Error checking Wakapi connection:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const fetchStats = async () => {
-        try {
-            if (!userId) return;
-
-            const today = new Date();
-            let startDate: string;
-            let endDate = today.toISOString().split('T')[0];
-
-            switch (dateFilter) {
-                case 'weekly':
-                    startDate = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-                    break;
-                case 'monthly':
-                    startDate = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-                    break;
-                default:
-                    startDate = endDate;
-            }
-
-            const params = new URLSearchParams({
-                user_id: userId.toString(),
-                provider: 'wakapi',
-                start_date: startDate,
-                end_date: endDate
-            });
-
-            const response = await fetch(`/api/daily-stats-aggregated?${params}`, {
-                headers: {
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                
-                if (data.success && data.data) {
-                    const aggregatedData = data.data;
-                    
-                    setStats({
-                        coding_time: aggregatedData.coding_time?.total || 0,
-                        languages_count: aggregatedData.languages_count?.total || 0,
-                        projects_count: aggregatedData.projects_count?.total || 0,
-                        last_updated: aggregatedData.coding_time?.values?.[0]?.date || null
-                    });
-                }
-            }
-        } catch (error) {
-            console.error('Error fetching Wakapi stats:', error);
-        }
-    };
 
     const formatDate = (dateString?: string) => {
         if (!dateString) return null;
@@ -181,6 +90,8 @@ export default function WakapiCard({
 
     const displayStats = getDisplayStats();
 
+    console.log(stats)
+
     return (
         <div className="relative w-full h-full flex items-center justify-center">
             {showConnect && !isConnected && (
@@ -220,18 +131,7 @@ export default function WakapiCard({
                         )}
                     </CardHeader>
                     <CardContent>
-                        {loading ? (
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="text-center p-3 bg-muted rounded-lg">
-                                    <Skeleton className="h-6 w-8 mx-auto mb-1" />
-                                    <Skeleton className="h-3 w-12 mx-auto" />
-                                </div>
-                                <div className="text-center p-3 bg-muted rounded-lg">
-                                    <Skeleton className="h-6 w-8 mx-auto mb-1" />
-                                    <Skeleton className="h-3 w-8 mx-auto" />
-                                </div>
-                            </div>
-                        ) : isConnected && stats ? (
+                        {isConnected && stats ? (
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="text-center p-3 bg-orange-50 rounded-lg border border-orange-200">
                                     <div className="flex items-center justify-center gap-1 mb-1">

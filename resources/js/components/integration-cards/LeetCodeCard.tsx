@@ -5,9 +5,8 @@ import {
     CardTitle,
 } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton';
-import { Link, usePage } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import { ExternalLink, RefreshCw, Trophy, Calendar } from 'lucide-react';
-import { useState, useEffect } from 'react';
 
 interface LeetCodeStats {
     problems_solved_easy: number;
@@ -22,111 +21,17 @@ interface LeetCodeCardProps {
     isIntegrated?: (integration: string) => boolean;
     showConnect?: boolean;
     dateFilter?: 'today' | 'weekly' | 'monthly';
-}
-
-interface PageProps {
-    auth: {
-        user: {
-            id: number;
-            name: string;
-            email: string;
-        }
-    };
-    [key: string]: any;
+    isConnected?: boolean;
+    stats?: LeetCodeStats | null;
 }
 
 export default function LeetCodeCard({
     isIntegrated,
     showConnect = true,
-    dateFilter = 'today'
+    dateFilter = 'today',
+    isConnected = false,
+    stats = null
 }: LeetCodeCardProps) {
-    const { props } = usePage<PageProps>();
-    const userId = props.auth?.user?.id;
-    
-    const [isConnected, setIsConnected] = useState(false);
-    const [stats, setStats] = useState<LeetCodeStats | null>(null);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        checkConnection();
-    }, []);
-
-    useEffect(() => {
-        if (isConnected) {
-            fetchStats();
-        }
-    }, [isConnected, dateFilter]);
-
-    const checkConnection = async () => {
-        try {
-            const existsRes = await fetch(route('integrations.leetcode.exists'), {
-                headers: { 'Accept': 'application/json' }
-            });
-
-            if (existsRes.ok) {
-                const existsData = await existsRes.json();
-                setIsConnected(existsData.exists);
-            }
-        } catch (error) {
-            console.error('Error checking LeetCode connection:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const fetchStats = async () => {
-        try {
-            if (!userId) return;
-
-            const today = new Date();
-            let startDate: string;
-            let endDate = today.toISOString().split('T')[0];
-
-            switch (dateFilter) {
-                case 'weekly':
-                    startDate = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-                    break;
-                case 'monthly':
-                    startDate = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-                    break;
-                default:
-                    startDate = endDate;
-            }
-
-            const params = new URLSearchParams({
-                user_id: userId.toString(),
-                provider: 'leetcode',
-                start_date: startDate,
-                end_date: endDate
-            });
-
-            const response = await fetch(`/api/daily-stats-aggregated?${params}`, {
-                headers: {
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                
-                if (data.success && data.data) {
-                    const aggregatedData = data.data;
-                    
-                    setStats({
-                        problems_solved_easy: aggregatedData.problems_solved_easy?.total || 0,
-                        problems_solved_medium: aggregatedData.problems_solved_medium?.total || 0,
-                        problems_solved_hard: aggregatedData.problems_solved_hard?.total || 0,
-                        submissions_today: aggregatedData.submissions_today?.total || 0,
-                        ranking: aggregatedData.ranking?.total || 0,
-                        last_updated: aggregatedData.problems_solved_easy?.values?.[0]?.date || null
-                    });
-                }
-            }
-        } catch (error) {
-            console.error('Error fetching LeetCode stats:', error);
-        }
-    };
 
     const formatDate = (dateString?: string) => {
         if (!dateString) return null;
@@ -203,36 +108,7 @@ export default function LeetCodeCard({
                         )}
                     </CardHeader>
                     <CardContent>
-                        {loading ? (
-                            <div className="space-y-4">
-                                {/* Main Stats Skeleton */}
-                                <div className="grid grid-cols-3 gap-3">
-                                    <div className="text-center p-3 bg-green-50 rounded-lg border border-green-200">
-                                        <Skeleton className="h-6 w-8 mx-auto mb-1" />
-                                        <Skeleton className="h-3 w-8 mx-auto" />
-                                    </div>
-                                    <div className="text-center p-3 bg-yellow-50 rounded-lg border border-yellow-200">
-                                        <Skeleton className="h-6 w-8 mx-auto mb-1" />
-                                        <Skeleton className="h-3 w-12 mx-auto" />
-                                    </div>
-                                    <div className="text-center p-3 bg-red-50 rounded-lg border border-red-200">
-                                        <Skeleton className="h-6 w-8 mx-auto mb-1" />
-                                        <Skeleton className="h-3 w-8 mx-auto" />
-                                    </div>
-                                </div>
-
-                                {/* Additional Info Skeleton */}
-                                <div className="grid grid-cols-2 gap-3 text-xs">
-                                    <Skeleton className="h-4 w-20" />
-                                    <Skeleton className="h-4 w-16" />
-                                </div>
-
-                                {/* Total solved skeleton */}
-                                <div className="text-center">
-                                    <Skeleton className="h-4 w-32 mx-auto" />
-                                </div>
-                            </div>
-                        ) : isConnected && stats ? (
+                        {isConnected && stats ? (
                             <div className="space-y-4">
                                 {/* Main Stats */}
                                 <div className="grid grid-cols-3 gap-3">

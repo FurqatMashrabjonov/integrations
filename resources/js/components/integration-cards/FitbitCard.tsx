@@ -7,8 +7,6 @@ import {
 import { Link } from '@inertiajs/react';
 import { ExternalLink, RefreshCw } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useState, useEffect } from 'react';
-import { toast } from "sonner";
 
 interface FitbitProfile {
     display_name: string;
@@ -22,61 +20,16 @@ interface FitbitProfile {
 interface FitbitCardProps {
     isIntegrated?: (integration: string) => boolean;
     showConnect?: boolean;
+    isConnected?: boolean;
+    profile?: FitbitProfile | null;
 }
 
 export default function FitbitCard({
     isIntegrated,
-    showConnect = true
+    showConnect = true,
+    isConnected = false,
+    profile = null
 }: FitbitCardProps) {
-    const [isConnected, setIsConnected] = useState(false);
-    const [profile, setProfile] = useState<FitbitProfile | null>(null);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        checkConnection();
-    }, []);
-
-    const checkConnection = async () => {
-        try {
-            const existsRes = await fetch(route('integrations.fitbit.exists'), {
-                headers: { 'Accept': 'application/json' }
-            });
-
-            if (existsRes.ok) {
-                const existsData = await existsRes.json();
-                setIsConnected(existsData.exists);
-                
-                if (existsData.exists) {
-                    await fetchProfileData();
-                }
-            }
-        } catch (error) {
-            console.error('Error checking Fitbit connection:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const fetchProfileData = async () => {
-        try {
-            const showRes = await fetch(route('integrations.fitbit.show'), {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json'
-                }
-            });
-
-            if (showRes.ok) {
-                const data = await showRes.json();
-                setProfile(data);
-            } else if (showRes.status === 404) {
-                // Profile not yet synced
-                setProfile(null);
-            }
-        } catch (error) {
-            console.error('Error fetching Fitbit profile:', error);
-        }
-    };
 
     const formatDate = (dateString?: string) => {
         if (!dateString) return null;
@@ -150,18 +103,7 @@ export default function FitbitCard({
                         )}
                     </CardHeader>
                     <CardContent>
-                        {loading ? (
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="text-center p-3 bg-muted rounded-lg">
-                                    <Skeleton className="h-6 w-8 mx-auto mb-1" />
-                                    <Skeleton className="h-3 w-12 mx-auto" />
-                                </div>
-                                <div className="text-center p-3 bg-muted rounded-lg">
-                                    <Skeleton className="h-6 w-8 mx-auto mb-1" />
-                                    <Skeleton className="h-3 w-8 mx-auto" />
-                                </div>
-                            </div>
-                        ) : isConnected && profile ? (
+                        {isConnected && profile ? (
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="text-center p-3 bg-muted rounded-lg">
                                     <div className="flex items-center justify-center gap-1 mb-1">

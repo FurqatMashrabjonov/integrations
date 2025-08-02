@@ -1,35 +1,28 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Settings;
 
-use Carbon\Carbon;
+use App\Models\IntegrationAccount;
 use Inertia\Inertia;
-use App\Models\UserFitbitStep;
-use App\Http\Resources\UserFitbitStepsResource;
+use Inertia\Response;
+use App\Http\Controllers\Controller;
+use App\Models\Integration;
 use App\Services\IntegrationAccountService;
 use App\Models\DailyStat;
+use Carbon\Carbon;
 
-class DashboardController extends Controller
+class IntegrationsController extends Controller
 {
     public function __construct(
         private readonly IntegrationAccountService $integrationAccountService
     ) {}
 
-    public function home()
-    {
-        return Inertia::render('welcome');
-    }
-
-    public function dashboard()
+    /**
+     * Show the integrations settings page.
+     */
+    public function index(): Response
     {
         $user = auth()->user();
-        
-        $steps = UserFitbitStep::query()
-            ->select('steps', 'date', 'id', 'user_id')
-            ->where('user_id', $user->id)
-            ->orderByDesc('date')
-            ->take(7)
-            ->get()->reverse();
 
         // Get all integration data
         $integrationData = [
@@ -39,9 +32,7 @@ class DashboardController extends Controller
             'wakapi' => $this->getWakapiData($user->id),
         ];
 
-        return Inertia::render('dashboard', [
-            'steps'          => UserFitbitStepsResource::collection($steps)->resolve(),
-            'steps_of_today' => number_format(UserFitbitStep::query()->where('user_id', $user->id)->where('date', Carbon::today()->format('Y-m-d'))->first()->steps ?? 0),
+        return Inertia::render('settings/integrations', [
             'integrationData' => $integrationData,
         ]);
     }

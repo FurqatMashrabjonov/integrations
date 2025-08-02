@@ -66,9 +66,9 @@ class FitbitController extends Controller
         );
 
         if ($removed) {
-            return response()->json(['message' => 'Fitbit account disconnected successfully']);
+            return back()->with('success', 'Fitbit akkaunt muvaffaqiyatli uzildi!');
         }
 
-        return response()->json(['message' => 'Failed to disconnect Fitbit account'], 500);
+        return back()->with('error', 'Fitbit akkuantni uzishda xatolik yuz berdi');
     }
 }

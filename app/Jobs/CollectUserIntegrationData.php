@@ -60,11 +60,36 @@ class CollectUserIntegrationData implements ShouldQueue
 
     protected function collectDataForIntegration(User $user, IntegrationToken $token): void
     {
-        $dailyStat = DailyStat::firstOrCreate([
-            'user_id'  => $user->id,
-            'date'     => $this->date,
-            'provider' => $token->integration->value,
-        ]);
+        try {
+            // Use a more defensive approach to handle existing records
+            // Ensure date format matches database storage format
+            $dateForComparison = \Carbon\Carbon::parse($this->date)->format('Y-m-d');
+            
+            $dailyStat = DailyStat::where([
+                'user_id'  => $user->id,
+                'provider' => $token->integration->value,
+            ])->whereDate('date', $dateForComparison)->first();
+
+            if (!$dailyStat) {
+                $dailyStat = DailyStat::create([
+                    'user_id'  => $user->id,
+                    'date'     => $this->date,
+                    'provider' => $token->integration->value,
+                ]);
+            }
+        } catch (\Exception $e) {
+            // If creation fails due to unique constraint, try to find existing record
+            $dateForComparison = \Carbon\Carbon::parse($this->date)->format('Y-m-d');
+            
+            $dailyStat = DailyStat::where([
+                'user_id'  => $user->id,
+                'provider' => $token->integration->value,
+            ])->whereDate('date', $dateForComparison)->first();
+
+            if (!$dailyStat) {
+                throw $e; // Re-throw if we still can't find the record
+            }
+        }
 
         match ($token->integration) {
             IntegrationEnum::GITHUB   => $this->collectGithubData($user, $dailyStat),

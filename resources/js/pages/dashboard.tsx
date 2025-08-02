@@ -26,32 +26,47 @@ interface CardItem {
 }
 
 export default function Dashboard() {
+    const { integrationData } = usePage<SharedData>().props;
     const [dateFilter, setDateFilter] = useState<DateFilter>('today')
     
     const originalOrder: CardItem[] = [
         {
             id: 'fitbit',
-            component: <FitbitCard />,
+            component: <FitbitCard 
+                isConnected={(integrationData as any)?.fitbit?.isConnected || false}
+                profile={(integrationData as any)?.fitbit?.profile || null}
+            />,
             title: 'Fitbit',
-            isIntegrated: true // You can make this dynamic based on actual integration status
+            isIntegrated: (integrationData as any)?.fitbit?.isConnected || false
         },
         {
             id: 'github',
-            component: <GitHubCard />,
+            component: <GitHubCard 
+                isConnected={(integrationData as any)?.github?.isConnected || false}
+                profile={(integrationData as any)?.github?.profile || null}
+            />,
             title: 'GitHub',
-            isIntegrated: true // This will be dynamic based on actual connection status
+            isIntegrated: (integrationData as any)?.github?.isConnected || false
         },
         {
             id: 'wakapi',
-            component: <WakapiCard />,
+            component: <WakapiCard 
+                dateFilter={dateFilter}
+                isConnected={(integrationData as any)?.wakapi?.isConnected || false}
+                stats={(integrationData as any)?.wakapi?.stats || null}
+            />,
             title: 'WakaTime',
-            isIntegrated: false
+            isIntegrated: (integrationData as any)?.wakapi?.isConnected || false
         },
         {
             id: 'leetcode',
-            component: <LeetCodeCard />,
+            component: <LeetCodeCard 
+                dateFilter={dateFilter}
+                isConnected={(integrationData as any)?.leetcode?.isConnected || false}
+                stats={(integrationData as any)?.leetcode?.stats || null}
+            />,
             title: 'LeetCode',
-            isIntegrated: false
+            isIntegrated: (integrationData as any)?.leetcode?.isConnected || false
         }
     ];
     

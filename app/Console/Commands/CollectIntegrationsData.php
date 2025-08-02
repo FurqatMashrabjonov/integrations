@@ -27,14 +27,14 @@ class CollectIntegrationsData extends Command
     public function handle()
     {
         $date = $this->argument('date') ?? now()->format('Y-m-d');
-        
+
         $this->info("Collecting integration data for date: {$date}");
-        
+
         // Dispatch the job
         CollectUserIntegrationData::dispatch($date);
-        
+
         $this->info('Data collection job dispatched successfully!');
-        
+
         return Command::SUCCESS;
     }
 }

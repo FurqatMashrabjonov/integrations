@@ -3,7 +3,7 @@ import { useForm, router } from '@inertiajs/react';
 import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Check, ChevronRight, Loader2, User, GitBranch, GitCommit, ExternalLink, RefreshCw } from 'lucide-react';
+import { Check, ChevronRight, Loader2, User, GitBranch, GitCommit, ExternalLink, RefreshCw, Unlink } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { toast } from "sonner"
 
@@ -325,55 +325,8 @@ export default function GithubDrawer({ getIntegrationIcon, isIntegrated, autoOpe
                                 </a>
                             </div>
 
-                            {/* Statistics */}
-                            <div>
-                                <h4 className="font-semibold mb-3">Bugungi faoliyat</h4>
-                                <div className="grid grid-cols-2 gap-3">
-                                    <div className="text-center p-4 bg-blue-50 rounded-lg border border-blue-200">
-                                        <div className="flex items-center justify-center gap-1 mb-1">
-                                            <GitBranch className="w-4 h-4 text-blue-600" />
-                                            <div className="text-2xl font-bold text-blue-600">{profile.today_prs}</div>
-                                        </div>
-                                        <p className="text-xs text-blue-600 font-medium">Pull Requestlar</p>
-                                    </div>
-                                    <div className="text-center p-4 bg-green-50 rounded-lg border border-green-200">
-                                        <div className="flex items-center justify-center gap-1 mb-1">
-                                            <GitCommit className="w-4 h-4 text-green-600" />
-                                            <div className="text-2xl font-bold text-green-600">{profile.today_commits}</div>
-                                        </div>
-                                        <p className="text-xs text-green-600 font-medium">Commitlar</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Weekly Summary */}
-                            <div>
-                                <h4 className="font-semibold mb-3">Haftalik umumiy ma'lumot</h4>
-                                <div className="grid grid-cols-2 gap-3">
-                                    <div className="text-center p-4 bg-purple-50 rounded-lg border border-purple-200">
-                                        <div className="flex items-center justify-center gap-1 mb-1">
-                                            <GitBranch className="w-4 h-4 text-purple-600" />
-                                            <div className="text-xl font-bold text-purple-600">{profile.week_prs}</div>
-                                        </div>
-                                        <p className="text-xs text-purple-600 font-medium">Haftalik PRlar</p>
-                                    </div>
-                                    <div className="text-center p-4 bg-orange-50 rounded-lg border border-orange-200">
-                                        <div className="flex items-center justify-center gap-1 mb-1">
-                                            <GitCommit className="w-4 h-4 text-orange-600" />
-                                            <div className="text-xl font-bold text-orange-600">{profile.week_commits}</div>
-                                        </div>
-                                        <p className="text-xs text-orange-600 font-medium">Haftalik Commitlar</p>
-                                    </div>
-                                </div>
-                            </div>
-
                             {/* Sync Info and Actions */}
-                            <div className="flex items-center justify-between pt-4 border-t">
-                                {profile.last_synced_at && (
-                                    <div className="text-xs text-muted-foreground">
-                                        Oxirgi yangilanish: {formatDate(profile.last_synced_at)}
-                                    </div>
-                                )}
+                            <div className="flex items-center justify-end pt-4 border-t">
                                 <Button
                                     variant="outline"
                                     size="sm"
@@ -397,7 +350,7 @@ export default function GithubDrawer({ getIntegrationIcon, isIntegrated, autoOpe
                                     variant="destructive"
                                     onClick={handleDisconnect}
                                     disabled={loading}
-                                    className="w-full"
+                                    className="w-full transition-all duration-200 hover:bg-red-600 focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
                                 >
                                     {loading ? (
                                         <>
@@ -405,7 +358,10 @@ export default function GithubDrawer({ getIntegrationIcon, isIntegrated, autoOpe
                                             Uzilmoqda...
                                         </>
                                     ) : (
-                                        'Hisobni uzish'
+                                        <>
+                                            <Unlink className="mr-2 h-4 w-4" />
+                                            Hisobni uzish
+                                        </>
                                     )}
                                 </Button>
                             </div>

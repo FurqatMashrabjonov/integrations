@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Check, ChevronRight, Loader2, TimerIcon, Clock, Code, ExternalLink, RefreshCw } from 'lucide-react';
+import { Check, ChevronRight, Loader2, TimerIcon, Clock, Code, ExternalLink, RefreshCw, Unlink } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { toast } from "sonner"
 
@@ -251,79 +251,15 @@ export default function WakapiDrawer({ isIntegrated, autoOpen = false, statusBad
                                 <div className="flex-1">
                                     <h3 className="font-semibold text-lg">{profile.display_name}</h3>
                                     {profile.full_name && <p className="text-muted-foreground text-sm">{profile.full_name}</p>}
-                                    {profile.last_synced_at && (
-                                        <p className="text-muted-foreground text-xs">
-                                            Oxirgi yangilanish: {formatDate(profile.last_synced_at)}
-                                        </p>
-                                    )}
                                 </div>
                             </div>
-
-                            {/* Coding Statistics */}
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                                    <div className="flex items-center space-x-2 mb-2">
-                                        <Clock className="h-4 w-4 text-blue-600" />
-                                        <span className="text-sm font-medium text-blue-800">Bugun</span>
-                                    </div>
-                                    <p className="text-2xl font-bold text-blue-900">{formatHours(profile.today_seconds)}</p>
-                                    <p className="text-xs text-blue-600">{profile.today_hours.toFixed(1)} soat</p>
-                                </div>
-                                <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                                    <div className="flex items-center space-x-2 mb-2">
-                                        <Clock className="h-4 w-4 text-green-600" />
-                                        <span className="text-sm font-medium text-green-800">Bu hafta</span>
-                                    </div>
-                                    <p className="text-2xl font-bold text-green-900">{formatHours(profile.week_seconds)}</p>
-                                    <p className="text-xs text-green-600">{profile.week_hours.toFixed(1)} soat</p>
-                                </div>
-                            </div>
-
-                            {/* Top Languages */}
-                            {profile.languages.length > 0 && (
-                                <div>
-                                    <h4 className="font-semibold mb-3 flex items-center">
-                                        <Code className="h-4 w-4 mr-2" />
-                                        Top Programming Languages
-                                    </h4>
-                                    <div className="space-y-2">
-                                        {profile.languages.slice(0, 5).map((lang, index) => (
-                                            <div key={index} className="flex items-center justify-between p-2 bg-muted/30 rounded">
-                                                <span className="text-sm font-medium">{lang.name}</span>
-                                                <div className="flex items-center space-x-2">
-                                                    <span className="text-xs text-muted-foreground">{formatHours(lang.total_seconds)}</span>
-                                                    <span className="text-xs text-muted-foreground">({lang.percent.toFixed(1)}%)</span>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Top Projects */}
-                            {profile.projects.length > 0 && (
-                                <div>
-                                    <h4 className="font-semibold mb-3">Top Projects</h4>
-                                    <div className="space-y-2">
-                                        {profile.projects.slice(0, 3).map((project, index) => (
-                                            <div key={index} className="flex items-center justify-between p-2 bg-muted/30 rounded">
-                                                <span className="text-sm font-medium">{project.name}</span>
-                                                <div className="flex items-center space-x-2">
-                                                    <span className="text-xs text-muted-foreground">{formatHours(project.total_seconds)}</span>
-                                                    <span className="text-xs text-muted-foreground">({project.percent.toFixed(1)}%)</span>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
 
                             {/* Actions */}
                             <div className="flex flex-col space-y-2 pt-4 border-t">
                                 <Button 
                                     variant="outline" 
                                     size="sm" 
-                                    onClick={() => checkConnectionStatus()}
+                                    onClick={fetchProfileData}
                                     disabled={loading}
                                     className="w-full"
                                 >
@@ -335,10 +271,19 @@ export default function WakapiDrawer({ isIntegrated, autoOpen = false, statusBad
                                     size="sm" 
                                     onClick={handleDisconnect} 
                                     disabled={loading}
-                                    className="w-full"
+                                    className="w-full transition-all duration-200 hover:bg-red-600 focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
                                 >
-                                    {loading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
-                                    Hisobni uzish
+                                    {loading ? (
+                                        <>
+                                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                            Uzilmoqda...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Unlink className="h-4 w-4 mr-2" />
+                                            Hisobni uzish
+                                        </>
+                                    )}
                                 </Button>
                             </div>
                         </div>

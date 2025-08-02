@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Check, ChevronRight, Loader2, User, Trophy, Calendar, ExternalLink, RefreshCw } from 'lucide-react';
+import { Check, ChevronRight, Loader2, User, Trophy, Calendar, ExternalLink, RefreshCw, Unlink } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { toast } from "sonner"
 
@@ -389,59 +389,8 @@ export default function LeetcodeDrawer({ isIntegrated, autoOpen = false, statusB
                                 </a>
                             </div>
 
-                            {/* Statistics */}
-                            <div>
-                                <h4 className="font-semibold mb-3">Yechilgan masalalar</h4>
-                                <div className="grid grid-cols-3 gap-3">
-                                    <div className="text-center p-4 bg-green-50 rounded-lg border border-green-200">
-                                        <div className="text-2xl font-bold text-green-600">{profile.ac_submission_num_easy}</div>
-                                        <p className="text-xs text-green-600 font-medium">Easy</p>
-                                    </div>
-                                    <div className="text-center p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-                                        <div className="text-2xl font-bold text-yellow-600">{profile.ac_submission_num_medium}</div>
-                                        <p className="text-xs text-yellow-600 font-medium">Medium</p>
-                                    </div>
-                                    <div className="text-center p-4 bg-red-50 rounded-lg border border-red-200">
-                                        <div className="text-2xl font-bold text-red-600">{profile.ac_submission_num_hard}</div>
-                                        <p className="text-xs text-red-600 font-medium">Hard</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Recent Submissions */}
-                            <div>
-                                <h4 className="font-semibold mb-3">So'nggi yechimlar</h4>
-                                {recent.length > 0 ? (
-                                    <div className="space-y-2 max-h-40 overflow-y-auto">
-                                        {recent.map((submission, idx) => (
-                                            <div key={idx} className="flex justify-between items-center p-3 bg-muted rounded-lg">
-                                                <div className="flex-1 min-w-0">
-                                                    <p className="text-sm font-medium truncate">{submission.title}</p>
-                                                    {submission.status_display && (
-                                                        <p className="text-xs text-green-600">{submission.status_display}</p>
-                                                    )}
-                                                </div>
-                                                <div className="flex items-center gap-1 text-xs text-muted-foreground ml-2">
-                                                    <Calendar className="w-3 h-3" />
-                                                    {formatDate(submission.date)}
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <p className="text-sm text-muted-foreground bg-muted p-4 rounded-lg text-center">
-                                        Hozircha yechimlar topilmadi
-                                    </p>
-                                )}
-                            </div>
-
                             {/* Sync Info and Actions */}
-                            <div className="flex items-center justify-between pt-4 border-t">
-                                {lastSyncedAt && (
-                                    <div className="text-xs text-muted-foreground">
-                                        Oxirgi yangilanish: {formatDate(lastSyncedAt)}
-                                    </div>
-                                )}
+                            <div className="flex items-center justify-end pt-4 border-t">
                                 <Button
                                     variant="outline"
                                     size="sm"
@@ -465,7 +414,7 @@ export default function LeetcodeDrawer({ isIntegrated, autoOpen = false, statusB
                                     variant="destructive"
                                     onClick={handleDisconnect}
                                     disabled={loading}
-                                    className="w-full"
+                                    className="w-full transition-all duration-200 hover:bg-red-600 focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
                                 >
                                     {loading ? (
                                         <>
@@ -473,7 +422,10 @@ export default function LeetcodeDrawer({ isIntegrated, autoOpen = false, statusB
                                             Uzilmoqda...
                                         </>
                                     ) : (
-                                        'Hisobni uzish'
+                                        <>
+                                            <Unlink className="mr-2 h-4 w-4" />
+                                            Hisobni uzish
+                                        </>
                                     )}
                                 </Button>
                             </div>

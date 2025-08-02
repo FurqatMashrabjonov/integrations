@@ -1,11 +1,10 @@
 import { Head, usePage } from '@inertiajs/react';
-import { useEffect, useState } from 'react';
 
 import { type BreadcrumbItem, SharedData } from '@/types';
 
 import AppLayout from '@/layouts/app-layout';
 import SettingsLayout from '@/layouts/settings/layout';
-import { Bell, Shield, Languages, Info, HelpCircle, ChevronRight, Loader2 } from 'lucide-react';
+import { Bell, Shield, Languages, Info, HelpCircle, ChevronRight } from 'lucide-react';
 
 // Import all integration Drawer components
 import GithubDrawer from '@/components/integrations/GithubDrawer';
@@ -21,73 +20,29 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function Integrations() {
-    const { auth } = usePage<SharedData>().props;
+    const { auth, integrationData } = usePage<SharedData>().props;
     const integrations = auth.user.integrations || [];
 
-    // State for tracking connection status
-    const [connectionStatus, setConnectionStatus] = useState<Record<string, boolean | null>>({
-        github: null,
-        fitbit: null,
-        leetcode: null,
-        wakapi: null
-    });
+    // Debug: Log integration data to see what we're getting
+    console.log('Integration Data:', integrationData);
 
     // Get URL parameters
     const urlParams = new URLSearchParams(window.location.search);
     const openIntegration = urlParams.get('open');
-
-    useEffect(() => {
-        // Check connection status for all integrations
-        const checkAllConnections = async () => {
-            const statusPromises = [
-                { name: 'github', route: 'integrations.github.exists' },
-                { name: 'fitbit', route: 'integrations.fitbit.exists' },
-                { name: 'leetcode', route: 'integrations.leetcode.exists' },
-                { name: 'wakapi', route: 'integrations.wakapi.exists' }
-            ].map(async (integration) => {
-                try {
-                    const response = await fetch(route(integration.route), {
-                        headers: { 'Accept': 'application/json' }
-                    });
-                    if (response.ok) {
-                        const data = await response.json();
-                        return { name: integration.name, connected: data.exists };
-                    }
-                    return { name: integration.name, connected: false };
-                } catch (error) {
-                    console.error(`Error checking ${integration.name} status:`, error);
-                    return { name: integration.name, connected: false };
-                }
-            });
-
-            const results = await Promise.all(statusPromises);
-            const newStatus: Record<string, boolean> = {};
-            results.forEach(result => {
-                newStatus[result.name] = result.connected;
-            });
-            
-            setConnectionStatus(newStatus);
-        };
-
-        checkAllConnections();
-    }, []);
 
     const isIntegrated = (integration: string) => {
         if (!Array.isArray(integrations)) return false;
         return integrations.some((int: any) => int.service === integration);
     };
 
-    const getConnectionStatusBadge = (integration: string) => {
-        const status = connectionStatus[integration];
-        if (status === null) {
-            return (
-                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-600">
-                    <Loader2 className="h-3 w-3 animate-spin mr-1" />
-                    Tekshirilmoqda...
-                </span>
-            );
-        }
-        return status ? (
+    const getConnectionStatusBadge = (service: string) => {
+        const serviceData = (integrationData as any)?.[service];
+        const isConnected = serviceData?.isConnected || false;
+        
+        // Debug: Log the specific service data
+        console.log(`${service} connection status:`, { serviceData, isConnected });
+        
+        return isConnected ? (
             <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-100 text-green-700">
                 <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
                 Ulangan

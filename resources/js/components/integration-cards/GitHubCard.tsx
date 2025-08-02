@@ -7,7 +7,6 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { Link } from '@inertiajs/react';
 import { ExternalLink, RefreshCw, GitBranch, GitCommit } from 'lucide-react';
-import { useState, useEffect } from 'react';
 
 interface GitHubProfile {
     display_name: string;
@@ -23,6 +22,8 @@ interface GitHubProfile {
 interface GitHubCardProps {
     isIntegrated?: boolean;
     showConnect?: boolean;
+    isConnected?: boolean;
+    profile?: GitHubProfile | null;
 }
 
 function getSystemThemeColor() {
@@ -34,60 +35,10 @@ function getSystemThemeColor() {
 
 export default function GitHubCard({
     isIntegrated,
-    showConnect = true
+    showConnect = true,
+    isConnected = false,
+    profile = null
 }: GitHubCardProps) {
-    const [isConnected, setIsConnected] = useState(false);
-    const [profile, setProfile] = useState<GitHubProfile | null>(null);
-    const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(null);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        checkConnection();
-    }, []);
-
-    const checkConnection = async () => {
-        try {
-            setLoading(true);
-            const existsRes = await fetch(route('integrations.github.exists'), {
-                headers: { 'Accept': 'application/json' }
-            });
-
-            if (existsRes.ok) {
-                const existsData = await existsRes.json();
-                setIsConnected(existsData.exists);
-
-                if (existsData.exists) {
-                    await fetchProfileData();
-                }
-            }
-        } catch (error) {
-            console.error('Error checking GitHub connection:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const fetchProfileData = async () => {
-        try {
-            const showRes = await fetch(route('integrations.github.show'), {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json'
-                }
-            });
-
-            if (showRes.ok) {
-                const data = await showRes.json();
-                setProfile(data);
-                setLastSyncedAt(data.last_synced_at);
-            } else if (showRes.status === 404) {
-                // Profile not yet synced
-                setProfile(null);
-            }
-        } catch (error) {
-            console.error('Error fetching GitHub profile:', error);
-        }
-    };
 
     const formatDate = (dateString?: string) => {
         if (!dateString) return null;
@@ -158,10 +109,10 @@ export default function GitHubCard({
                                 )}
                                 <div className="text-right min-w-0 flex-shrink">
                                     <p className="font-semibold text-foreground text-sm truncate">@{profile.display_name}</p>
-                                    {lastSyncedAt && (
+                                    {profile.last_synced_at && (
                                         <div className="flex items-center gap-1 text-xs text-muted-foreground">
                                             <RefreshCw className="w-3 h-3" />
-                                            {formatDate(lastSyncedAt)}
+                                            {formatDate(profile.last_synced_at)}
                                         </div>
                                     )}
                                 </div>
@@ -169,18 +120,7 @@ export default function GitHubCard({
                         )}
                     </CardHeader>
                     <CardContent>
-                        {loading ? (
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="text-center p-3 bg-muted rounded-lg">
-                                    <Skeleton className="h-6 w-8 mx-auto mb-1" />
-                                    <Skeleton className="h-3 w-12 mx-auto" />
-                                </div>
-                                <div className="text-center p-3 bg-muted rounded-lg">
-                                    <Skeleton className="h-6 w-8 mx-auto mb-1" />
-                                    <Skeleton className="h-3 w-8 mx-auto" />
-                                </div>
-                            </div>
-                        ) : isConnected && profile ? (
+                        {isConnected && profile ? (
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="text-center p-3 bg-blue-50 rounded-lg border border-blue-200">
                                     <div className="flex items-center justify-center gap-1 mb-1">
