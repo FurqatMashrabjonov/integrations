@@ -2,9 +2,9 @@
 
 use App\Events\TestEvent;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\RatingController;
+use App\Http\Controllers\CalendarController;
+use App\Http\Controllers\DashboardController;
 
 Route::get('/', [DashboardController::class, 'home'])->name('home');
 
@@ -16,6 +16,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';
+require __DIR__ . '/pomodoro.php';
 
 Route::middleware(['auth'])
     ->prefix('integrations')->as('integrations.')->group(function () {
@@ -33,3 +34,4 @@ Route::get('csrf-token', function () {
 Route::get('telegram', function (Illuminate\Http\Request $request) {
     dd($request->all());
 })->name('telegram');
+

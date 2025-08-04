@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers\Settings;
 
-use App\Models\IntegrationAccount;
+use Carbon\Carbon;
 use Inertia\Inertia;
 use Inertia\Response;
-use App\Http\Controllers\Controller;
-use App\Models\Integration;
-use App\Services\IntegrationAccountService;
 use App\Models\DailyStat;
-use Carbon\Carbon;
+use App\Models\Integration;
+use App\Http\Controllers\Controller;
+use App\Services\IntegrationAccountService;
 
 class IntegrationsController extends Controller
 {
@@ -26,10 +25,10 @@ class IntegrationsController extends Controller
 
         // Get all integration data
         $integrationData = [
-            'github' => $this->getGithubData($user->id),
-            'fitbit' => $this->getFitbitData($user->id),
+            'github'   => $this->getGithubData($user->id),
+            'fitbit'   => $this->getFitbitData($user->id),
             'leetcode' => $this->getLeetcodeData($user->id),
-            'wakapi' => $this->getWakapiData($user->id),
+            'wakapi'   => $this->getWakapiData($user->id),
         ];
 
         return Inertia::render('settings/integrations', [
@@ -44,10 +43,10 @@ class IntegrationsController extends Controller
     {
         $account = $this->integrationAccountService->getByUserAndIntegration($userId, \App\Enums\IntegrationEnum::GITHUB);
         $profile = $this->integrationAccountService->getGithubProfile($userId);
-        
+
         return [
             'isConnected' => $account !== null,
-            'profile' => $profile,
+            'profile'     => $profile,
         ];
     }
 
@@ -58,10 +57,10 @@ class IntegrationsController extends Controller
     {
         $account = $this->integrationAccountService->getByUserAndIntegration($userId, \App\Enums\IntegrationEnum::FITBIT);
         $profile = $this->integrationAccountService->getFitbitProfile($userId);
-        
+
         return [
             'isConnected' => $account !== null,
-            'profile' => $profile,
+            'profile'     => $profile,
         ];
     }
 
@@ -71,7 +70,7 @@ class IntegrationsController extends Controller
     private function getLeetcodeData(int $userId): array
     {
         $isConnected = $this->integrationAccountService->getByUserAndIntegration($userId, \App\Enums\IntegrationEnum::LEETCODE) !== null;
-        $stats = null;
+        $stats       = null;
 
         if ($isConnected) {
             $stats = $this->getLeetcodeStats($userId);
@@ -79,7 +78,7 @@ class IntegrationsController extends Controller
 
         return [
             'isConnected' => $isConnected,
-            'stats' => $stats,
+            'stats'       => $stats,
         ];
     }
 
@@ -89,7 +88,7 @@ class IntegrationsController extends Controller
     private function getWakapiData(int $userId): array
     {
         $isConnected = $this->integrationAccountService->getByUserAndIntegration($userId, \App\Enums\IntegrationEnum::WAKAPI) !== null;
-        $stats = null;
+        $stats       = null;
 
         if ($isConnected) {
             $stats = $this->getWakapiStats($userId);
@@ -97,7 +96,7 @@ class IntegrationsController extends Controller
 
         return [
             'isConnected' => $isConnected,
-            'stats' => $stats,
+            'stats'       => $stats,
         ];
     }
 
@@ -108,7 +107,7 @@ class IntegrationsController extends Controller
     {
         // Get today's stats
         $today = Carbon::today()->toDateString();
-        
+
         $dailyStats = DailyStat::with('metrics')
             ->byUser($userId)
             ->byProvider('leetcode')
@@ -120,12 +119,12 @@ class IntegrationsController extends Controller
         }
 
         $stats = [
-            'problems_solved_easy' => 0,
+            'problems_solved_easy'   => 0,
             'problems_solved_medium' => 0,
-            'problems_solved_hard' => 0,
-            'submissions_today' => 0,
-            'ranking' => 0,
-            'last_updated' => $dailyStats->date,
+            'problems_solved_hard'   => 0,
+            'submissions_today'      => 0,
+            'ranking'                => 0,
+            'last_updated'           => $dailyStats->date,
         ];
 
         foreach ($dailyStats->metrics as $metric) {
@@ -158,7 +157,7 @@ class IntegrationsController extends Controller
     {
         // Get today's stats
         $today = Carbon::today()->toDateString();
-        
+
         $dailyStats = DailyStat::with('metrics')
             ->byUser($userId)
             ->byProvider('wakapi')
@@ -170,10 +169,10 @@ class IntegrationsController extends Controller
         }
 
         $stats = [
-            'coding_time' => 0,
+            'coding_time'     => 0,
             'languages_count' => 0,
-            'projects_count' => 0,
-            'last_updated' => $dailyStats->date,
+            'projects_count'  => 0,
+            'last_updated'    => $dailyStats->date,
         ];
 
         foreach ($dailyStats->metrics as $metric) {

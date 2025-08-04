@@ -1,0 +1,85 @@
+/* Pomodoro Tree Animations */
+@keyframes sway {
+    0%, 100% { 
+        transform: translateX(0) rotate(0deg); 
+    }
+    50% { 
+        transform: translateX(2px) rotate(2deg); 
+    }
+}
+
+@keyframes float {
+    0%, 100% { 
+        transform: translateY(0px) rotate(0deg); 
+    }
+    50% { 
+        transform: translateY(-10px) rotate(180deg); 
+    }
+}
+
+@keyframes fly {
+    0% { 
+        transform: translateX(0px) translateY(0px); 
+    }
+    25% { 
+        transform: translateX(20px) translateY(-10px); 
+    }
+    50% { 
+        transform: translateX(40px) translateY(5px); 
+    }
+    75% { 
+        transform: translateX(20px) translateY(-5px); 
+    }
+    100% { 
+        transform: translateX(0px) translateY(0px); 
+    }
+}
+
+/* Tree Growth Animation */
+@keyframes grow-up {
+    from {
+        height: 0;
+        opacity: 0;
+    }
+    to {
+        height: var(--target-height);
+        opacity: 1;
+    }
+}
+
+@keyframes grow-canopy {
+    from {
+        width: 0;
+        height: 0;
+        opacity: 0;
+    }
+    to {
+        width: var(--target-width);
+        height: var(--target-height);
+        opacity: 1;
+    }
+}
+
+/* Leaf Animation */
+@keyframes leaf-appear {
+    from {
+        opacity: 0;
+        transform: scale(0) rotate(0deg);
+    }
+    to {
+        opacity: 0.8;
+        transform: scale(1) rotate(360deg);
+    }
+}
+
+/* Pulse effect for completion */
+@keyframes tree-complete {
+    0%, 100% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 10px rgba(34, 197, 94, 0.3));
+    }
+    50% {
+        transform: scale(1.05);
+        filter: drop-shadow(0 0 20px rgba(34, 197, 94, 0.6));
+    }
+}

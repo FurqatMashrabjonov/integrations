@@ -25,7 +25,7 @@ class DailyStatRepository implements DailyStatRepositoryInterface
 
     public function updateOrCreate(array $conditions, array $data): DailyStat
     {
-        // TODO: Implement updateOrCreate() method.
+        return DailyStat::updateOrCreate($conditions, $data);
     }
 
     public function delete(int $id): bool

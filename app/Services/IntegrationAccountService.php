@@ -153,9 +153,8 @@ class IntegrationAccountService
         }
 
         return [
-            'profile'        => $account->data['profile'],
-            'recent'         => $account->data['recent'] ?? [],
-            'last_synced_at' => $account->data['last_synced_at'] ?? null,
+            'display_name' => $account->display_name,
+            'avatar'       => $account->avatar,
         ];
     }
 
@@ -211,12 +210,8 @@ class IntegrationAccountService
         }
 
         return [
-            'display_name'   => $account->data['display_name'] ?? $account->display_name,
-            'today_steps'    => $account->data['today_steps'] ?? 0,
-            'today_distance' => $account->data['today_distance'] ?? 0,
-            'week_steps'     => $account->data['week_steps'] ?? 0,
-            'last_synced_at' => $account->data['last_synced_at'] ?? null,
-            'avatar'         => $account->avatar,
+            'display_name' => $account->display_name ?? $account->data['display_name'],
+            'avatar'       => $account->avatar,
         ];
     }
 
@@ -252,7 +247,7 @@ class IntegrationAccountService
 
         try {
             // Fetch GitHub activities and store them
-//            $this->githubService->getActivitiesAndStore($userId);
+            //            $this->githubService->getActivitiesAndStore($userId);
 
             // For now, we'll use mock data similar to what's in the UI
             $todayCommits = 15421; // This would come from actual GitHub API
@@ -333,21 +328,21 @@ class IntegrationAccountService
 
         try {
             // Get user profile and activities using stored API token
-            $profile = $this->wakapiService->setToken($account->data['api_token'])->getUser();
-            $todayActivities = $this->wakapiService->setToken($account->data['api_token'])->getDailyActivities('today');
+            $profile             = $this->wakapiService->setToken($account->data['api_token'])->getUser();
+            $todayActivities     = $this->wakapiService->setToken($account->data['api_token'])->getDailyActivities('today');
             $last7DaysActivities = $this->wakapiService->setToken($account->data['api_token'])->getDailyActivities('last_7_days');
 
             // Update account data
             $updatedData = array_merge($account->data, [
-                'today_hours'        => round($todayActivities->total_seconds / 3600, 2),
-                'today_seconds'      => $todayActivities->total_seconds,
-                'week_hours'         => round($last7DaysActivities->total_seconds / 3600, 2),
-                'week_seconds'       => $last7DaysActivities->total_seconds,
-                'languages'          => $todayActivities->languages,
-                'projects'           => $todayActivities->projects,
-                'editors'            => $todayActivities->editors,
-                'operating_systems'  => $todayActivities->operating_systems,
-                'last_synced_at'     => now()->toISOString(),
+                'today_hours'       => round($todayActivities->total_seconds / 3600, 2),
+                'today_seconds'     => $todayActivities->total_seconds,
+                'week_hours'        => round($last7DaysActivities->total_seconds / 3600, 2),
+                'week_seconds'      => $last7DaysActivities->total_seconds,
+                'languages'         => $todayActivities->languages,
+                'projects'          => $todayActivities->projects,
+                'editors'           => $todayActivities->editors,
+                'operating_systems' => $todayActivities->operating_systems,
+                'last_synced_at'    => now()->toISOString(),
             ]);
 
             // Update the account
@@ -363,6 +358,7 @@ class IntegrationAccountService
             return $updatedData;
         } catch (\Exception $e) {
             \Log::error('Wakapi sync failed for user ' . $userId . ': ' . $e->getMessage());
+
             return null;
         }
     }
@@ -379,18 +375,18 @@ class IntegrationAccountService
         }
 
         return [
-            'display_name'       => $account->data['username'] ?? $account->display_name,
-            'full_name'          => $account->full_name,
-            'today_hours'        => $account->data['today_hours'] ?? 0,
-            'today_seconds'      => $account->data['today_seconds'] ?? 0,
-            'week_hours'         => $account->data['week_hours'] ?? 0,
-            'week_seconds'       => $account->data['week_seconds'] ?? 0,
-            'languages'          => $account->data['languages'] ?? [],
-            'projects'           => $account->data['projects'] ?? [],
-            'editors'            => $account->data['editors'] ?? [],
-            'operating_systems'  => $account->data['operating_systems'] ?? [],
-            'last_synced_at'     => $account->data['last_synced_at'] ?? null,
-            'avatar'             => $account->avatar,
+            'display_name'      => $account->data['username'] ?? $account->display_name,
+            'full_name'         => $account->full_name,
+            'today_hours'       => $account->data['today_hours'] ?? 0,
+            'today_seconds'     => $account->data['today_seconds'] ?? 0,
+            'week_hours'        => $account->data['week_hours'] ?? 0,
+            'week_seconds'      => $account->data['week_seconds'] ?? 0,
+            'languages'         => $account->data['languages'] ?? [],
+            'projects'          => $account->data['projects'] ?? [],
+            'editors'           => $account->data['editors'] ?? [],
+            'operating_systems' => $account->data['operating_systems'] ?? [],
+            'last_synced_at'    => $account->data['last_synced_at'] ?? null,
+            'avatar'            => $account->avatar,
         ];
     }
 }
