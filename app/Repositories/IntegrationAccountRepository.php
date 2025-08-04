@@ -30,7 +30,7 @@ class IntegrationAccountRepository implements IntegrationAccountRepositoryInterf
     public function createOrUpdate(array $data): IntegrationAccount
     {
         return $this->model->newQuery()->updateOrCreate([
-            'user_id' => $data['user_id'],
+            'user_id'     => $data['user_id'],
             'integration' => $data['integration'],
         ], $data);
     }

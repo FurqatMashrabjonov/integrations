@@ -22,10 +22,10 @@ class UpdateDailyStatMetricRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'type' => 'sometimes|required|string',
+            'type'  => 'sometimes|required|string',
             'value' => 'sometimes|required|numeric',
-            'unit' => 'nullable|string',
-            'meta' => 'nullable|array',
+            'unit'  => 'nullable|string',
+            'meta'  => 'nullable|array',
         ];
     }
 
@@ -35,9 +35,9 @@ class UpdateDailyStatMetricRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'type.required' => 'The metric type is required.',
+            'type.required'  => 'The metric type is required.',
             'value.required' => 'The metric value is required.',
-            'value.numeric' => 'The metric value must be a number.',
+            'value.numeric'  => 'The metric value must be a number.',
         ];
     }
 }

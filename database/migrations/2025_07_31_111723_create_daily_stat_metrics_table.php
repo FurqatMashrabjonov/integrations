@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 return new class extends Migration
 {
@@ -19,7 +19,6 @@ return new class extends Migration
             $table->string('unit')->nullable(); // e.g., "minutes", "count", "steps"
             $table->json('meta')->nullable(); // e.g., language, repo, difficulty
             $table->timestamps();
-
         });
     }
 

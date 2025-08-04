@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Integrations;
 
 use Inertia\Inertia;
+use App\Enums\IntegrationEnum;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use App\Enums\IntegrationEnum;
-use App\Http\Requests\Integrations\LeetcodeStoreRequest;
 use App\Services\IntegrationAccountService;
 use App\Services\Integrations\LeetcodeService;
+use App\Http\Requests\Integrations\LeetcodeStoreRequest;
 
 class LeetcodeController extends Controller
 {
@@ -21,14 +21,14 @@ class LeetcodeController extends Controller
     public function store(LeetcodeStoreRequest $request)
     {
         $user = Auth::user();
-        
+
         // First, validate that the username exists on LeetCode
         try {
             $profile = $this->leetcodeService->getUser($request->username);
         } catch (\Exception $e) {
             // Username doesn't exist on LeetCode
             return back()->withErrors([
-                'username' => 'LeetCode da "' . $request->username . '" foydalanuvchi topilmadi. Iltimos, to\'g\'ri username kiriting.'
+                'username' => 'LeetCode da "' . $request->username . '" foydalanuvchi topilmadi. Iltimos, to\'g\'ri username kiriting.',
             ]);
         }
 
@@ -57,7 +57,7 @@ class LeetcodeController extends Controller
     // Check if the user has a Leetcode account connected
     public function exists()
     {
-        $user = Auth::user();
+        $user    = Auth::user();
         $account = $this->integrationService->getByUserAndIntegration($user->id, IntegrationEnum::LEETCODE);
 
         return response()->json(['exists' => $account !== null]);
@@ -67,7 +67,7 @@ class LeetcodeController extends Controller
     public function destroy()
     {
         $user = Auth::user();
-        
+
         $this->integrationService->removeIntegration($user->id, IntegrationEnum::LEETCODE);
 
         // For Inertia requests, return back with flash message
@@ -77,7 +77,7 @@ class LeetcodeController extends Controller
     // Show the user's Leetcode profile and recent activity
     public function show()
     {
-        $user = Auth::user();
+        $user        = Auth::user();
         $profileData = $this->integrationService->getLeetcodeProfile($user->id);
 
         if (!$profileData) {

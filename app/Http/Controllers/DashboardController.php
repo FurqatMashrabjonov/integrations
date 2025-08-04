@@ -417,7 +417,7 @@ class DashboardController extends Controller
                 ->sum('value');
 
             // Get latest ranking from most recent record
-            $latestStats = $dailyStats->sortByDesc('date')->first();
+            $latestStats   = $dailyStats->sortByDesc('date')->first();
             $latestRanking = 0;
 
             foreach ($latestStats->metrics as $metric) {

@@ -48,8 +48,8 @@ class DailyStatMetric extends Model
     protected function casts(): array
     {
         return [
-            'value' => 'float',
-            'meta' => 'array',
+            'value'      => 'float',
+            'meta'       => 'array',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];
@@ -86,6 +86,7 @@ class DailyStatMetric extends Model
     public function getFormattedValueAttribute(): string
     {
         $value = number_format($this->value, 2);
+
         return $this->unit ? "$value {$this->unit}" : $value;
     }
 

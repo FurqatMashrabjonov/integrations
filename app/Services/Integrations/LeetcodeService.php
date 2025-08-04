@@ -4,9 +4,9 @@ namespace App\Services\Integrations;
 
 use Saloon\Http\Request;
 use App\Models\DailyStat;
+use App\Enums\IntegrationEnum;
 use App\Models\DailyStatMetric;
 use App\Models\IntegrationAccount;
-use App\Enums\IntegrationEnum;
 use Illuminate\Support\Collection;
 use Saloon\Exceptions\Request\RequestException;
 use Saloon\Exceptions\Request\FatalRequestException;
@@ -96,12 +96,12 @@ class LeetcodeService implements LeetcodeServiceInterface
     {
         return IntegrationAccount::updateOrCreate(
             [
-                'user_id' => $userId,
+                'user_id'     => $userId,
                 'integration' => IntegrationEnum::LEETCODE,
             ],
             [
                 'username' => $username,
-                'data' => null,
+                'data'     => null,
             ]
         );
     }
@@ -122,26 +122,26 @@ class LeetcodeService implements LeetcodeServiceInterface
 
     public function getAccount(int $userId)
     {
-        return \App\Models\IntegrationAccount::where('user_id', $userId)
-            ->where('integration', \App\Enums\IntegrationEnum::LEETCODE)
+        return IntegrationAccount::where('user_id', $userId)
+            ->where('integration', IntegrationEnum::LEETCODE)
             ->first();
     }
 
     public function syncProfile(int $userId): void
     {
-        $integrationAccount = \App\Models\IntegrationAccount::where('user_id', $userId)
-            ->where('integration', \App\Enums\IntegrationEnum::LEETCODE)
+        $integrationAccount = IntegrationAccount::where('user_id', $userId)
+            ->where('integration', IntegrationEnum::LEETCODE)
             ->first();
-            
+
         if (!$integrationAccount) {
             throw new \Exception('LeetCode integration account not found for user');
         }
-        
+
         $username = $integrationAccount->data['username'] ?? null;
         if (!$username) {
             throw new \Exception('LeetCode username not found in integration account data');
         }
-        
+
         // This method can be implemented later if needed
         // For now it's just a placeholder to satisfy the interface
     }
@@ -156,14 +156,14 @@ class LeetcodeService implements LeetcodeServiceInterface
         $date ??= now()->format('Y-m-d');
 
         // Use IntegrationAccount instead of old repository
-        $integrationAccount = \App\Models\IntegrationAccount::where('user_id', $userId)
-            ->where('integration', \App\Enums\IntegrationEnum::LEETCODE)
+        $integrationAccount = IntegrationAccount::where('user_id', $userId)
+            ->where('integration', IntegrationEnum::LEETCODE)
             ->first();
-            
+
         if (!$integrationAccount) {
             throw new \Exception('LeetCode integration account not found for user');
         }
-        
+
         $username = $integrationAccount->data['username'] ?? null;
         if (!$username) {
             throw new \Exception('LeetCode username not found in integration account data');
@@ -180,9 +180,9 @@ class LeetcodeService implements LeetcodeServiceInterface
 
         // Get profile data for total stats
         $profileData = $integrationAccount->data['profile'] ?? [];
-        $totalEasy = $profileData['ac_submission_num_easy'] ?? 0;
+        $totalEasy   = $profileData['ac_submission_num_easy'] ?? 0;
         $totalMedium = $profileData['ac_submission_num_medium'] ?? 0;
-        $totalHard = $profileData['ac_submission_num_hard'] ?? 0;
+        $totalHard   = $profileData['ac_submission_num_hard'] ?? 0;
 
         // Create or update daily stat using repository
         $dailyStat = $this->dailyStatRepository->updateOrCreate(
@@ -211,15 +211,15 @@ class LeetcodeService implements LeetcodeServiceInterface
         ]);
 
         $this->createOrUpdateMetric($dailyStat->id, 'total_problems_easy', $totalEasy, 'count', [
-            'difficulty'  => 'Easy',
+            'difficulty' => 'Easy',
         ]);
 
         $this->createOrUpdateMetric($dailyStat->id, 'total_problems_medium', $totalMedium, 'count', [
-            'difficulty'  => 'Medium',
+            'difficulty' => 'Medium',
         ]);
 
         $this->createOrUpdateMetric($dailyStat->id, 'total_problems_hard', $totalHard, 'count', [
-            'difficulty'  => 'Hard',
+            'difficulty' => 'Hard',
         ]);
 
         $this->createOrUpdateMetric($dailyStat->id, 'ranking', $profile->ranking, 'position', [
@@ -364,11 +364,11 @@ class LeetcodeService implements LeetcodeServiceInterface
             $totalSubmissions = $stat->metrics->where('type', 'total_submissions')->first()?->value ?? 0;
 
             return [
-                'date' => $stat->date->format('Y-m-d'),
+                'date'        => $stat->date->format('Y-m-d'),
                 'submissions' => $totalSubmissions,
-                'easy' => $stat->metrics->where('type', 'problems_easy')->first()?->value ?? 0,
-                'medium' => $stat->metrics->where('type', 'problems_medium')->first()?->value ?? 0,
-                'hard' => $stat->metrics->where('type', 'problems_hard')->first()?->value ?? 0,
+                'easy'        => $stat->metrics->where('type', 'problems_easy')->first()?->value ?? 0,
+                'medium'      => $stat->metrics->where('type', 'problems_medium')->first()?->value ?? 0,
+                'hard'        => $stat->metrics->where('type', 'problems_hard')->first()?->value ?? 0,
             ];
         })->sortByDesc('submissions')->first();
 

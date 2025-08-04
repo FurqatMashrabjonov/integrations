@@ -28,9 +28,9 @@ class RunDataCollectionJob extends Command
     {
         $date = $this->argument('date') ?? now()->format('Y-m-d');
         $sync = $this->option('sync');
-        
+
         $this->info("Starting integration data collection for date: {$date}");
-        
+
         if ($sync) {
             $this->info('Running synchronously...');
             $job = new CollectUserIntegrationData($date);
@@ -41,7 +41,7 @@ class RunDataCollectionJob extends Command
             CollectUserIntegrationData::dispatch($date);
             $this->info('Data collection job dispatched to queue!');
         }
-        
+
         return Command::SUCCESS;
     }
 }

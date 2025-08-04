@@ -43,6 +43,7 @@ class GithubConnector extends Connector
     public function getUser($authenticator): Response
     {
         $this->authenticate($authenticator);
-        return $this->send(new GetUserInfo());
+
+        return $this->send(new GetUserInfo);
     }
 }

@@ -1,7 +1,7 @@
 <?php
 
-use App\Http\Controllers\PomodoroController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PomodoroController;
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/pomodoro', [PomodoroController::class, 'index'])->name('pomodoro');

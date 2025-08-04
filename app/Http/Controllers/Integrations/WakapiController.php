@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Integrations;
 
 use Inertia\Inertia;
+use App\Enums\IntegrationEnum;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use App\Enums\IntegrationEnum;
-use App\Http\Requests\Integrations\WakapiStoreRequest;
 use App\Services\IntegrationAccountService;
 use App\Services\Integrations\WakapiService;
+use App\Http\Requests\Integrations\WakapiStoreRequest;
 
 class WakapiController extends Controller
 {
@@ -21,14 +21,14 @@ class WakapiController extends Controller
     public function store(WakapiStoreRequest $request)
     {
         $user = Auth::user();
-        
+
         // First, validate that the API token works by fetching user profile
         try {
             $profile = $this->wakapiService->setToken($request->api_token)->getUser();
         } catch (\Exception $e) {
             // API token is invalid or API is unreachable
             return back()->withErrors([
-                'api_token' => 'Wakapi API token yaroqsiz yoki server bilan bog\'lanishda xatolik. Iltimos, to\'g\'ri API token kiriting.'
+                'api_token' => 'Wakapi API token yaroqsiz yoki server bilan bog\'lanishda xatolik. Iltimos, to\'g\'ri API token kiriting.',
             ]);
         }
 
@@ -40,9 +40,9 @@ class WakapiController extends Controller
             $profile->display_name,
             $profile->photo,
             [
-                'username' => $profile->username,
-                'email' => $profile->email,
-                'api_token' => $request->api_token
+                'username'  => $profile->username,
+                'email'     => $profile->email,
+                'api_token' => $request->api_token,
             ]
         );
 
@@ -61,7 +61,7 @@ class WakapiController extends Controller
     // Check if the user has a Wakapi account connected
     public function exists()
     {
-        $user = Auth::user();
+        $user    = Auth::user();
         $account = $this->integrationService->getByUserAndIntegration($user->id, IntegrationEnum::WAKAPI);
 
         return response()->json(['exists' => $account !== null]);
@@ -71,7 +71,7 @@ class WakapiController extends Controller
     public function destroy()
     {
         $user = Auth::user();
-        
+
         $this->integrationService->removeIntegration($user->id, IntegrationEnum::WAKAPI);
 
         // For Inertia requests, return back with flash message
@@ -81,7 +81,7 @@ class WakapiController extends Controller
     // Show the user's Wakapi profile and recent activity
     public function show()
     {
-        $user = Auth::user();
+        $user        = Auth::user();
         $profileData = $this->integrationService->getWakapiProfile($user->id);
 
         if (!$profileData) {

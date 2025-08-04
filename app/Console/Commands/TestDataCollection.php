@@ -4,9 +4,8 @@ namespace App\Console\Commands;
 
 use App\Models\User;
 use App\Models\DailyStat;
-use App\Models\IntegrationAccount;
 use Illuminate\Console\Command;
-use Carbon\Carbon;
+use App\Models\IntegrationAccount;
 
 class TestDataCollection extends Command
 {
@@ -41,9 +40,9 @@ class TestDataCollection extends Command
 
         if ($accountCount > 0) {
             $accounts = IntegrationAccount::with('user')->get();
-            foreach($accounts as $account) {
+            foreach ($accounts as $account) {
                 $this->info("User {$account->user->name} has {$account->integration->value} account");
-                $this->info("  Data: " . json_encode($account->data));
+                $this->info('  Data: ' . json_encode($account->data));
             }
         }
 
@@ -53,9 +52,9 @@ class TestDataCollection extends Command
 
         if ($statsCount > 0) {
             $stats = DailyStat::with('metrics')->latest()->take(5)->get();
-            foreach($stats as $stat) {
+            foreach ($stats as $stat) {
                 $this->info("Stat: User {$stat->user_id}, {$stat->provider}, {$stat->date} - {$stat->metrics->count()} metrics");
-                foreach($stat->metrics as $metric) {
+                foreach ($stat->metrics as $metric) {
                     $this->info("  - {$metric->type}: {$metric->value} {$metric->unit}");
                 }
             }
@@ -67,23 +66,23 @@ class TestDataCollection extends Command
         if ($accountCount === 0 && $userCount > 0) {
             $this->warn('No integration accounts found. Creating sample data for testing...');
             $user = User::first();
-            
+
             // Create sample Wakapi account
             IntegrationAccount::create([
-                'user_id' => $user->id,
-                'integration' => \App\Enums\IntegrationEnum::WAKAPI,
+                'user_id'      => $user->id,
+                'integration'  => \App\Enums\IntegrationEnum::WAKAPI,
                 'display_name' => 'test_user',
-                'data' => ['username' => 'test_user']
+                'data'         => ['username' => 'test_user'],
             ]);
-            
+
             // Create sample LeetCode account
             IntegrationAccount::create([
-                'user_id' => $user->id,
-                'integration' => \App\Enums\IntegrationEnum::LEETCODE,
+                'user_id'      => $user->id,
+                'integration'  => \App\Enums\IntegrationEnum::LEETCODE,
                 'display_name' => 'test_user',
-                'data' => ['username' => 'test_user']
+                'data'         => ['username' => 'test_user'],
             ]);
-            
+
             $this->info('Sample integration accounts created!');
         }
 

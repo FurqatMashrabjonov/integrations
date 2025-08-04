@@ -34,4 +34,3 @@ Route::get('csrf-token', function () {
 Route::get('telegram', function (Illuminate\Http\Request $request) {
     dd($request->all());
 })->name('telegram');
-

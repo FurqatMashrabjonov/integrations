@@ -147,20 +147,23 @@ class CollectUserIntegrationData implements ShouldQueue
 
             if (!$integrationAccount) {
                 Log::warning("No Wakapi account found for user {$user->id}");
+
                 return;
             }
 
             // Get username and API token from the data JSON field
             $username = $integrationAccount->data['username'] ?? null;
             $apiToken = $integrationAccount->data['api_token'] ?? null;
-            
+
             if (!$username) {
                 Log::warning("No Wakapi username found for user {$user->id}");
+
                 return;
             }
-            
+
             if (!$apiToken) {
                 Log::warning("No Wakapi API token found for user {$user->id}");
+
                 return;
             }
 
@@ -168,9 +171,9 @@ class CollectUserIntegrationData implements ShouldQueue
             $service->setToken($apiToken);
             $dailyActivity = $service->getDailyActivities('today');
 
-            $codingTime = $dailyActivity->data['cumulative_total']['total_seconds'] ?? 0;
+            $codingTime     = $dailyActivity->data['cumulative_total']['total_seconds'] ?? 0;
             $languagesCount = count($dailyActivity->languages);
-            $projectsCount = count($dailyActivity->projects);
+            $projectsCount  = count($dailyActivity->projects);
 
             $this->storeMetric($dailyStat, 'coding_time', $codingTime, 'seconds');
             $this->storeMetric($dailyStat, 'languages_count', $languagesCount, 'count');
@@ -192,14 +195,16 @@ class CollectUserIntegrationData implements ShouldQueue
 
             if (!$integrationAccount) {
                 Log::warning("No LeetCode account found for user {$user->id}");
+
                 return;
             }
 
             // Get username from the data JSON field
             $username = $integrationAccount->data['username'] ?? null;
-            
+
             if (!$username) {
                 Log::warning("No LeetCode username found for user {$user->id}");
+
                 return;
             }
 
