@@ -175,7 +175,7 @@ class IntegrationAccountService
         }
 
         // Fetch steps and activity data using the service
-        $todaySteps = $this->fitbitService->getUserStepsAndStore($userId);
+        $todaySteps = $this->fitbitService->getUserSteps($userId);
         $weekSteps  = $this->getWeeklySteps($userId);
 
         // Calculate distance (rough estimate: 1 step = 0.0008 km)
@@ -205,7 +205,7 @@ class IntegrationAccountService
     {
         $account = $this->getByUserAndIntegration($userId, IntegrationEnum::FITBIT);
 
-        if (!$account || !isset($account->data['today_steps'])) {
+        if (!$account) {
             return null;
         }
 

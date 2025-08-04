@@ -197,6 +197,7 @@ class DashboardController extends Controller
                 ->byUser($userId)
                 ->byProvider('fitbit')
                 ->byDate($dateRange['start'])
+                ->with('metrics')
                 ->first();
 
             if (!$dailyStats) {
@@ -204,7 +205,9 @@ class DashboardController extends Controller
             }
 
             $stats = [
-                'steps' => 0,
+                'steps'    => 0,
+                'calories' => 0,
+                'distance' => 0,
             ];
 
             foreach ($dailyStats->metrics as $metric) {
@@ -212,12 +215,17 @@ class DashboardController extends Controller
                     case 'steps':
                         $stats['steps'] = $metric->value;
                         break;
+                    case 'calories':
+                        $stats['calories'] = $metric->value;
+                        break;
+                    case 'distance':
+                        $stats['distance'] = $metric->value;
+                        break;
                 }
             }
 
             return $stats;
         } else {
-            // Get aggregated stats for weekly/monthly
             $dailyStats = DailyStat::with('metrics')
                 ->byUser($userId)
                 ->byProvider('fitbit')
@@ -228,15 +236,23 @@ class DashboardController extends Controller
                 return null;
             }
 
-            // Sum up steps for the period
+            // Sum up all metrics for the period
             $totalSteps = $dailyStats->flatMap->metrics
                 ->where('type', 'steps')
                 ->sum('value');
 
-            $latestStats = $dailyStats->sortByDesc('date')->first();
+            $totalCalories = $dailyStats->flatMap->metrics
+                ->where('type', 'calories')
+                ->sum('value');
+
+            $totalDistance = $dailyStats->flatMap->metrics
+                ->where('type', 'distance')
+                ->sum('value');
 
             return [
-                'steps' => $totalSteps,
+                'steps'    => $totalSteps,
+                'calories' => $totalCalories,
+                'distance' => $totalDistance,
             ];
         }
     }

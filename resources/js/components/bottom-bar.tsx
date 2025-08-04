@@ -1,7 +1,7 @@
 import { Link, usePage } from '@inertiajs/react';
 import { SVGProps } from 'react'
 import { JSX } from 'react/jsx-runtime'
-import { Calendar, ChartBar, User } from 'lucide-react';
+import { Calendar, ChartBar, Droplet, Droplets, User } from 'lucide-react';
 
 export default function BottomBar() {
 
@@ -39,7 +39,7 @@ export default function BottomBar() {
             >
                 <div className={`h-14 w-14 rounded-full flex items-center justify-center transform transition-all duration-200 hover:scale-105 border-4 border-background
                     ${isActive('/pomodoro') ? 'bg-primary text-primary-foreground' : 'bg-foreground text-background hover:bg-primary hover:text-primary-foreground'}`}>
-                    <PomodoroIcon className="h-8 w-8" />
+                    <Droplets  className="h-8 w-8" />
                 </div>
                 <span className={`text-xs font-medium mt-1
                     ${isActive('/pomodoro') ? 'text-primary' : 'text-muted-foreground'}`}>

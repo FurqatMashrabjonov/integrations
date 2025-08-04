@@ -127,9 +127,17 @@ class CollectUserIntegrationData implements ShouldQueue
             $service = app(FitbitService::class);
 
             // Get steps for the specific date using the existing service
-            $steps = $service->getUserStepsAndStore($user->id, $this->date);
+            $data = $service->getUserSteps($user->id, $this->date);
+
+            $steps    = $data?->summary?->steps ?? 0;
+            $calories = $data?->summary?->caloriesOut ?? 0;
+            $distance = collect($data?->summary?->distances)->where('activity', 'total')->first()?->distance ?? 0;
+
+            Log::debug('Fitbit data retrieved for user ' . $user->id . ': steps=' . $steps . ', calories=' . $calories . ', distance=' . $distance);
 
             $this->storeMetric($dailyStat, 'steps', $steps, 'count');
+            $this->storeMetric($dailyStat, 'calories', $calories, 'kcal');
+            $this->storeMetric($dailyStat, 'distance', $distance, 'km');
 
             Log::info("Fitbit data collected for user {$user->id}: steps={$steps}");
         } catch (\Exception $e) {

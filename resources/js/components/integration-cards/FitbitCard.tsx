@@ -16,9 +16,11 @@ interface FitbitProfile {
 }
 
 interface FitbitStats {
+    steps?: number;
+    calories?: number;
+    distance?: number;
     today_steps?: number;
     today_distance?: number;
-    steps?: number;
     last_synced_at?: string;
 }
 
@@ -38,6 +40,11 @@ export default function FitbitCard({
     stats
 }: FitbitCardProps) {
 
+    // Debug: Log the profile and stats data
+    console.log('FitbitCard - isConnected:', isConnected);
+    console.log('FitbitCard - profile:', profile);
+    console.log('FitbitCard - stats:', stats);
+
     const formatDate = (dateString?: string) => {
         if (!dateString) return null;
         try {
@@ -52,6 +59,9 @@ export default function FitbitCard({
             return null;
         }
     };
+
+
+    console.log(profile);
 
     return (
         <div className="relative w-full h-full flex items-center justify-center">
@@ -84,7 +94,7 @@ export default function FitbitCard({
                                 </svg>
                             </div>
                         </CardTitle>
-                        {isConnected && profile && (
+                        {isConnected && profile && (profile.username || profile.display_name) && (
                             <div className="flex items-center gap-3 min-w-0">
                                 {(profile.photo || profile.avatar) && (
                                     <img
@@ -107,43 +117,57 @@ export default function FitbitCard({
                     </CardHeader>
                     <CardContent>
                         {isConnected && (profile || stats) ? (
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="text-center p-3 bg-muted rounded-lg">
-                                    <div className="flex items-center justify-center gap-1 mb-1">
-                                        <span className="text-lg">👣</span>
-                                        <span className="text-2xl font-bold text-foreground">
+                            <div className="grid grid-cols-3 gap-2">
+                                <div className="text-center p-2 bg-muted rounded-lg min-w-0">
+                                    <div className="flex flex-col items-center justify-center mb-1">
+                                        <span className="text-lg mb-1">🦶</span>
+                                        <span className="text-lg font-bold text-foreground leading-tight break-all">
                                             {stats?.steps?.toLocaleString() || '0'}
                                         </span>
                                     </div>
-                                    <p className="text-sm text-muted-foreground">Qadamlar</p>
+                                    <p className="text-xs text-muted-foreground">Qadamlar</p>
                                 </div>
-                                <div className="text-center p-3 bg-muted rounded-lg">
-                                    <div className="flex items-center justify-center gap-1 mb-1">
-                                        <span className="text-lg">🏃</span>
-                                        <span className="text-2xl font-bold text-foreground">
-                                            {stats?.today_distance || '0'}
+                                <div className="text-center p-2 bg-muted rounded-lg min-w-0">
+                                    <div className="flex flex-col items-center justify-center mb-1">
+                                        <span className="text-lg mb-1">🔥</span>
+                                        <span className="text-md font-bold text-foreground leading-tight break-all">
+                                            {stats?.calories || '0'}
                                         </span>
-                                        <span className="text-lg font-light text-foreground">km</span>
                                     </div>
-                                    <p className="text-sm text-muted-foreground">Masofa</p>
+                                    <p className="text-xs text-muted-foreground">Kaloriya</p>
+                                </div>
+                                <div className="text-center p-2 bg-muted rounded-lg min-w-0">
+                                    <div className="flex flex-col items-center justify-center mb-1">
+                                        <span className="text-lg mb-1">🏃</span>
+                                        <span className="text-lg font-bold text-foreground leading-tight break-all">
+                                            {stats?.distance || stats?.today_distance || '0'}
+                                        </span>
+                                    </div>
+                                    <p className="text-xs text-muted-foreground">Km</p>
                                 </div>
                             </div>
                         ) : (
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="text-center p-3 bg-muted rounded-lg">
-                                    <div className="flex items-center justify-center gap-1 mb-1">
-                                        <span className="text-lg">👣</span>
-                                        <span className="text-2xl font-bold text-foreground">0</span>
+                            <div className="grid grid-cols-3 gap-2">
+                                <div className="text-center p-2 bg-muted rounded-lg min-w-0">
+                                    <div className="flex flex-col items-center justify-center mb-1">
+                                        <span className="text-lg mb-1">👣</span>
+                                        <span className="text-sm font-bold text-foreground leading-tight">0</span>
                                     </div>
-                                    <p className="text-sm text-muted-foreground">Qadamlar</p>
+                                    <p className="text-xs text-muted-foreground">Qadamlar</p>
                                 </div>
-                                <div className="text-center p-3 bg-muted rounded-lg">
-                                    <div className="flex items-center justify-center gap-1 mb-1">
-                                        <span className="text-lg">🏃</span>
-                                        <span className="text-2xl font-bold text-foreground">0.0</span>
-                                        <span className="text-lg font-light text-foreground">km</span>
+                                <div className="text-center p-2 bg-muted rounded-lg min-w-0">
+                                    <div className="flex flex-col items-center justify-center mb-1">
+                                        <span className="text-lg mb-1">🔥</span>
+                                        <span className="text-sm font-bold text-foreground leading-tight">0</span>
                                     </div>
-                                    <p className="text-sm text-muted-foreground">Masofa</p>
+                                    <p className="text-xs text-muted-foreground">Kaloriya</p>
+                                </div>
+                                <div className="text-center p-2 bg-muted rounded-lg min-w-0">
+                                    <div className="flex flex-col items-center justify-center mb-1">
+                                        <span className="text-lg mb-1">🏃</span>
+                                        <span className="text-sm font-bold text-foreground leading-tight">0.0</span>
+                                    </div>
+                                    <p className="text-xs text-muted-foreground">Km</p>
                                 </div>
                             </div>
                         )}

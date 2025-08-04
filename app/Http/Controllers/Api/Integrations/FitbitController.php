@@ -50,7 +50,7 @@ class FitbitController extends Controller
             $this->fitbitService->handleCallback($request);
 
             // Sync profile data after successful connection
-            $this->integrationAccountService->syncFitbitProfile($request->user()->id);
+            //            $this->integrationAccountService->syncFitbitProfile($request->user()->id);
 
             return Inertia::location(route('integrations.edit'));
         } catch (\Exception $e) {

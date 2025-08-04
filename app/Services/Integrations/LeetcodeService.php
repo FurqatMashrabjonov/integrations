@@ -2,6 +2,7 @@
 
 namespace App\Services\Integrations;
 
+use App\Http\Integrations\Leetcode\Requests\GetProblemDifficulty;
 use Saloon\Http\Request;
 use App\Models\DailyStat;
 use App\Enums\IntegrationEnum;
@@ -67,13 +68,14 @@ class LeetcodeService implements LeetcodeServiceInterface
         return collect($user->recentAcSubmissionList ?? [])
             ->when($date, function ($query) use ($date) {
                 return $query->filter(fn ($sub) => $sub->timestamp && date('Y-m-d', $sub->timestamp) === $date);
-            })
-            ->map(fn ($sub) => [
-                'title'          => $sub->title,
-                'title_slug'     => $sub->titleSlug,
-                'status_display' => $sub->statusDisplay,
-                'date'           => $sub->timestamp ? date('Y-m-d H:i:s', $sub->timestamp) : null,
-            ]);
+            });
+    }
+
+    public function getProblemDifficulty(string $titleSlug): string
+    {
+        $response = $this->send(new GetProblemDifficulty($titleSlug));
+
+        return $response->object();
     }
 
     /**
@@ -88,6 +90,7 @@ class LeetcodeService implements LeetcodeServiceInterface
         if ($response->successful()) {
             return $response->object();
         }
+        dd($response->body());
 
         throw new \Exception('Failed to fetch data from Leetcode API');
     }
@@ -173,9 +176,8 @@ class LeetcodeService implements LeetcodeServiceInterface
         $profile           = $this->getUser($username);
         $recentSubmissions = $this->getUserRecentSubmissions($username, $date);
 
-        // Count submissions by difficulty for the specific date
-        // Note: LeetCode API doesn't provide difficulty in recent submissions
-        // So we count total submissions for the date and use profile data for totals
+        \Log::info($this->getProblemDifficulty('two-sum'));
+
         $totalSubmissions = $recentSubmissions->count();
 
         // Get profile data for total stats

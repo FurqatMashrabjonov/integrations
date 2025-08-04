@@ -53,7 +53,7 @@ class FitbitService implements FitbitServiceInterface
      * @throws \Throwable
      * @throws RequestException
      */
-    public function getUserStepsAndStore(int $userId, ?string $date = null)
+    public function getUserSteps(int $userId, ?string $date = null)
     {
         if (!$date) {
             $date = now()->format('Y-m-d');
@@ -72,17 +72,7 @@ class FitbitService implements FitbitServiceInterface
 
         throw_if(isset($response->error));
 
-        Log::info(json_encode($response->json()));
-
-        $steps = $response?->object()?->summary->steps ?? 0;
-
-        $this->userFitbitStepRepository->storeOrUpdate(new UserFitbitStepDTO(
-            user_id: $userId,
-            date: $date,
-            steps: $steps,
-        ));
-
-        return $steps;
+        return $response?->object();
     }
 
     public function refreshIfExpired(AccessTokenAuthenticator $authenticator): void
