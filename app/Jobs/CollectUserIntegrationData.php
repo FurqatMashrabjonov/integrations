@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Services\Integrations\FitbitService;
+// use App\Services\Integrations\GithubService; // Temporarily disabled
 use App\Services\Integrations\WakapiService;
 use App\Services\Integrations\LeetcodeService;
 
@@ -91,13 +92,16 @@ class CollectUserIntegrationData implements ShouldQueue
         }
 
         match ($account->integration) {
-            IntegrationEnum::GITHUB   => $this->collectGithubData($user, $dailyStat),
+            // IntegrationEnum::GITHUB   => $this->collectGithubData($user, $dailyStat), // Temporarily disabled
             IntegrationEnum::FITBIT   => $this->collectFitbitData($user, $dailyStat),
             IntegrationEnum::WAKAPI   => $this->collectWakapiData($user, $dailyStat),
             IntegrationEnum::LEETCODE => $this->collectLeetcodeData($user, $dailyStat),
+            default                   => null,
         };
     }
 
+    // Temporarily disabled GitHub data collection
+    /*
     protected function collectGithubData(User $user, DailyStat $dailyStat): void
     {
         try {
@@ -110,16 +114,25 @@ class CollectUserIntegrationData implements ShouldQueue
                 return;
             }
 
-            // For now, store placeholder values until GitHub service implementation is complete
-            $this->storeMetric($dailyStat, 'commits', 0, 'count');
-            $this->storeMetric($dailyStat, 'repositories', 0, 'count');
-            $this->storeMetric($dailyStat, 'contributions', 0, 'count');
+            // Get GitHub service to collect daily data
+            $service = app(GithubService::class);
 
-            Log::info("GitHub data collected for user {$user->id} (placeholder values)");
+            // Get GitHub data (commits and PRs) for the date
+            $githubData = $service->getDailyStats($user->id, $this->date);
+
+            // Store metrics with actual data
+            $this->storeMetric($dailyStat, 'commits', $githubData['commits_today'] ?? 0, 'count');
+            $this->storeMetric($dailyStat, 'repositories', $githubData['repositories_contributed'] ?? 0, 'count');
+            $this->storeMetric($dailyStat, 'pull_requests', $githubData['total_pull_requests'] ?? 0, 'count');
+            $this->storeMetric($dailyStat, 'open_pull_requests', $githubData['open_pull_requests'] ?? 0, 'count');
+            $this->storeMetric($dailyStat, 'merged_pull_requests', $githubData['merged_pull_requests'] ?? 0, 'count');
+
+            Log::info("GitHub data collected for user {$user->id}: {$githubData['commits_today']} commits, {$githubData['total_pull_requests']} PRs");
         } catch (\Exception $e) {
             Log::error("Failed to collect GitHub data for user {$user->id}: " . $e->getMessage());
         }
     }
+    */
 
     protected function collectFitbitData(User $user, DailyStat $dailyStat): void
     {

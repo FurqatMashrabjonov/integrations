@@ -6,7 +6,6 @@ use Carbon\Carbon;
 use Inertia\Inertia;
 use Inertia\Response;
 use App\Models\DailyStat;
-use App\Models\Integration;
 use App\Http\Controllers\Controller;
 use App\Services\IntegrationAccountService;
 
@@ -25,7 +24,7 @@ class IntegrationsController extends Controller
 
         // Get all integration data
         $integrationData = [
-            'github'   => $this->getGithubData($user->id),
+            //            'github'   => $this->getGithubData($user->id),
             'fitbit'   => $this->getFitbitData($user->id),
             'leetcode' => $this->getLeetcodeData($user->id),
             'wakapi'   => $this->getWakapiData($user->id),

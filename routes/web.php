@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RatingController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\OnboardingController;
 
 Route::get('/', [DashboardController::class, 'home'])->name('home');
 
@@ -12,6 +13,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
     Route::get('calendar', [CalendarController::class, 'index'])->name('calendar');
     Route::get('rating', [RatingController::class, 'index'])->name('rating');
+});
+
+// Onboarding routes
+Route::middleware(['auth'])->prefix('onboarding')->as('onboarding.')->group(function () {
+    Route::get('/', [OnboardingController::class, 'index'])->name('index');
+    Route::get('/mobile', [OnboardingController::class, 'mobile'])->name('mobile');
+    Route::get('/features', [OnboardingController::class, 'features'])->name('features');
+    Route::get('/demo', [OnboardingController::class, 'demo'])->name('demo');
+    Route::post('/complete', [OnboardingController::class, 'complete'])->name('complete');
 });
 
 require __DIR__ . '/settings.php';

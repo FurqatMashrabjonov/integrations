@@ -4,7 +4,7 @@ import { Head, usePage } from '@inertiajs/react';
 import { useState, useMemo } from 'react'
 
 import FitbitCard from '@/components/integration-cards/FitbitCard'
-import GitHubCard from '@/components/integration-cards/GitHubCard'
+// import GitHubCard from '@/components/integration-cards/GitHubCard' // Temporarily disabled
 import WakapiCard from '@/components/integration-cards/WakapiCard'
 import LeetCodeCard from '@/components/integration-cards/LeetCodeCard'
 import { Button } from '@/components/ui/button';
@@ -41,11 +41,14 @@ export default function Dashboard({ integrationData }: {
                 profile: integrationData.fitbit?.profile || null,
                 stats: integrationData.fitbit?.stats?.[filter] || null
             },
+            // Temporarily disabled GitHub integration data
+            /*
             github: {
                 isConnected: integrationData.github?.isConnected || false,
                 profile: integrationData.github?.profile || null,
                 stats: integrationData.github?.stats?.[filter] || null
             },
+            */
             wakapi: {
                 isConnected: integrationData.wakapi?.isConnected || false,
                 profile: integrationData.wakapi?.profile || null,
@@ -70,6 +73,8 @@ export default function Dashboard({ integrationData }: {
             title: 'Fitbit',
             isIntegrated: filteredData?.fitbit?.isConnected || false
         },
+        // Temporarily disabled GitHub integration
+        /*
         {
             id: 'github',
             component: <GitHubCard
@@ -80,6 +85,7 @@ export default function Dashboard({ integrationData }: {
             title: 'GitHub',
             isIntegrated: filteredData?.github?.isConnected || false
         },
+        */
         {
             id: 'wakapi',
             component: <WakapiCard
