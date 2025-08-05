@@ -176,8 +176,6 @@ class LeetcodeService implements LeetcodeServiceInterface
         $profile           = $this->getUser($username);
         $recentSubmissions = $this->getUserRecentSubmissions($username, $date);
 
-        \Log::info($this->getProblemDifficulty('two-sum'));
-
         $totalSubmissions = $recentSubmissions->count();
 
         // Get profile data for total stats
