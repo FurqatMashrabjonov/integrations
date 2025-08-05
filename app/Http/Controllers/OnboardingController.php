@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Illuminate\Http\Request;
 
 class OnboardingController extends Controller
 {
@@ -47,7 +47,7 @@ class OnboardingController extends Controller
     {
         // Here you could save user preferences, mark onboarding as complete, etc.
         // For now, we'll just redirect to the dashboard
-        
+
         return redirect()->route('dashboard')->with('message', 'Welcome! Your integration hub is ready to use.');
     }
 }

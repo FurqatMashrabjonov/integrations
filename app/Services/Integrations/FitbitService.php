@@ -6,7 +6,6 @@ use App\Dtos\BaseDto;
 use Illuminate\Http\Request;
 use App\Dtos\FitbitAccountDTO;
 use App\Enums\IntegrationEnum;
-use App\Dtos\UserFitbitStepDTO;
 use App\Dtos\IntegrationTokenDTO;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;

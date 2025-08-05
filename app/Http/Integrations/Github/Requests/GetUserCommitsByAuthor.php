@@ -32,8 +32,8 @@ class GetUserCommitsByAuthor extends Request
      */
     public function __construct(string $owner, string $repo, string $author)
     {
-        $this->owner = $owner;
-        $this->repo = $repo;
+        $this->owner  = $owner;
+        $this->repo   = $repo;
         $this->author = $author;
     }
 
@@ -51,9 +51,9 @@ class GetUserCommitsByAuthor extends Request
     protected function defaultQuery(): array
     {
         return [
-            'author' => $this->author,
+            'author'   => $this->author,
             'per_page' => 100,
-            'since' => now()->startOfDay()->format('c') // ISO 8601 format
+            'since'    => now()->startOfDay()->format('c'), // ISO 8601 format
         ];
     }
 }

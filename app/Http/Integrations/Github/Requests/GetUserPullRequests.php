@@ -45,10 +45,10 @@ class GetUserPullRequests extends Request
     protected function defaultQuery(): array
     {
         return [
-            'state' => 'all',
-            'per_page' => 100,
-            'sort' => 'updated',
-            'direction' => 'desc'
+            'state'     => 'all',
+            'per_page'  => 100,
+            'sort'      => 'updated',
+            'direction' => 'desc',
         ];
     }
 }

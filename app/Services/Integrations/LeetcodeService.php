@@ -2,7 +2,6 @@
 
 namespace App\Services\Integrations;
 
-use App\Http\Integrations\Leetcode\Requests\GetProblemDifficulty;
 use Saloon\Http\Request;
 use App\Models\DailyStat;
 use App\Enums\IntegrationEnum;
@@ -15,6 +14,7 @@ use App\Http\Integrations\Leetcode\LeetcodeConnector;
 use App\Http\Integrations\Leetcode\Dtos\UserProfileData;
 use App\Http\Integrations\Leetcode\Requests\GetUserProfile;
 use App\Repositories\Contracts\DailyStatRepositoryInterface;
+use App\Http\Integrations\Leetcode\Requests\GetProblemDifficulty;
 use App\Repositories\Contracts\DailyStatMetricRepositoryInterface;
 use App\Http\Integrations\Leetcode\Requests\GetUserRecentSubmissions;
 use App\Services\Integrations\Services\Integrations\Contracts\LeetcodeServiceInterface;
