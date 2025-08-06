@@ -3,7 +3,6 @@
 namespace App\Repositories\Contracts;
 
 use App\Models\DailyStatMetric;
-use Illuminate\Support\Collection;
 
 interface DailyStatMetricRepositoryInterface
 {

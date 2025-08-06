@@ -10,11 +10,17 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 interface FitbitProfile {
     display_name: string;
+    last_synced_at?: string;
+    avatar?: string;
+    full_name?: string;
+}
+
+interface FitbitStats {
     today_steps: number;
     today_distance: number;
     week_steps: number;
-    last_synced_at?: string;
-    avatar?: string;
+    calories?: number;
+    last_updated?: string;
 }
 
 interface FitbitCardProps {
@@ -22,13 +28,17 @@ interface FitbitCardProps {
     showConnect?: boolean;
     isConnected?: boolean;
     profile?: FitbitProfile | null;
+    stats?: FitbitStats | null;
+    dateFilter?: 'today' | 'weekly' | 'monthly';
 }
 
 export default function FitbitCard({
     isIntegrated,
     showConnect = true,
     isConnected = false,
-    profile = null
+    profile = null,
+    stats = null,
+    dateFilter = 'today'
 }: FitbitCardProps) {
 
     const formatDate = (dateString?: string) => {
@@ -103,22 +113,28 @@ export default function FitbitCard({
                         )}
                     </CardHeader>
                     <CardContent>
-                        {isConnected && profile ? (
+                        {isConnected && stats ? (
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="text-center p-3 bg-muted rounded-lg">
                                     <div className="flex items-center justify-center gap-1 mb-1">
                                         <span className="text-lg">👣</span>
-                                        <span className="text-2xl font-bold text-foreground">{profile.today_steps.toLocaleString()}</span>
+                                        <span className="text-2xl font-bold text-foreground">{stats.today_steps.toLocaleString()}</span>
                                     </div>
-                                    <p className="text-sm text-muted-foreground">Qadamlar</p>
+                                    <p className="text-sm text-muted-foreground">
+                                        {dateFilter === 'today' ? 'Qadamlar' : 
+                                         dateFilter === 'weekly' ? 'Haftalik qadamlar' : 'Oylik qadamlar'}
+                                    </p>
                                 </div>
                                 <div className="text-center p-3 bg-muted rounded-lg">
                                     <div className="flex items-center justify-center gap-1 mb-1">
                                         <span className="text-lg">🏃</span>
-                                        <span className="text-2xl font-bold text-foreground">{profile.today_distance}</span>
+                                        <span className="text-2xl font-bold text-foreground">{stats.today_distance}</span>
                                         <span className="text-lg font-light text-foreground">km</span>
                                     </div>
-                                    <p className="text-sm text-muted-foreground">Masofa</p>
+                                    <p className="text-sm text-muted-foreground">
+                                        {dateFilter === 'today' ? 'Masofa' : 
+                                         dateFilter === 'weekly' ? 'Haftalik masofa' : 'Oylik masofa'}
+                                    </p>
                                 </div>
                             </div>
                         ) : (

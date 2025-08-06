@@ -9,11 +9,9 @@ import { toast } from "sonner"
 
 type FitbitProfile = {
     display_name: string;
-    today_steps: number;
-    today_distance: number;
-    week_steps: number;
     last_synced_at?: string;
     avatar?: string;
+    full_name?: string;
 };
 
 export default function FitbitDrawer({ isIntegrated, autoOpen = false, statusBadge }: {

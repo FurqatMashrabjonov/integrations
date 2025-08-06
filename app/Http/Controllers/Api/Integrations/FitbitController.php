@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Api\Integrations;
 
+use Inertia\Inertia;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use App\Enums\IntegrationEnum;
+use App\Http\Controllers\Controller;
 use App\Services\IntegrationAccountService;
 use App\Services\Integrations\FitbitService;
-use Inertia\Inertia;
 
 class FitbitController extends Controller
 {
@@ -24,7 +24,7 @@ class FitbitController extends Controller
         );
 
         return response()->json([
-            'exists' => $account !== null
+            'exists' => $account !== null,
         ]);
     }
 
@@ -48,10 +48,10 @@ class FitbitController extends Controller
     {
         try {
             $this->fitbitService->handleCallback($request);
-            
+
             // Sync profile data after successful connection
             $this->integrationAccountService->syncFitbitProfile($request->user()->id);
-            
+
             return Inertia::location(route('integrations.edit'));
         } catch (\Exception $e) {
             return Inertia::location(route('integrations.edit', ['error' => 'Failed to connect Fitbit account']));

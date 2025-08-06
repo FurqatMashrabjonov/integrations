@@ -22,8 +22,8 @@ class WakapiStoreRequest extends FormRequest
     {
         return [
             'api_token.required' => 'API token maydoni to\'ldirilishi shart.',
-            'api_token.string' => 'API token matn ko\'rinishida bo\'lishi kerak.',
-            'api_token.max' => 'API token 255 belgidan uzun bo\'lmasligi kerak.',
+            'api_token.string'   => 'API token matn ko\'rinishida bo\'lishi kerak.',
+            'api_token.max'      => 'API token 255 belgidan uzun bo\'lmasligi kerak.',
         ];
     }
 }

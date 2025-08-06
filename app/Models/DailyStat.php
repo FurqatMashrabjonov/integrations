@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\IntegrationEnum;
 use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
@@ -50,8 +49,8 @@ class DailyStat extends Model
     protected function casts(): array
     {
         return [
-            'date' => 'date',
-            'meta' => 'array',
+            'date'       => 'date',
+            'meta'       => 'array',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];

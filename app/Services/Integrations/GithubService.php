@@ -120,10 +120,10 @@ class GithubService implements GithubServiceInterface
     protected function createIntegrationAccount($authenticator): void
     {
         $user = $this->connector->getUser($authenticator)->object();
-        
+
         // Use IntegrationAccount directly via repository
         $integrationAccountRepo = app(\App\Repositories\Contracts\IntegrationAccountRepositoryInterface::class);
-        
+
         $integrationAccountRepo->createOrUpdate([
             'user_id'      => Auth::id(),
             'integration'  => IntegrationEnum::GITHUB,

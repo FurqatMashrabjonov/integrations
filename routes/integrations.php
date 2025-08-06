@@ -1,8 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Integrations\LeetcodeController;
 use App\Http\Controllers\Integrations\WakapiController;
+use App\Http\Controllers\Integrations\LeetcodeController;
 use App\Http\Controllers\Api\Integrations\FitbitController;
 use App\Http\Controllers\Api\Integrations\GithubController;
 

@@ -9,7 +9,7 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
- // Daily Stats Read-Only API Routes
+// Daily Stats Read-Only API Routes
 Route::get('daily-stats', [DailyStatController::class, 'index']);
 Route::get('daily-stats/{dailyStat}', [DailyStatController::class, 'show']);
 Route::get('daily-stats-aggregated', [DailyStatController::class, 'aggregated']);

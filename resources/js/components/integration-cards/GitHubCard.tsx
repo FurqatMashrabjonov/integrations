@@ -10,13 +10,21 @@ import { ExternalLink, RefreshCw, GitBranch, GitCommit } from 'lucide-react';
 
 interface GitHubProfile {
     display_name: string;
-    today_commits: number;
-    today_prs: number;
-    week_commits: number;
-    week_prs: number;
     last_synced_at?: string;
     avatar?: string;
     full_name?: string;
+    connected_at?: string;
+}
+
+interface GitHubStats {
+    total_commits: number;
+    total_prs: number;
+    total_repos: number;
+    avg_commits: number;
+    avg_prs: number;
+    days_count: number;
+    date_filter: string;
+    last_updated?: string;
 }
 
 interface GitHubCardProps {
@@ -24,6 +32,8 @@ interface GitHubCardProps {
     showConnect?: boolean;
     isConnected?: boolean;
     profile?: GitHubProfile | null;
+    stats?: GitHubStats | null;
+    dateFilter?: 'today' | 'weekly' | 'monthly';
 }
 
 function getSystemThemeColor() {
@@ -37,7 +47,9 @@ export default function GitHubCard({
     isIntegrated,
     showConnect = true,
     isConnected = false,
-    profile = null
+    profile = null,
+    stats = null,
+    dateFilter = 'today'
 }: GitHubCardProps) {
 
     const formatDate = (dateString?: string) => {
@@ -120,21 +132,27 @@ export default function GitHubCard({
                         )}
                     </CardHeader>
                     <CardContent>
-                        {isConnected && profile ? (
+                        {isConnected && stats ? (
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="text-center p-3 bg-blue-50 rounded-lg border border-blue-200">
                                     <div className="flex items-center justify-center gap-1 mb-1">
                                         <GitBranch className="w-4 h-4 text-blue-600" />
-                                        <span className="text-lg font-bold text-blue-600">{profile.today_prs}</span>
+                                        <span className="text-lg font-bold text-blue-600">{stats.total_prs}</span>
                                     </div>
-                                    <p className="text-xs text-blue-600 font-medium">Bugungi PRlar</p>
+                                    <p className="text-xs text-blue-600 font-medium">
+                                        {dateFilter === 'today' ? 'Bugungi PRlar' : 
+                                         dateFilter === 'weekly' ? 'Haftalik PRlar' : 'Oylik PRlar'}
+                                    </p>
                                 </div>
                                 <div className="text-center p-3 bg-green-50 rounded-lg border border-green-200">
                                     <div className="flex items-center justify-center gap-1 mb-1">
                                         <GitCommit className="w-4 h-4 text-green-600" />
-                                        <span className="text-lg font-bold text-green-600">{profile.today_commits}</span>
+                                        <span className="text-lg font-bold text-green-600">{stats.total_commits}</span>
                                     </div>
-                                    <p className="text-xs text-green-600 font-medium">Bugungi commitlar</p>
+                                    <p className="text-xs text-green-600 font-medium">
+                                        {dateFilter === 'today' ? 'Bugungi commitlar' : 
+                                         dateFilter === 'weekly' ? 'Haftalik commitlar' : 'Oylik commitlar'}
+                                    </p>
                                 </div>
                             </div>
                         ) : (

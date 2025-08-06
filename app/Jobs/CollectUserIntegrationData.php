@@ -64,7 +64,7 @@ class CollectUserIntegrationData implements ShouldQueue
             // Use a more defensive approach to handle existing records
             // Ensure date format matches database storage format
             $dateForComparison = \Carbon\Carbon::parse($this->date)->format('Y-m-d');
-            
+
             $dailyStat = DailyStat::where([
                 'user_id'  => $user->id,
                 'provider' => $token->integration->value,
@@ -80,7 +80,7 @@ class CollectUserIntegrationData implements ShouldQueue
         } catch (\Exception $e) {
             // If creation fails due to unique constraint, try to find existing record
             $dateForComparison = \Carbon\Carbon::parse($this->date)->format('Y-m-d');
-            
+
             $dailyStat = DailyStat::where([
                 'user_id'  => $user->id,
                 'provider' => $token->integration->value,

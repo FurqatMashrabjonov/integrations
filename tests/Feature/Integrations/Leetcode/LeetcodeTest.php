@@ -10,7 +10,7 @@ use App\Services\Integrations\Services\Integrations\Contracts\LeetcodeServiceInt
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    $this->user = User::factory()->create();
+    $this->user    = User::factory()->create();
     $this->service = app(LeetcodeServiceInterface::class);
 });
 
@@ -51,11 +51,11 @@ test('can store daily stats', function () {
     $this->service->store($this->user->id, 'testuser123');
 
     // Mock the external API calls to avoid real API requests
-    $mockService = \Mockery::mock($this->service)
+    $mockService = Mockery::mock($this->service)
         ->shouldAllowMockingProtectedMethods()
         ->makePartial();
 
-    $mockProfile = new \App\Http\Integrations\Leetcode\Dtos\UserProfileData(
+    $mockProfile = new App\Http\Integrations\Leetcode\Dtos\UserProfileData(
         username: 'testuser123',
         real_name: 'Test User',
         user_avatar: 'avatar.jpg',
@@ -68,19 +68,19 @@ test('can store daily stats', function () {
 
     $mockSubmissions = collect([
         [
-            'title' => 'Two Sum',
-            'title_slug' => 'two-sum',
+            'title'          => 'Two Sum',
+            'title_slug'     => 'two-sum',
             'status_display' => 'Accepted',
-            'difficulty' => 'Easy',
-            'date' => now()->format('Y-m-d H:i:s')
+            'difficulty'     => 'Easy',
+            'date'           => now()->format('Y-m-d H:i:s'),
         ],
         [
-            'title' => 'Add Two Numbers',
-            'title_slug' => 'add-two-numbers',
+            'title'          => 'Add Two Numbers',
+            'title_slug'     => 'add-two-numbers',
             'status_display' => 'Accepted',
-            'difficulty' => 'Medium',
-            'date' => now()->format('Y-m-d H:i:s')
-        ]
+            'difficulty'     => 'Medium',
+            'date'           => now()->format('Y-m-d H:i:s'),
+        ],
     ]);
 
     $mockService->shouldReceive('getUser')->andReturn($mockProfile);
@@ -98,10 +98,10 @@ test('can store daily stats', function () {
 
     // Check specific metrics - submissions don't have difficulty in the response
     // so all will be counted as unknown/0, only total_submissions will have count
-    $easyMetric = $dailyStat->metrics->where('type', 'problems_easy')->first();
+    $easyMetric   = $dailyStat->metrics->where('type', 'problems_easy')->first();
     $mediumMetric = $dailyStat->metrics->where('type', 'problems_medium')->first();
-    $hardMetric = $dailyStat->metrics->where('type', 'problems_hard')->first();
-    $totalMetric = $dailyStat->metrics->where('type', 'total_submissions')->first();
+    $hardMetric   = $dailyStat->metrics->where('type', 'problems_hard')->first();
+    $totalMetric  = $dailyStat->metrics->where('type', 'total_submissions')->first();
 
     expect($mediumMetric->value)->toBe(1.0)  // Has difficulty field in mock
         ->and($hardMetric->value)->toBe(0.0)   // No hard problems in mock
@@ -112,19 +112,19 @@ test('can get daily stats', function () {
     // Create test data with correct date format
     $todayDate = now()->format('Y-m-d');
     $dailyStat = DailyStat::factory()->create([
-        'user_id' => $this->user->id,
+        'user_id'  => $this->user->id,
         'provider' => 'leetcode',
-        'date' => $todayDate
+        'date'     => $todayDate,
     ]);
 
     DailyStatMetric::factory()->ofType('problems_easy')->create([
         'daily_stat_id' => $dailyStat->id,
-        'value' => 3
+        'value'         => 3,
     ]);
 
     DailyStatMetric::factory()->ofType('total_submissions')->create([
         'daily_stat_id' => $dailyStat->id,
-        'value' => 5
+        'value'         => 5,
     ]);
 
     $result = $this->service->getDailyStats($this->user->id, $todayDate);
@@ -137,45 +137,45 @@ test('can get daily stats', function () {
 
 test('can get daily stats for date range', function () {
     $startDate = now()->subDays(5)->format('Y-m-d');
-    $endDate = now()->format('Y-m-d');
+    $endDate   = now()->format('Y-m-d');
 
     // Create multiple daily stats with unique dates
     for ($i = 0; $i <= 5; $i++) { // Changed to <= to include 6 days
         $date = now()->subDays($i)->format('Y-m-d');
         DailyStat::factory()->create([
-            'user_id' => $this->user->id,
+            'user_id'  => $this->user->id,
             'provider' => 'leetcode',
-            'date' => $date
+            'date'     => $date,
         ]);
     }
 
     $results = $this->service->getDailyStatsRange($this->user->id, $startDate, $endDate);
 
     expect($results)->toBeInstanceOf(Collection::class)
-        ->and($results->every(fn($stat) => $stat->provider === 'leetcode'))->toBeTrue();
+        ->and($results->every(fn ($stat) => $stat->provider === 'leetcode'))->toBeTrue();
 });
 
 test('can get aggregated stats', function () {
     $startDate = now()->subDays(2)->format('Y-m-d');
-    $endDate = now()->format('Y-m-d');
+    $endDate   = now()->format('Y-m-d');
 
     // Create daily stats with metrics
     for ($i = 0; $i < 3; $i++) {
-        $date = now()->subDays($i)->format('Y-m-d');
+        $date      = now()->subDays($i)->format('Y-m-d');
         $dailyStat = DailyStat::factory()->create([
-            'user_id' => $this->user->id,
+            'user_id'  => $this->user->id,
             'provider' => 'leetcode',
-            'date' => $date
+            'date'     => $date,
         ]);
 
         DailyStatMetric::factory()->ofType('problems_easy')->create([
             'daily_stat_id' => $dailyStat->id,
-            'value' => $i + 1
+            'value'         => $i + 1,
         ]);
 
         DailyStatMetric::factory()->ofType('total_submissions')->create([
             'daily_stat_id' => $dailyStat->id,
-            'value' => ($i + 1) * 2
+            'value'         => ($i + 1) * 2,
         ]);
     }
 
@@ -196,11 +196,11 @@ test('can sync daily stats', function () {
     $this->service->store($this->user->id, 'testuser123');
 
     // Mock the service calls
-    $mockService = \Mockery::mock($this->service)
+    $mockService = Mockery::mock($this->service)
         ->shouldAllowMockingProtectedMethods()
         ->makePartial();
 
-    $mockProfile = new \App\Http\Integrations\Leetcode\Dtos\UserProfileData(
+    $mockProfile = new App\Http\Integrations\Leetcode\Dtos\UserProfileData(
         username: 'testuser123',
         real_name: 'Test User',
         user_avatar: 'avatar.jpg',
@@ -213,12 +213,12 @@ test('can sync daily stats', function () {
 
     $mockSubmissions = collect([
         [
-            'title' => 'Valid Parentheses',
-            'title_slug' => 'valid-parentheses',
+            'title'          => 'Valid Parentheses',
+            'title_slug'     => 'valid-parentheses',
             'status_display' => 'Accepted',
-            'difficulty' => 'Easy',
-            'date' => now()->format('Y-m-d H:i:s')
-        ]
+            'difficulty'     => 'Easy',
+            'date'           => now()->format('Y-m-d H:i:s'),
+        ],
     ]);
 
     $mockService->shouldReceive('getUser')->andReturn($mockProfile);
@@ -234,32 +234,32 @@ test('can sync daily stats', function () {
 
     // Verify it's stored in database
     $this->assertDatabaseHas('daily_stats', [
-        'user_id' => $this->user->id,
+        'user_id'  => $this->user->id,
         'provider' => 'leetcode',
-        'date' => now()->format('Y-m-d')
+        'date'     => now()->format('Y-m-d'),
     ]);
 });
 
 test('calculates submission streak correctly', function () {
     // Create consecutive days with submissions
     for ($i = 0; $i < 5; $i++) {
-        $date = now()->subDays($i)->format('Y-m-d');
+        $date      = now()->subDays($i)->format('Y-m-d');
         $dailyStat = DailyStat::factory()->create([
-            'user_id' => $this->user->id,
+            'user_id'  => $this->user->id,
             'provider' => 'leetcode',
-            'date' => $date
+            'date'     => $date,
         ]);
 
         // Add submissions for first 3 days only
         if ($i < 3) {
             DailyStatMetric::factory()->ofType('total_submissions')->create([
                 'daily_stat_id' => $dailyStat->id,
-                'value' => 1
+                'value'         => 1,
             ]);
         } else {
             DailyStatMetric::factory()->ofType('total_submissions')->create([
                 'daily_stat_id' => $dailyStat->id,
-                'value' => 0
+                'value'         => 0,
             ]);
         }
     }
@@ -275,19 +275,19 @@ test('finds most productive day correctly', function () {
     $dates = [
         ['date' => now()->subDays(2)->format('Y-m-d'), 'submissions' => 1],
         ['date' => now()->subDays(1)->format('Y-m-d'), 'submissions' => 5], // Most productive
-        ['date' => now()->format('Y-m-d'), 'submissions' => 2]
+        ['date' => now()->format('Y-m-d'), 'submissions' => 2],
     ];
 
     foreach ($dates as $data) {
         $dailyStat = DailyStat::factory()->create([
-            'user_id' => $this->user->id,
+            'user_id'  => $this->user->id,
             'provider' => 'leetcode',
-            'date' => $data['date']
+            'date'     => $data['date'],
         ]);
 
         DailyStatMetric::factory()->ofType('total_submissions')->create([
             'daily_stat_id' => $dailyStat->id,
-            'value' => $data['submissions']
+            'value'         => $data['submissions'],
         ]);
     }
 
@@ -308,11 +308,11 @@ test('can handle empty submissions for a day', function () {
     $this->service->store($this->user->id, 'testuser123');
 
     // Mock empty submissions
-    $mockService = \Mockery::mock($this->service)
+    $mockService = Mockery::mock($this->service)
         ->shouldAllowMockingProtectedMethods()
         ->makePartial();
 
-    $mockProfile = new \App\Http\Integrations\Leetcode\Dtos\UserProfileData(
+    $mockProfile = new App\Http\Integrations\Leetcode\Dtos\UserProfileData(
         username: 'testuser123',
         real_name: 'Test User',
         user_avatar: 'avatar.jpg',
@@ -344,17 +344,17 @@ test('can update existing daily stats', function () {
 
     // Create initial daily stat
     $existingStat = DailyStat::factory()->create([
-        'user_id' => $this->user->id,
+        'user_id'  => $this->user->id,
         'provider' => 'leetcode',
-        'date' => $today
+        'date'     => $today,
     ]);
 
     // Mock service calls
-    $mockService = \Mockery::mock($this->service)
+    $mockService = Mockery::mock($this->service)
         ->shouldAllowMockingProtectedMethods()
         ->makePartial();
 
-    $mockProfile = new \App\Http\Integrations\Leetcode\Dtos\UserProfileData(
+    $mockProfile = new App\Http\Integrations\Leetcode\Dtos\UserProfileData(
         username: 'testuser123',
         real_name: 'Test User',
         user_avatar: 'avatar.jpg',
@@ -367,12 +367,12 @@ test('can update existing daily stats', function () {
 
     $mockSubmissions = collect([
         [
-            'title' => 'New Problem',
-            'title_slug' => 'new-problem',
+            'title'          => 'New Problem',
+            'title_slug'     => 'new-problem',
             'status_display' => 'Accepted',
-            'difficulty' => 'Medium',
-            'date' => now()->format('Y-m-d H:i:s')
-        ]
+            'difficulty'     => 'Medium',
+            'date'           => now()->format('Y-m-d H:i:s'),
+        ],
     ]);
 
     $mockService->shouldReceive('getUser')->andReturn($mockProfile);

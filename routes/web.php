@@ -2,9 +2,9 @@
 
 use App\Events\TestEvent;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\RatingController;
+use App\Http\Controllers\CalendarController;
+use App\Http\Controllers\DashboardController;
 
 Route::get('/', [DashboardController::class, 'home'])->name('home');
 

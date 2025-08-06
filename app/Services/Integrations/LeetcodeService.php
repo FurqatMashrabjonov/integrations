@@ -339,11 +339,11 @@ class LeetcodeService implements LeetcodeServiceInterface
             $totalSubmissions = $stat->metrics->where('type', 'total_submissions')->first()?->value ?? 0;
 
             return [
-                'date' => $stat->date->format('Y-m-d'),
+                'date'        => $stat->date->format('Y-m-d'),
                 'submissions' => $totalSubmissions,
-                'easy' => $stat->metrics->where('type', 'problems_easy')->first()?->value ?? 0,
-                'medium' => $stat->metrics->where('type', 'problems_medium')->first()?->value ?? 0,
-                'hard' => $stat->metrics->where('type', 'problems_hard')->first()?->value ?? 0,
+                'easy'        => $stat->metrics->where('type', 'problems_easy')->first()?->value ?? 0,
+                'medium'      => $stat->metrics->where('type', 'problems_medium')->first()?->value ?? 0,
+                'hard'        => $stat->metrics->where('type', 'problems_hard')->first()?->value ?? 0,
             ];
         })->sortByDesc('submissions')->first();
 

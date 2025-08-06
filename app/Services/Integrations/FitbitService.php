@@ -8,7 +8,6 @@ use App\Dtos\FitbitAccountDTO;
 use App\Enums\IntegrationEnum;
 use App\Dtos\UserFitbitStepDTO;
 use App\Dtos\IntegrationTokenDTO;
-use App\Services\IntegrationAccountService;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Saloon\Exceptions\InvalidStateException;
@@ -135,10 +134,10 @@ class FitbitService implements FitbitServiceInterface
     protected function createIntegrationAccount($authenticator): void
     {
         $user = $this->connector->getUser($authenticator)->object()?->user;
-        
+
         // Use IntegrationAccount directly via repository
         $integrationAccountRepo = app(\App\Repositories\Contracts\IntegrationAccountRepositoryInterface::class);
-        
+
         $integrationAccountRepo->createOrUpdate([
             'user_id'      => Auth::id(),
             'integration'  => IntegrationEnum::FITBIT,

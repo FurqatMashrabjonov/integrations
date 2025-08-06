@@ -1,6 +1,6 @@
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, SharedData } from '@/types';
-import { Head, usePage } from '@inertiajs/react';
+import { Head, usePage, router } from '@inertiajs/react';
 import { useState, useEffect, useMemo } from 'react'
 
 import FitbitCard from '@/components/integration-cards/FitbitCard'
@@ -29,12 +29,26 @@ export default function Dashboard() {
     const { integrationData } = usePage<SharedData>().props;
     const [dateFilter, setDateFilter] = useState<DateFilter>('today')
     
+    // Handle date filter changes
+    const handleDateFilterChange = (newFilter: DateFilter) => {
+        setDateFilter(newFilter);
+        
+        // Reload the page with the new date filter
+        router.get(window.location.pathname, { date_filter: newFilter }, {
+            preserveState: true,
+            preserveScroll: true,
+            only: ['integrationData']
+        });
+    };
+    
     const originalOrder: CardItem[] = [
         {
             id: 'fitbit',
             component: <FitbitCard 
+                dateFilter={dateFilter}
                 isConnected={(integrationData as any)?.fitbit?.isConnected || false}
                 profile={(integrationData as any)?.fitbit?.profile || null}
+                stats={(integrationData as any)?.fitbit?.stats || null}
             />,
             title: 'Fitbit',
             isIntegrated: (integrationData as any)?.fitbit?.isConnected || false
@@ -42,8 +56,10 @@ export default function Dashboard() {
         {
             id: 'github',
             component: <GitHubCard 
+                dateFilter={dateFilter}
                 isConnected={(integrationData as any)?.github?.isConnected || false}
                 profile={(integrationData as any)?.github?.profile || null}
+                stats={(integrationData as any)?.github?.stats || null}
             />,
             title: 'GitHub',
             isIntegrated: (integrationData as any)?.github?.isConnected || false
@@ -89,7 +105,7 @@ export default function Dashboard() {
                         {/* Enhanced Date Filter - Compact Tab Format */}
                         <div className="flex gap-1 bg-muted/50 p-1 rounded-xl border border-border/50 max-w-md w-full">
                             <button
-                                onClick={() => setDateFilter('today')}
+                                onClick={() => handleDateFilterChange('today')}
                                 className={`flex-1 px-2 py-1.5 rounded-lg font-medium transition-all duration-300 text-xs ${
                                     dateFilter === 'today'
                                         ? 'bg-primary text-primary-foreground shadow-sm scale-105'
@@ -99,7 +115,7 @@ export default function Dashboard() {
                                 📅 Bugun
                             </button>
                             <button
-                                onClick={() => setDateFilter('weekly')}
+                                onClick={() => handleDateFilterChange('weekly')}
                                 className={`flex-1 px-2 py-1.5 rounded-lg font-medium transition-all duration-300 text-xs ${
                                     dateFilter === 'weekly'
                                         ? 'bg-primary text-primary-foreground shadow-sm scale-105'
@@ -109,7 +125,7 @@ export default function Dashboard() {
                                 📊 Hafta
                             </button>
                             <button
-                                onClick={() => setDateFilter('monthly')}
+                                onClick={() => handleDateFilterChange('monthly')}
                                 className={`flex-1 px-2 py-1.5 rounded-lg font-medium transition-all duration-300 text-xs ${
                                     dateFilter === 'monthly'
                                         ? 'bg-primary text-primary-foreground shadow-sm scale-105'

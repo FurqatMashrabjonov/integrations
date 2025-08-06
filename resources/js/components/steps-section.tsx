@@ -64,6 +64,7 @@ export default function StepsSection({
                 <FitbitCard 
                     isConnected={(integrationData as any)?.fitbit?.isConnected || false}
                     profile={(integrationData as any)?.fitbit?.profile || null}
+                    stats={(integrationData as any)?.fitbit?.stats || null}
                 />
 
                 <GitHubCard 

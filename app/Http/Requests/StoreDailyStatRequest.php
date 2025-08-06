@@ -22,15 +22,15 @@ class StoreDailyStatRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id' => 'required|integer|exists:users,id',
-            'date' => 'required|date',
-            'provider' => 'required|string|in:github,leetcode,wakapi,fitbit',
-            'meta' => 'nullable|array',
-            'metrics' => 'nullable|array',
-            'metrics.*.type' => 'required_with:metrics|string',
+            'user_id'         => 'required|integer|exists:users,id',
+            'date'            => 'required|date',
+            'provider'        => 'required|string|in:github,leetcode,wakapi,fitbit',
+            'meta'            => 'nullable|array',
+            'metrics'         => 'nullable|array',
+            'metrics.*.type'  => 'required_with:metrics|string',
             'metrics.*.value' => 'required_with:metrics|numeric',
-            'metrics.*.unit' => 'nullable|string',
-            'metrics.*.meta' => 'nullable|array',
+            'metrics.*.unit'  => 'nullable|string',
+            'metrics.*.meta'  => 'nullable|array',
         ];
     }
 
@@ -40,11 +40,11 @@ class StoreDailyStatRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'user_id.exists' => 'The selected user does not exist.',
-            'provider.in' => 'The provider must be one of: github, leetcode, wakapi, fitbit.',
-            'metrics.*.type.required_with' => 'Each metric must have a type.',
+            'user_id.exists'                => 'The selected user does not exist.',
+            'provider.in'                   => 'The provider must be one of: github, leetcode, wakapi, fitbit.',
+            'metrics.*.type.required_with'  => 'Each metric must have a type.',
             'metrics.*.value.required_with' => 'Each metric must have a value.',
-            'metrics.*.value.numeric' => 'Metric value must be a number.',
+            'metrics.*.value.numeric'       => 'Metric value must be a number.',
         ];
     }
 }

@@ -24,15 +24,15 @@ class DailyStatMetricFactory extends Factory
             'commit_count', 'pr_count', 'issues_closed', // GitHub
             'problems_easy', 'problems_medium', 'problems_hard', // Leetcode
             'coding_minutes', 'active_time', 'keystrokes', // Wakapi
-            'steps', 'calories_burned', 'distance_km' // Fitbit
+            'steps', 'calories_burned', 'distance_km', // Fitbit
         ]);
 
         return [
             'daily_stat_id' => DailyStat::factory(),
-            'type' => $metricType,
-            'value' => $this->generateValueForType($metricType),
-            'unit' => $this->getUnitForType($metricType),
-            'meta' => $this->generateMetaForType($metricType),
+            'type'          => $metricType,
+            'value'         => $this->generateValueForType($metricType),
+            'unit'          => $this->getUnitForType($metricType),
+            'meta'          => $this->generateMetaForType($metricType),
         ];
     }
 
@@ -41,20 +41,20 @@ class DailyStatMetricFactory extends Factory
      */
     private function generateValueForType(string $type): float
     {
-        return match($type) {
-            'commit_count' => $this->faker->numberBetween(0, 20),
-            'pr_count' => $this->faker->numberBetween(0, 5),
-            'issues_closed' => $this->faker->numberBetween(0, 10),
-            'problems_easy' => $this->faker->numberBetween(0, 5),
+        return match ($type) {
+            'commit_count'    => $this->faker->numberBetween(0, 20),
+            'pr_count'        => $this->faker->numberBetween(0, 5),
+            'issues_closed'   => $this->faker->numberBetween(0, 10),
+            'problems_easy'   => $this->faker->numberBetween(0, 5),
             'problems_medium' => $this->faker->numberBetween(0, 3),
-            'problems_hard' => $this->faker->numberBetween(0, 1),
-            'coding_minutes' => $this->faker->numberBetween(0, 480), // 0-8 hours
-            'active_time' => $this->faker->numberBetween(0, 300), // 0-5 hours
-            'keystrokes' => $this->faker->numberBetween(0, 15000),
-            'steps' => $this->faker->numberBetween(0, 20000),
+            'problems_hard'   => $this->faker->numberBetween(0, 1),
+            'coding_minutes'  => $this->faker->numberBetween(0, 480), // 0-8 hours
+            'active_time'     => $this->faker->numberBetween(0, 300), // 0-5 hours
+            'keystrokes'      => $this->faker->numberBetween(0, 15000),
+            'steps'           => $this->faker->numberBetween(0, 20000),
             'calories_burned' => $this->faker->numberBetween(1200, 3500),
-            'distance_km' => round($this->faker->numberBetween(0, 15) + $this->faker->randomFloat(2, 0, 0.99), 2),
-            default => $this->faker->numberBetween(0, 100),
+            'distance_km'     => round($this->faker->numberBetween(0, 15) + $this->faker->randomFloat(2, 0, 0.99), 2),
+            default           => $this->faker->numberBetween(0, 100),
         };
     }
 
@@ -63,14 +63,14 @@ class DailyStatMetricFactory extends Factory
      */
     private function getUnitForType(string $type): ?string
     {
-        return match($type) {
+        return match ($type) {
             'commit_count', 'pr_count', 'issues_closed', 'problems_easy', 'problems_medium', 'problems_hard' => 'count',
             'coding_minutes', 'active_time' => 'minutes',
-            'keystrokes' => 'keystrokes',
-            'steps' => 'steps',
+            'keystrokes'      => 'keystrokes',
+            'steps'           => 'steps',
             'calories_burned' => 'calories',
-            'distance_km' => 'km',
-            default => null,
+            'distance_km'     => 'km',
+            default           => null,
         };
     }
 
@@ -79,33 +79,33 @@ class DailyStatMetricFactory extends Factory
      */
     private function generateMetaForType(string $type): ?array
     {
-        return match($type) {
+        return match ($type) {
             'commit_count' => [
                 'repositories' => $this->faker->randomElements(['repo1', 'repo2', 'repo3'], $this->faker->numberBetween(1, 3)),
-                'languages' => $this->faker->randomElements(['PHP', 'JavaScript', 'Python'], $this->faker->numberBetween(1, 2)),
+                'languages'    => $this->faker->randomElements(['PHP', 'JavaScript', 'Python'], $this->faker->numberBetween(1, 2)),
             ],
             'pr_count' => [
-                'status' => $this->faker->randomElements(['merged', 'open', 'closed'], $this->faker->numberBetween(1, 2)),
+                'status'       => $this->faker->randomElements(['merged', 'open', 'closed'], $this->faker->numberBetween(1, 2)),
                 'repositories' => $this->faker->randomElements(['repo1', 'repo2'], $this->faker->numberBetween(1, 2)),
             ],
             'problems_easy', 'problems_medium', 'problems_hard' => [
-                'topics' => $this->faker->randomElements(['Array', 'String', 'Dynamic Programming', 'Tree'], $this->faker->numberBetween(1, 3)),
+                'topics'            => $this->faker->randomElements(['Array', 'String', 'Dynamic Programming', 'Tree'], $this->faker->numberBetween(1, 3)),
                 'submission_status' => $this->faker->randomElement(['Accepted', 'Wrong Answer', 'Time Limit Exceeded']),
             ],
             'coding_minutes' => [
                 'languages' => [
-                    'PHP' => $this->faker->numberBetween(0, 120),
+                    'PHP'        => $this->faker->numberBetween(0, 120),
                     'JavaScript' => $this->faker->numberBetween(0, 90),
-                    'Python' => $this->faker->numberBetween(0, 60),
+                    'Python'     => $this->faker->numberBetween(0, 60),
                 ],
                 'projects' => $this->faker->randomElements(['project1', 'project2', 'project3'], $this->faker->numberBetween(1, 2)),
             ],
             'steps' => [
-                'floors_climbed' => $this->faker->numberBetween(0, 20),
+                'floors_climbed'      => $this->faker->numberBetween(0, 20),
                 'very_active_minutes' => $this->faker->numberBetween(0, 60),
             ],
             'calories_burned' => [
-                'bmr_calories' => $this->faker->numberBetween(1200, 1800),
+                'bmr_calories'      => $this->faker->numberBetween(1200, 1800),
                 'activity_calories' => $this->faker->numberBetween(200, 1000),
             ],
             default => null,
@@ -118,13 +118,13 @@ class DailyStatMetricFactory extends Factory
     public function github(): static
     {
         $githubTypes = ['commit_count', 'pr_count', 'issues_closed'];
-        $type = $this->faker->randomElement($githubTypes);
+        $type        = $this->faker->randomElement($githubTypes);
 
         return $this->state(fn (array $attributes) => [
-            'type' => $type,
+            'type'  => $type,
             'value' => $this->generateValueForType($type),
-            'unit' => $this->getUnitForType($type),
-            'meta' => $this->generateMetaForType($type),
+            'unit'  => $this->getUnitForType($type),
+            'meta'  => $this->generateMetaForType($type),
         ]);
     }
 
@@ -134,13 +134,13 @@ class DailyStatMetricFactory extends Factory
     public function leetcode(): static
     {
         $leetcodeTypes = ['problems_easy', 'problems_medium', 'problems_hard'];
-        $type = $this->faker->randomElement($leetcodeTypes);
+        $type          = $this->faker->randomElement($leetcodeTypes);
 
         return $this->state(fn (array $attributes) => [
-            'type' => $type,
+            'type'  => $type,
             'value' => $this->generateValueForType($type),
-            'unit' => $this->getUnitForType($type),
-            'meta' => $this->generateMetaForType($type),
+            'unit'  => $this->getUnitForType($type),
+            'meta'  => $this->generateMetaForType($type),
         ]);
     }
 
@@ -150,13 +150,13 @@ class DailyStatMetricFactory extends Factory
     public function wakapi(): static
     {
         $wakapiTypes = ['coding_minutes', 'active_time', 'keystrokes'];
-        $type = $this->faker->randomElement($wakapiTypes);
+        $type        = $this->faker->randomElement($wakapiTypes);
 
         return $this->state(fn (array $attributes) => [
-            'type' => $type,
+            'type'  => $type,
             'value' => $this->generateValueForType($type),
-            'unit' => $this->getUnitForType($type),
-            'meta' => $this->generateMetaForType($type),
+            'unit'  => $this->getUnitForType($type),
+            'meta'  => $this->generateMetaForType($type),
         ]);
     }
 
@@ -166,13 +166,13 @@ class DailyStatMetricFactory extends Factory
     public function fitbit(): static
     {
         $fitbitTypes = ['steps', 'calories_burned', 'distance_km'];
-        $type = $this->faker->randomElement($fitbitTypes);
+        $type        = $this->faker->randomElement($fitbitTypes);
 
         return $this->state(fn (array $attributes) => [
-            'type' => $type,
+            'type'  => $type,
             'value' => $this->generateValueForType($type),
-            'unit' => $this->getUnitForType($type),
-            'meta' => $this->generateMetaForType($type),
+            'unit'  => $this->getUnitForType($type),
+            'meta'  => $this->generateMetaForType($type),
         ]);
     }
 
@@ -182,10 +182,10 @@ class DailyStatMetricFactory extends Factory
     public function ofType(string $type): static
     {
         return $this->state(fn (array $attributes) => [
-            'type' => $type,
+            'type'  => $type,
             'value' => $this->generateValueForType($type),
-            'unit' => $this->getUnitForType($type),
-            'meta' => $this->generateMetaForType($type),
+            'unit'  => $this->getUnitForType($type),
+            'meta'  => $this->generateMetaForType($type),
         ]);
     }
 }
