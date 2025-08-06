@@ -4,7 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Integrations\WakapiController;
 use App\Http\Controllers\Integrations\LeetcodeController;
 use App\Http\Controllers\Api\Integrations\FitbitController;
-use App\Http\Controllers\Api\Integrations\GithubController;
+
+// use App\Http\Controllers\Api\Integrations\GithubController; // Temporarily disabled
 
 Route::prefix('fitbit')->as('fitbit.')->group(function () {
     Route::get('/redirect', [FitbitController::class, 'redirect'])->name('redirect');
@@ -16,6 +17,8 @@ Route::prefix('fitbit')->as('fitbit.')->group(function () {
     });
 });
 
+// Temporarily disabled GitHub integration routes
+/*
 Route::prefix('github')->as('github.')->group(function () {
     Route::get('/redirect', [GithubController::class, 'redirect'])->name('redirect');
     Route::get('/callback', [GithubController::class, 'callback'])->name('callback');
@@ -25,6 +28,7 @@ Route::prefix('github')->as('github.')->group(function () {
         Route::delete('/destroy', [GithubController::class, 'destroy'])->name('destroy');
     });
 });
+*/
 
 Route::prefix('leetcode')->as('leetcode.')->middleware(['auth', 'web'])->group(function () {
     Route::post('/store', [LeetcodeController::class, 'store'])->name('store');

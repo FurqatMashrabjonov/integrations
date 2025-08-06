@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import './pomodoro.css';
 
 @plugin 'tailwindcss-animate';
 

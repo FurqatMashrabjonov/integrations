@@ -4,15 +4,17 @@ namespace App\Services\Integrations;
 
 use Saloon\Http\Request;
 use App\Models\DailyStat;
+use App\Enums\IntegrationEnum;
 use App\Models\DailyStatMetric;
+use App\Models\IntegrationAccount;
 use Illuminate\Support\Collection;
 use Saloon\Exceptions\Request\RequestException;
 use Saloon\Exceptions\Request\FatalRequestException;
 use App\Http\Integrations\Leetcode\LeetcodeConnector;
 use App\Http\Integrations\Leetcode\Dtos\UserProfileData;
 use App\Http\Integrations\Leetcode\Requests\GetUserProfile;
-use App\Repositories\Contracts\LeetcodeRepositoryInterface;
 use App\Repositories\Contracts\DailyStatRepositoryInterface;
+use App\Http\Integrations\Leetcode\Requests\GetProblemDifficulty;
 use App\Repositories\Contracts\DailyStatMetricRepositoryInterface;
 use App\Http\Integrations\Leetcode\Requests\GetUserRecentSubmissions;
 use App\Services\Integrations\Services\Integrations\Contracts\LeetcodeServiceInterface;
@@ -21,7 +23,6 @@ class LeetcodeService implements LeetcodeServiceInterface
 {
     public function __construct(
         private LeetcodeConnector $connector,
-        private LeetcodeRepositoryInterface $repository,
         private DailyStatRepositoryInterface $dailyStatRepository,
         private DailyStatMetricRepositoryInterface $dailyStatMetricRepository
     ) {}
@@ -67,13 +68,14 @@ class LeetcodeService implements LeetcodeServiceInterface
         return collect($user->recentAcSubmissionList ?? [])
             ->when($date, function ($query) use ($date) {
                 return $query->filter(fn ($sub) => $sub->timestamp && date('Y-m-d', $sub->timestamp) === $date);
-            })
-            ->map(fn ($sub) => [
-                'title'          => $sub->title,
-                'title_slug'     => $sub->titleSlug,
-                'status_display' => $sub->statusDisplay,
-                'date'           => $sub->timestamp ? date('Y-m-d H:i:s', $sub->timestamp) : null,
-            ]);
+            });
+    }
+
+    public function getProblemDifficulty(string $titleSlug): string
+    {
+        $response = $this->send(new GetProblemDifficulty($titleSlug));
+
+        return $response->object();
     }
 
     /**
@@ -88,52 +90,63 @@ class LeetcodeService implements LeetcodeServiceInterface
         if ($response->successful()) {
             return $response->object();
         }
+        dd($response->body());
 
         throw new \Exception('Failed to fetch data from Leetcode API');
     }
 
-    public function store(int $userId, string $username)
+    public function store(int $userId, string $username): IntegrationAccount
     {
-        return $this->repository->updateOrCreateByUserId($userId, $username);
+        return IntegrationAccount::updateOrCreate(
+            [
+                'user_id'     => $userId,
+                'integration' => IntegrationEnum::LEETCODE,
+            ],
+            [
+                'username' => $username,
+                'data'     => null,
+            ]
+        );
     }
 
     public function exists(int $userId): bool
     {
-        return $this->repository->existsByUserId($userId);
+        return IntegrationAccount::where('user_id', $userId)
+            ->where('integration', IntegrationEnum::LEETCODE)
+            ->exists();
     }
 
     public function destroy(int $userId): void
     {
-        $this->repository->deleteByUserId($userId);
+        IntegrationAccount::where('user_id', $userId)
+            ->where('integration', IntegrationEnum::LEETCODE)
+            ->delete();
     }
 
     public function getAccount(int $userId)
     {
-        return $this->repository->findByUserId($userId);
+        return IntegrationAccount::where('user_id', $userId)
+            ->where('integration', IntegrationEnum::LEETCODE)
+            ->first();
     }
 
     public function syncProfile(int $userId): void
     {
-        $leetcode = $this->repository->findByUserId($userId);
-        if (!$leetcode) {
-            throw new \Exception('Leetcode account not found for user');
+        $integrationAccount = IntegrationAccount::where('user_id', $userId)
+            ->where('integration', IntegrationEnum::LEETCODE)
+            ->first();
+
+        if (!$integrationAccount) {
+            throw new \Exception('LeetCode integration account not found for user');
         }
-        $username = $leetcode->username;
-        // Fetch profile and recent submissions
-        $profile = $this->getUser($username);
-        $recent  = $this->getUserRecentSubmissions($username)->toArray();
-        // Store or update LeetcodeProfile
-        \App\Models\LeetcodeProfile::updateOrCreate(
-            [
-                'leetcode_id' => $leetcode->id,
-            ],
-            [
-                'username'       => $username,
-                'profile'        => $profile,
-                'recent'         => $recent,
-                'last_synced_at' => now(),
-            ]
-        );
+
+        $username = $integrationAccount->data['username'] ?? null;
+        if (!$username) {
+            throw new \Exception('LeetCode username not found in integration account data');
+        }
+
+        // This method can be implemented later if needed
+        // For now it's just a placeholder to satisfy the interface
     }
 
     /**
@@ -145,60 +158,72 @@ class LeetcodeService implements LeetcodeServiceInterface
     {
         $date ??= now()->format('Y-m-d');
 
-        $leetcode = $this->repository->findByUserId($userId);
-        if (!$leetcode) {
-            throw new \Exception('Leetcode account not found for user');
+        // Use IntegrationAccount instead of old repository
+        $integrationAccount = IntegrationAccount::where('user_id', $userId)
+            ->where('integration', IntegrationEnum::LEETCODE)
+            ->first();
+
+        if (!$integrationAccount) {
+            throw new \Exception('LeetCode integration account not found for user');
+        }
+
+        $username = $integrationAccount->data['username'] ?? null;
+        if (!$username) {
+            throw new \Exception('LeetCode username not found in integration account data');
         }
 
         // Get user profile and recent submissions for the specific date
-        $profile           = $this->getUser($leetcode->username);
-        $recentSubmissions = $this->getUserRecentSubmissions($leetcode->username, $date);
+        $profile           = $this->getUser($username);
+        $recentSubmissions = $this->getUserRecentSubmissions($username, $date);
 
-        // Count submissions by difficulty for the specific date
-        $easyCount        = $recentSubmissions->where('difficulty', 'Easy')->count();
-        $mediumCount      = $recentSubmissions->where('difficulty', 'Medium')->count();
-        $hardCount        = $recentSubmissions->where('difficulty', 'Hard')->count();
         $totalSubmissions = $recentSubmissions->count();
+
+        // Get profile data for total stats
+        $profileData = $integrationAccount->data['profile'] ?? [];
+        $totalEasy   = $profileData['ac_submission_num_easy'] ?? 0;
+        $totalMedium = $profileData['ac_submission_num_medium'] ?? 0;
+        $totalHard   = $profileData['ac_submission_num_hard'] ?? 0;
 
         // Create or update daily stat using repository
         $dailyStat = $this->dailyStatRepository->updateOrCreate(
             [
                 'user_id'  => $userId,
-                'date'     => $date,
+                'date'     => $date . ' 00:00:00',
                 'provider' => 'leetcode',
             ],
             [
                 'meta' => [
-                    'username'           => $leetcode->username,
-                    'ranking'            => $profile->ranking,
-                    'total_easy'         => $profile->ac_submission_num_easy,
-                    'total_medium'       => $profile->ac_submission_num_medium,
-                    'total_hard'         => $profile->ac_submission_num_hard,
-                    'badges_count'       => count($profile->badges),
+                    'username'           => $username,
+                    'ranking'            => $profileData['ranking'] ?? $profile->ranking,
+                    'total_easy'         => $totalEasy,
+                    'total_medium'       => $totalMedium,
+                    'total_hard'         => $totalHard,
+                    'badges_count'       => count($profileData['badges'] ?? []),
+                    'submissions_today'  => $totalSubmissions,
                     'submissions_detail' => $recentSubmissions->toArray(),
                 ],
             ]
         );
 
         // Create or update metrics using repository
-        $this->createOrUpdateMetric($dailyStat->id, 'problems_easy', $easyCount, 'count', [
-            'difficulty'  => 'Easy',
-            'submissions' => $recentSubmissions->where('difficulty', 'Easy')->values()->toArray(),
+        $this->createOrUpdateMetric($dailyStat->id, 'problems_solved_today', $totalSubmissions, 'count', [
+            'submissions' => $recentSubmissions->toArray(),
         ]);
 
-        $this->createOrUpdateMetric($dailyStat->id, 'problems_medium', $mediumCount, 'count', [
-            'difficulty'  => 'Medium',
-            'submissions' => $recentSubmissions->where('difficulty', 'Medium')->values()->toArray(),
+        $this->createOrUpdateMetric($dailyStat->id, 'total_problems_easy', $totalEasy, 'count', [
+            'difficulty' => 'Easy',
         ]);
 
-        $this->createOrUpdateMetric($dailyStat->id, 'problems_hard', $hardCount, 'count', [
-            'difficulty'  => 'Hard',
-            'submissions' => $recentSubmissions->where('difficulty', 'Hard')->values()->toArray(),
+        $this->createOrUpdateMetric($dailyStat->id, 'total_problems_medium', $totalMedium, 'count', [
+            'difficulty' => 'Medium',
         ]);
 
-        $this->createOrUpdateMetric($dailyStat->id, 'total_submissions', $totalSubmissions, 'count', [
-            'all_difficulties'  => true,
-            'submission_titles' => $recentSubmissions->pluck('title')->toArray(),
+        $this->createOrUpdateMetric($dailyStat->id, 'total_problems_hard', $totalHard, 'count', [
+            'difficulty' => 'Hard',
+        ]);
+
+        $this->createOrUpdateMetric($dailyStat->id, 'ranking', $profile->ranking, 'position', [
+            'total_problems_solved' => $totalEasy + $totalMedium + $totalHard,
         ]);
 
         return $dailyStat->load('metrics');

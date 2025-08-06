@@ -5,9 +5,9 @@ namespace App\Http\Controllers;
 use Carbon\Carbon;
 use Inertia\Inertia;
 use App\Models\DailyStat;
-use App\Models\UserFitbitStep;
+use App\Enums\IntegrationEnum;
+use Illuminate\Support\Facades\Auth;
 use App\Services\IntegrationAccountService;
-use App\Http\Resources\UserFitbitStepsResource;
 
 class DashboardController extends Controller
 {
@@ -22,108 +22,312 @@ class DashboardController extends Controller
 
     public function dashboard()
     {
-        $user       = auth()->user();
-        $dateFilter = request('date_filter', 'today'); // Default to 'today'
+        $user = Auth::user();
 
-        $steps = UserFitbitStep::query()
-            ->select('steps', 'date', 'id', 'user_id')
-            ->where('user_id', $user->id)
-            ->orderByDesc('date')
-            ->take(7)
-            ->get()->reverse();
-
-        // Get all integration data with date filter
+        // Get all integration data for all filters with consistent structure
         $integrationData = [
-            'github'   => $this->getGithubData($user->id, $dateFilter),
-            'fitbit'   => $this->getFitbitData($user->id, $dateFilter),
-            'leetcode' => $this->getLeetcodeData($user->id, $dateFilter),
-            'wakapi'   => $this->getWakapiData($user->id, $dateFilter),
+            'github' => [
+                'isConnected' => $this->integrationAccountService->getByUserAndIntegration($user->id, IntegrationEnum::GITHUB) !== null,
+                'profile'     => $this->getGithubProfile($user->id),
+                'stats'       => [
+                    'today'   => $this->getGithubStats($user->id, 'today'),
+                    'weekly'  => $this->getGithubStats($user->id, 'weekly'),
+                    'monthly' => $this->getGithubStats($user->id, 'monthly'),
+                ],
+            ],
+            'fitbit' => [
+                'isConnected' => $this->integrationAccountService->getByUserAndIntegration($user->id, IntegrationEnum::FITBIT) !== null,
+                'profile'     => $this->getFitbitProfile($user->id),
+                'stats'       => [
+                    'today'   => $this->getFitbitStats($user->id, 'today'),
+                    'weekly'  => $this->getFitbitStats($user->id, 'weekly'),
+                    'monthly' => $this->getFitbitStats($user->id, 'monthly'),
+                ],
+            ],
+            'leetcode' => [
+                'isConnected' => $this->integrationAccountService->getByUserAndIntegration($user->id, IntegrationEnum::LEETCODE) !== null,
+                'profile'     => $this->getLeetcodeProfile($user->id),
+                'stats'       => [
+                    'today'   => $this->getLeetcodeStats($user->id, 'today'),
+                    'weekly'  => $this->getLeetcodeStats($user->id, 'weekly'),
+                    'monthly' => $this->getLeetcodeStats($user->id, 'monthly'),
+                ],
+            ],
+            'wakapi' => [
+                'isConnected' => $this->integrationAccountService->getByUserAndIntegration($user->id, IntegrationEnum::WAKAPI) !== null,
+                'profile'     => $this->getWakapiProfile($user->id),
+                'stats'       => [
+                    'today'   => $this->getWakapiStats($user->id, 'today'),
+                    'weekly'  => $this->getWakapiStats($user->id, 'weekly'),
+                    'monthly' => $this->getWakapiStats($user->id, 'monthly'),
+                ],
+            ],
         ];
 
         return Inertia::render('dashboard', [
-            'steps'           => UserFitbitStepsResource::collection($steps)->resolve(),
-            'steps_of_today'  => number_format(UserFitbitStep::query()->where('user_id', $user->id)->where('date', Carbon::today()->format('Y-m-d'))->first()->steps ?? 0),
             'integrationData' => $integrationData,
         ]);
     }
 
     /**
-     * Get date range based on filter
+     * Get GitHub profile data
      */
-    private function getDateRange(string $dateFilter): array
+    private function getGithubProfile(int $userId): ?array
     {
-        $today = Carbon::today();
+        $profile = $this->integrationAccountService->getGithubProfile($userId);
 
-        return match ($dateFilter) {
-            'today' => [
-                'start' => $today->toDateString(),
-                'end'   => $today->toDateString(),
-            ],
-            'weekly' => [
-                'start' => $today->subDays(6)->toDateString(),
-                'end'   => Carbon::today()->toDateString(),
-            ],
-            'monthly' => [
-                'start' => $today->subDays(29)->toDateString(),
-                'end'   => Carbon::today()->toDateString(),
-            ],
-            default => [
-                'start' => $today->toDateString(),
-                'end'   => $today->toDateString(),
-            ],
-        };
+        if (!$profile) {
+            return null;
+        }
+
+        return [
+            'username' => $profile['display_name'] ?? null,
+            'photo'    => $profile['avatar'] ?? null,
+        ];
+    }
+
+    /**
+     * Get GitHub stats from daily stats
+     */
+    private function getGithubStats(int $userId, string $filter = 'today'): ?array
+    {
+        $dateRange = $this->getDateRange($filter);
+
+        if ($filter === 'today') {
+            // Get today's stats only
+            $dailyStats = DailyStat::with('metrics')
+                ->byUser($userId)
+                ->byProvider('github')
+                ->byDate($dateRange['start'])
+                ->first();
+
+            if (!$dailyStats) {
+                return null;
+            }
+
+            $stats = [
+                'commits'       => 0,
+                'repositories'  => 0,
+                'contributions' => 0,
+            ];
+
+            foreach ($dailyStats->metrics as $metric) {
+                switch ($metric->type) {
+                    case 'commits':
+                        $stats['commits'] = $metric->value;
+                        break;
+                    case 'repositories':
+                        $stats['repositories'] = $metric->value;
+                        break;
+                    case 'contributions':
+                        $stats['contributions'] = $metric->value;
+                        break;
+                }
+            }
+
+            return $stats;
+        } else {
+            // Get aggregated stats for weekly/monthly
+            $dailyStats = DailyStat::with('metrics')
+                ->byUser($userId)
+                ->byProvider('github')
+                ->byDateRange($dateRange['start'], $dateRange['end'])
+                ->get();
+
+            if ($dailyStats->isEmpty()) {
+                return null;
+            }
+
+            // Sum up commits for the period
+            $totalCommits = $dailyStats->flatMap->metrics
+                ->where('type', 'commits')
+                ->sum('value');
+
+            // Get latest repositories and contributions counts
+            $latestStats   = $dailyStats->sortByDesc('date')->first();
+            $repositories  = 0;
+            $contributions = 0;
+
+            foreach ($latestStats->metrics as $metric) {
+                switch ($metric->type) {
+                    case 'repositories':
+                        $repositories = $metric->value;
+                        break;
+                    case 'contributions':
+                        $contributions = $metric->value;
+                        break;
+                }
+            }
+
+            return [
+                'commits'       => $totalCommits,
+                'repositories'  => $repositories,
+                'contributions' => $contributions,
+            ];
+        }
+    }
+
+    /**
+     * Get Fitbit profile data
+     */
+    private function getFitbitProfile(int $userId): ?array
+    {
+        $profile = $this->integrationAccountService->getFitbitProfile($userId);
+
+        if (!$profile) {
+            return null;
+        }
+
+        return [
+            'username' => $profile['display_name'] ?? null,
+            'photo'    => $profile['avatar'] ?? null,
+        ];
+    }
+
+    /**
+     * Get Fitbit stats from daily stats
+     */
+    private function getFitbitStats(int $userId, string $filter = 'today'): ?array
+    {
+        $dateRange = $this->getDateRange($filter);
+
+        if ($filter === 'today') {
+            // Get today's stats only
+            $dailyStats = DailyStat::with('metrics')
+                ->byUser($userId)
+                ->byProvider('fitbit')
+                ->byDate($dateRange['start'])
+                ->with('metrics')
+                ->first();
+
+            if (!$dailyStats) {
+                return null;
+            }
+
+            $stats = [
+                'steps'    => 0,
+                'calories' => 0,
+                'distance' => 0,
+            ];
+
+            foreach ($dailyStats->metrics as $metric) {
+                switch ($metric->type) {
+                    case 'steps':
+                        $stats['steps'] = $metric->value;
+                        break;
+                    case 'calories':
+                        $stats['calories'] = $metric->value;
+                        break;
+                    case 'distance':
+                        $stats['distance'] = $metric->value;
+                        break;
+                }
+            }
+
+            return $stats;
+        } else {
+            $dailyStats = DailyStat::with('metrics')
+                ->byUser($userId)
+                ->byProvider('fitbit')
+                ->byDateRange($dateRange['start'], $dateRange['end'])
+                ->get();
+
+            if ($dailyStats->isEmpty()) {
+                return null;
+            }
+
+            // Sum up all metrics for the period
+            $totalSteps = $dailyStats->flatMap->metrics
+                ->where('type', 'steps')
+                ->sum('value');
+
+            $totalCalories = $dailyStats->flatMap->metrics
+                ->where('type', 'calories')
+                ->sum('value');
+
+            $totalDistance = $dailyStats->flatMap->metrics
+                ->where('type', 'distance')
+                ->sum('value');
+
+            return [
+                'steps'    => $totalSteps,
+                'calories' => $totalCalories,
+                'distance' => $totalDistance,
+            ];
+        }
+    }
+
+    /**
+     * Get LeetCode profile data
+     */
+    private function getLeetcodeProfile(int $userId): ?array
+    {
+        $profile = $this->integrationAccountService->getLeetcodeProfile($userId);
+
+        if (!$profile) {
+            return null;
+        }
+
+        return [
+            'username' => $profile['display_name'] ?? null,
+            'photo'    => $profile['avatar'],
+        ];
+    }
+
+    /**
+     * Get Wakapi profile data
+     */
+    private function getWakapiProfile(int $userId): ?array
+    {
+        $profile = $this->integrationAccountService->getWakapiProfile($userId);
+        if (!$profile) {
+            return null;
+        }
+
+        return [
+            'username' => $profile['display_name'] ?? null,
+            'photo'    => $profile['avatar'],
+        ];
     }
 
     /**
      * Get GitHub integration data
      */
-    private function getGithubData(int $userId, string $dateFilter = 'today'): array
+    private function getGithubData(int $userId): array
     {
-        $account = $this->integrationAccountService->getByUserAndIntegration($userId, \App\Enums\IntegrationEnum::GITHUB);
+        $account = $this->integrationAccountService->getByUserAndIntegration($userId, IntegrationEnum::GITHUB);
         $profile = $this->integrationAccountService->getGithubProfile($userId);
-        $stats   = null;
-
-        if ($account) {
-            $stats = $this->getGithubStats($userId, $dateFilter);
-        }
 
         return [
             'isConnected' => $account !== null,
             'profile'     => $profile,
-            'stats'       => $stats,
         ];
     }
 
     /**
      * Get Fitbit integration data
      */
-    private function getFitbitData(int $userId, string $dateFilter = 'today'): array
+    private function getFitbitData(int $userId): array
     {
-        $account = $this->integrationAccountService->getByUserAndIntegration($userId, \App\Enums\IntegrationEnum::FITBIT);
+        $account = $this->integrationAccountService->getByUserAndIntegration($userId, IntegrationEnum::FITBIT);
         $profile = $this->integrationAccountService->getFitbitProfile($userId);
-        $stats   = null;
-
-        if ($account) {
-            $stats = $this->getFitbitStats($userId, $dateFilter);
-        }
 
         return [
             'isConnected' => $account !== null,
             'profile'     => $profile,
-            'stats'       => $stats,
         ];
     }
 
     /**
      * Get LeetCode integration data
      */
-    private function getLeetcodeData(int $userId, string $dateFilter = 'today'): array
+    private function getLeetcodeData(int $userId, string $filter = 'today'): array
     {
-        $isConnected = $this->integrationAccountService->getByUserAndIntegration($userId, \App\Enums\IntegrationEnum::LEETCODE) !== null;
+        $isConnected = $this->integrationAccountService->getByUserAndIntegration($userId, IntegrationEnum::LEETCODE) !== null;
         $stats       = null;
 
         if ($isConnected) {
-            $stats = $this->getLeetcodeStats($userId, $dateFilter);
+            $stats = $this->getLeetcodeStats($userId, $filter);
         }
 
         return [
@@ -135,13 +339,13 @@ class DashboardController extends Controller
     /**
      * Get Wakapi integration data
      */
-    private function getWakapiData(int $userId, string $dateFilter = 'today'): array
+    private function getWakapiData(int $userId, string $filter = 'today'): array
     {
-        $isConnected = $this->integrationAccountService->getByUserAndIntegration($userId, \App\Enums\IntegrationEnum::WAKAPI) !== null;
+        $isConnected = $this->integrationAccountService->getByUserAndIntegration($userId, IntegrationEnum::WAKAPI) !== null;
         $stats       = null;
 
         if ($isConnected) {
-            $stats = $this->getWakapiStats($userId, $dateFilter);
+            $stats = $this->getWakapiStats($userId, $filter);
         }
 
         return [
@@ -151,231 +355,207 @@ class DashboardController extends Controller
     }
 
     /**
-     * Get GitHub stats from daily stats
-     */
-    private function getGithubStats(int $userId, string $dateFilter = 'today'): ?array
-    {
-        $dateRange = $this->getDateRange($dateFilter);
-
-        $dailyStats = DailyStat::with('metrics')
-            ->byUser($userId)
-            ->byProvider('github')
-            ->whereBetween('date', [$dateRange['start'], $dateRange['end']])
-            ->get();
-
-        if ($dailyStats->isEmpty()) {
-            return null;
-        }
-
-        $stats = [
-            'total_commits' => 0,
-            'total_prs'     => 0,
-            'total_repos'   => 0,
-            'avg_commits'   => 0,
-            'avg_prs'       => 0,
-            'days_count'    => $dailyStats->count(),
-            'date_filter'   => $dateFilter,
-            'last_updated'  => $dailyStats->max('date'),
-        ];
-
-        // Aggregate metrics across all days
-        foreach ($dailyStats as $dailyStat) {
-            foreach ($dailyStat->metrics as $metric) {
-                switch ($metric->type) {
-                    case 'commits':
-                    case 'commit_count':
-                        $stats['total_commits'] += $metric->value;
-                        break;
-                    case 'pr_count':
-                        $stats['total_prs'] += $metric->value;
-                        break;
-                    case 'repositories':
-                        $stats['total_repos'] = max($stats['total_repos'], $metric->value); // Take max, not sum
-                        break;
-                }
-            }
-        }
-
-        // Calculate averages
-        $stats['avg_commits'] = $stats['days_count'] > 0 ? round($stats['total_commits'] / $stats['days_count'], 1) : 0;
-        $stats['avg_prs']     = $stats['days_count'] > 0 ? round($stats['total_prs'] / $stats['days_count'], 1) : 0;
-
-        return $stats;
-    }
-
-    /**
-     * Get Fitbit stats from daily stats
-     */
-    private function getFitbitStats(int $userId, string $dateFilter = 'today'): ?array
-    {
-        $dateRange = $this->getDateRange($dateFilter);
-
-        $dailyStats = DailyStat::with('metrics')
-            ->byUser($userId)
-            ->byProvider('fitbit')
-            ->whereBetween('date', [$dateRange['start'], $dateRange['end']])
-            ->get();
-
-        if ($dailyStats->isEmpty()) {
-            return null;
-        }
-
-        $stats = [
-            'today_steps'    => 0,
-            'today_distance' => 0,
-            'week_steps'     => 0,
-            'calories'       => 0,
-            'total_steps'    => 0,
-            'avg_steps'      => 0,
-            'total_distance' => 0,
-            'total_calories' => 0,
-            'days_count'     => $dailyStats->count(),
-            'date_filter'    => $dateFilter,
-            'last_updated'   => $dailyStats->max('date'),
-        ];
-
-        // Aggregate metrics across all days
-        foreach ($dailyStats as $dailyStat) {
-            foreach ($dailyStat->metrics as $metric) {
-                switch ($metric->type) {
-                    case 'steps':
-                        $stats['total_steps'] += $metric->value;
-                        break;
-                    case 'distance':
-                        $stats['total_distance'] += $metric->value; // In meters
-                        break;
-                    case 'calories':
-                        $stats['total_calories'] += $metric->value;
-                        break;
-                }
-            }
-        }
-
-        // Calculate averages and conversions
-        $stats['avg_steps']      = $stats['days_count'] > 0 ? round($stats['total_steps'] / $stats['days_count']) : 0;
-        $stats['today_steps']    = $dateFilter === 'today' ? $stats['total_steps'] : $stats['avg_steps'];
-        $stats['today_distance'] = round($stats['total_distance'] / 1000, 1); // Convert to km
-        $stats['week_steps']     = $stats['total_steps']; // For compatibility
-        $stats['calories']       = $stats['total_calories'];
-
-        return $stats;
-    }
-
-    /**
      * Get LeetCode stats from daily stats
      */
-    private function getLeetcodeStats(int $userId, string $dateFilter = 'today'): ?array
+    private function getLeetcodeStats(int $userId, string $filter = 'today'): ?array
     {
-        $dateRange = $this->getDateRange($dateFilter);
+        $dateRange = $this->getDateRange($filter);
 
-        $dailyStats = DailyStat::with('metrics')
-            ->byUser($userId)
-            ->byProvider('leetcode')
-            ->whereBetween('date', [$dateRange['start'], $dateRange['end']])
-            ->get();
+        if ($filter === 'today') {
+            // Get today's stats only
+            $dailyStats = DailyStat::with('metrics')
+                ->byUser($userId)
+                ->byProvider('leetcode')
+                ->byDate($dateRange['start'])
+                ->first();
 
-        if ($dailyStats->isEmpty()) {
-            return null;
-        }
+            if (!$dailyStats) {
+                return null;
+            }
 
-        $stats = [
-            'problems_solved_easy'   => 0,
-            'problems_solved_medium' => 0,
-            'problems_solved_hard'   => 0,
-            'total_submissions'      => 0,
-            'avg_submissions'        => 0,
-            'ranking'                => 0,
-            'days_count'             => $dailyStats->count(),
-            'date_filter'            => $dateFilter,
-            'last_updated'           => $dailyStats->max('date'),
-        ];
+            $stats = [
+                'problems_solved_easy'   => 0,
+                'problems_solved_medium' => 0,
+                'problems_solved_hard'   => 0,
+                'problems_solved_total'  => 0,
+                'ranking'                => 0,
+                'last_updated'           => $dailyStats->date,
+            ];
 
-        // Aggregate metrics across all days
-        foreach ($dailyStats as $dailyStat) {
-            foreach ($dailyStat->metrics as $metric) {
+            foreach ($dailyStats->metrics as $metric) {
                 switch ($metric->type) {
-                    case 'problems_solved_easy':
-                    case 'problems_easy':
-                        $stats['problems_solved_easy'] += $metric->value;
+                    case 'problems_solved_easy_today':
+                        $stats['problems_solved_easy'] = $metric->value;
                         break;
-                    case 'problems_solved_medium':
-                    case 'problems_medium':
-                        $stats['problems_solved_medium'] += $metric->value;
+                    case 'problems_solved_medium_today':
+                        $stats['problems_solved_medium'] = $metric->value;
                         break;
-                    case 'problems_solved_hard':
-                    case 'problems_hard':
-                        $stats['problems_solved_hard'] += $metric->value;
+                    case 'problems_solved_hard_today':
+                        $stats['problems_solved_hard'] = $metric->value;
                         break;
-                    case 'submissions_today':
-                    case 'total_submissions':
-                        $stats['total_submissions'] += $metric->value;
+                    case 'problems_solved_today':
+                        $stats['problems_solved_total'] = $metric->value;
                         break;
                     case 'ranking':
-                        $stats['ranking'] = $metric->value; // Take latest ranking
+                        $stats['ranking'] = $metric->value;
                         break;
                 }
             }
+
+            return $stats;
+        } else {
+            // Get aggregated stats for weekly/monthly
+            $dailyStats = DailyStat::with('metrics')
+                ->byUser($userId)
+                ->byProvider('leetcode')
+                ->byDateRange($dateRange['start'], $dateRange['end'])
+                ->get();
+
+            if ($dailyStats->isEmpty()) {
+                return null;
+            }
+
+            // Sum up problems solved by difficulty in the period
+            $easyProblems = $dailyStats->flatMap->metrics
+                ->where('type', 'problems_solved_easy_today')
+                ->sum('value');
+
+            $mediumProblems = $dailyStats->flatMap->metrics
+                ->where('type', 'problems_solved_medium_today')
+                ->sum('value');
+
+            $hardProblems = $dailyStats->flatMap->metrics
+                ->where('type', 'problems_solved_hard_today')
+                ->sum('value');
+
+            $totalProblems = $dailyStats->flatMap->metrics
+                ->where('type', 'problems_solved_today')
+                ->sum('value');
+
+            // Get latest ranking from most recent record
+            $latestStats   = $dailyStats->sortByDesc('date')->first();
+            $latestRanking = 0;
+
+            foreach ($latestStats->metrics as $metric) {
+                if ($metric->type === 'ranking') {
+                    $latestRanking = $metric->value;
+                    break;
+                }
+            }
+
+            return [
+                'problems_solved_easy'   => $easyProblems,
+                'problems_solved_medium' => $mediumProblems,
+                'problems_solved_hard'   => $hardProblems,
+                'problems_solved_total'  => $totalProblems,
+                'ranking'                => $latestRanking,
+                'last_updated'           => $latestStats->date,
+            ];
         }
-
-        // Calculate averages
-        $stats['avg_submissions'] = $stats['days_count'] > 0 ? round($stats['total_submissions'] / $stats['days_count'], 1) : 0;
-
-        return $stats;
     }
 
     /**
      * Get Wakapi stats from daily stats
      */
-    private function getWakapiStats(int $userId, string $dateFilter = 'today'): ?array
+    private function getWakapiStats(int $userId, string $filter = 'today'): ?array
     {
-        $dateRange = $this->getDateRange($dateFilter);
+        $dateRange = $this->getDateRange($filter);
 
-        $dailyStats = DailyStat::with('metrics')
-            ->byUser($userId)
-            ->byProvider('wakapi')
-            ->whereBetween('date', [$dateRange['start'], $dateRange['end']])
-            ->get();
+        if ($filter === 'today') {
+            // Get today's stats only
+            $dailyStats = DailyStat::with('metrics')
+                ->byUser($userId)
+                ->byProvider('wakapi')
+                ->byDate($dateRange['start'])
+                ->first();
 
-        if ($dailyStats->isEmpty()) {
-            return null;
-        }
+            if (!$dailyStats) {
+                return null;
+            }
 
-        $stats = [
-            'total_coding_time' => 0,
-            'avg_coding_time'   => 0,
-            'total_languages'   => 0,
-            'total_projects'    => 0,
-            'coding_time'       => 0, // For compatibility
-            'languages_count'   => 0, // For compatibility
-            'projects_count'    => 0, // For compatibility
-            'days_count'        => $dailyStats->count(),
-            'date_filter'       => $dateFilter,
-            'last_updated'      => $dailyStats->max('date'),
-        ];
+            $stats = [
+                'coding_time'     => 0,
+                'languages_count' => 0,
+                'projects_count'  => 0,
+                'last_updated'    => $dailyStats->date,
+            ];
 
-        // Aggregate metrics across all days
-        foreach ($dailyStats as $dailyStat) {
-            foreach ($dailyStat->metrics as $metric) {
+            foreach ($dailyStats->metrics as $metric) {
                 switch ($metric->type) {
                     case 'coding_time':
-                        $stats['total_coding_time'] += $metric->value;
+                        $stats['coding_time'] = $metric->value;
                         break;
                     case 'languages_count':
-                        $stats['total_languages'] = max($stats['total_languages'], $metric->value);
+                        $stats['languages_count'] = $metric->value;
                         break;
                     case 'projects_count':
-                        $stats['total_projects'] = max($stats['total_projects'], $metric->value);
+                        $stats['projects_count'] = $metric->value;
                         break;
                 }
             }
+
+            return $stats;
+        } else {
+            // Get aggregated stats for weekly/monthly
+            $dailyStats = DailyStat::with('metrics')
+                ->byUser($userId)
+                ->byProvider('wakapi')
+                ->byDateRange($dateRange['start'], $dateRange['end'])
+                ->get();
+
+            if ($dailyStats->isEmpty()) {
+                return null;
+            }
+
+            // Sum up coding time for the period
+            $totalCodingTime = $dailyStats->flatMap->metrics
+                ->where('type', 'coding_time')
+                ->sum('value');
+
+            // Get unique languages and projects counts
+            $languagesCount = $dailyStats->flatMap->metrics
+                ->where('type', 'languages_count')
+                ->max('value') ?? 0;
+
+            $projectsCount = $dailyStats->flatMap->metrics
+                ->where('type', 'projects_count')
+                ->max('value') ?? 0;
+
+            $latestStats = $dailyStats->sortByDesc('date')->first();
+
+            return [
+                'coding_time'     => $totalCodingTime,
+                'languages_count' => $languagesCount,
+                'projects_count'  => $projectsCount,
+                'last_updated'    => $latestStats->date,
+            ];
         }
+    }
 
-        // Calculate averages and compatibility values
-        $stats['avg_coding_time'] = $stats['days_count'] > 0 ? round($stats['total_coding_time'] / $stats['days_count']) : 0;
-        $stats['coding_time']     = $dateFilter === 'today' ? $stats['total_coding_time'] : $stats['avg_coding_time'];
-        $stats['languages_count'] = $stats['total_languages'];
-        $stats['projects_count']  = $stats['total_projects'];
+    /**
+     * Get date range based on filter
+     */
+    private function getDateRange(string $filter): array
+    {
+        switch ($filter) {
+            case 'weekly':
+                return [
+                    'start' => Carbon::now()->startOfWeek()->toDateString(),
+                    'end'   => Carbon::now()->endOfWeek()->toDateString(),
+                ];
+            case 'monthly':
+                return [
+                    'start' => Carbon::now()->startOfMonth()->toDateString(),
+                    'end'   => Carbon::now()->endOfMonth()->toDateString(),
+                ];
+            case 'today':
+            default:
+                $today = Carbon::today()->toDateString();
 
-        return $stats;
+                return [
+                    'start' => $today,
+                    'end'   => $today,
+                ];
+        }
     }
 }

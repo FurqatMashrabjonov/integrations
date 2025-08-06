@@ -14,6 +14,14 @@ beforeEach(function () {
     $this->service = app(LeetcodeServiceInterface::class);
 });
 
+test('can get problem difficulty', function () {
+    $difficulty = $this->service->getProblemDifficulty('two-sum');
+
+    expect($difficulty)->toBe('Easy')
+        ->and(fn () => $this->service->getProblemDifficulty('non-existent-problem'))
+        ->toThrow(Exception::class);
+})->skip(env('CI') ?? false, 'Skipped in CI');
+
 test('can get user profile', function () {
     $user = $this->service->getUser('furqatmashrabjonov');
 
@@ -180,8 +188,6 @@ test('can get aggregated stats', function () {
     }
 
     $aggregated = $this->service->getAggregatedStats($this->user->id, $startDate, $endDate);
-
-    dd($aggregated);
 
     expect($aggregated)->toHaveKeys(['period', 'metrics', 'streak', 'summary'])
 //        ->and($aggregated['period']['total_days'])->toBe(3)

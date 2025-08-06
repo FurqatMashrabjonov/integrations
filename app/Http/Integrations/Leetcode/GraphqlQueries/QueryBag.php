@@ -50,4 +50,15 @@ class QueryBag
             }
             GRAPHQL;
     }
+
+    public static function getProblemDifficulty()
+    {
+        return <<<'GRAPHQL'
+                     query getQuestionDetail($titleSlug: String!) {
+                         question(titleSlug: $titleSlug) {
+                            title
+                            difficulty
+                     }
+            GRAPHQL;
+    }
 }

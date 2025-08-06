@@ -25,6 +25,6 @@ class UserFitbitStepGetter implements ShouldQueue
      */
     public function handle(): void
     {
-        app(FitbitServiceInterface::class)->getUserStepsAndStore($this->userId, $this->date);
+        app(FitbitServiceInterface::class)->getUserSteps($this->userId, $this->date);
     }
 }

@@ -121,10 +121,11 @@ class IntegrationAccountService
             throw new \Exception('Username not found in account data');
         }
 
-        // Fetch profile using the service (profile contains basic info, not daily stats)
+        // Fetch profile and recent submissions using the service
         $profile = $this->leetcodeService->getUser($username);
+        $recent  = $this->leetcodeService->getUserRecentSubmissions($username)->toArray();
 
-        // Update account with profile data only (no stats)
+        // Update account with profile data
         $this->repository->createOrUpdate([
             'user_id'      => $userId,
             'integration'  => IntegrationEnum::LEETCODE,
@@ -133,7 +134,8 @@ class IntegrationAccountService
             'avatar'       => $profile->user_avatar,
             'data'         => [
                 'username'       => $username,
-                'connected_at'   => $account->data['connected_at'] ?? now()->toISOString(),
+                'profile'        => $profile,
+                'recent'         => $recent,
                 'last_synced_at' => now()->toISOString(),
             ],
         ]);
@@ -146,18 +148,13 @@ class IntegrationAccountService
     {
         $account = $this->getByUserAndIntegration($userId, IntegrationEnum::LEETCODE);
 
-        if (!$account) {
+        if (!$account || !isset($account->data['profile'])) {
             return null;
         }
 
         return [
-            'username'       => $account->data['username'] ?? $account->display_name,
-            'display_name'   => $account->display_name,
-            'full_name'      => $account->full_name,
-            'avatar'         => $account->avatar,
-            'connected_at'   => $account->data['connected_at'] ?? null,
-            'last_synced_at' => $account->data['last_synced_at'] ?? null,
-            'error'          => $account->data['error'] ?? null,
+            'display_name' => $account->display_name,
+            'avatar'       => $account->avatar,
         ];
     }
 
@@ -178,13 +175,13 @@ class IntegrationAccountService
         }
 
         // Fetch steps and activity data using the service
-        $todaySteps = $this->fitbitService->getUserStepsAndStore($userId);
+        $todaySteps = $this->fitbitService->getUserSteps($userId);
         $weekSteps  = $this->getWeeklySteps($userId);
 
         // Calculate distance (rough estimate: 1 step = 0.0008 km)
         $todayDistance = round(($todaySteps * 0.0008), 1);
 
-        // Update account with profile data only (no stats)
+        // Update account with profile data
         $this->repository->createOrUpdate([
             'user_id'      => $userId,
             'integration'  => IntegrationEnum::FITBIT,
@@ -193,16 +190,16 @@ class IntegrationAccountService
             'avatar'       => $account->avatar,
             'data'         => [
                 'display_name'   => $displayName,
-                'connected_at'   => $account->data['connected_at'] ?? now()->toISOString(),
+                'today_steps'    => $todaySteps,
+                'today_distance' => $todayDistance,
+                'week_steps'     => $weekSteps,
                 'last_synced_at' => now()->toISOString(),
             ],
         ]);
-
-        // Note: Stats are stored in daily_stats table via CollectUserIntegrationData job
     }
 
     /**
-     * Get Fitbit profile data (account info only, no stats)
+     * Get Fitbit profile data
      */
     public function getFitbitProfile(int $userId): ?array
     {
@@ -213,10 +210,8 @@ class IntegrationAccountService
         }
 
         return [
-            'display_name'   => $account->data['display_name'] ?? $account->display_name,
-            'last_synced_at' => $account->data['last_synced_at'] ?? null,
-            'avatar'         => $account->avatar,
-            'full_name'      => $account->full_name,
+            'display_name' => $account->display_name ?? $account->data['display_name'],
+            'avatar'       => $account->avatar,
         ];
     }
 
@@ -251,7 +246,16 @@ class IntegrationAccountService
         }
 
         try {
-            // Update account with profile data only (no stats)
+            // Fetch GitHub activities and store them
+            //            $this->githubService->getActivitiesAndStore($userId);
+
+            // For now, we'll use mock data similar to what's in the UI
+            $todayCommits = 15421; // This would come from actual GitHub API
+            $todayPRs     = 2321;     // This would come from actual GitHub API
+            $weekCommits  = 25;  // This would come from actual GitHub API
+            $weekPRs      = 8;      // This would come from actual GitHub API
+
+            // Update account with profile data
             $this->repository->createOrUpdate([
                 'user_id'      => $userId,
                 'integration'  => IntegrationEnum::GITHUB,
@@ -260,12 +264,15 @@ class IntegrationAccountService
                 'avatar'       => $account->avatar,
                 'data'         => [
                     'display_name'   => $displayName,
-                    'connected_at'   => $account->data['connected_at'] ?? now()->toISOString(),
+                    'today_commits'  => $todayCommits,
+                    'today_prs'      => $todayPRs,
+                    'week_commits'   => $weekCommits,
+                    'week_prs'       => $weekPRs,
                     'last_synced_at' => now()->toISOString(),
                 ],
             ]);
         } catch (\Exception $e) {
-            // If API fails, still update profile data
+            // If API fails, use cached data or defaults
             $this->repository->createOrUpdate([
                 'user_id'      => $userId,
                 'integration'  => IntegrationEnum::GITHUB,
@@ -274,9 +281,12 @@ class IntegrationAccountService
                 'avatar'       => $account->avatar,
                 'data'         => [
                     'display_name'   => $displayName,
-                    'connected_at'   => $account->data['connected_at'] ?? now()->toISOString(),
+                    'today_commits'  => 0,
+                    'today_prs'      => 0,
+                    'week_commits'   => 0,
+                    'week_prs'       => 0,
                     'last_synced_at' => now()->toISOString(),
-                    'error'          => 'Failed to sync: ' . $e->getMessage(),
+                    'error'          => 'Failed to fetch data: ' . $e->getMessage(),
                 ],
             ]);
         }
@@ -295,11 +305,13 @@ class IntegrationAccountService
 
         return [
             'display_name'   => $account->data['display_name'] ?? $account->display_name,
-            'connected_at'   => $account->data['connected_at'] ?? null,
+            'today_commits'  => $account->data['today_commits'] ?? 0,
+            'today_prs'      => $account->data['today_prs'] ?? 0,
+            'week_commits'   => $account->data['week_commits'] ?? 0,
+            'week_prs'       => $account->data['week_prs'] ?? 0,
             'last_synced_at' => $account->data['last_synced_at'] ?? null,
             'avatar'         => $account->avatar,
             'full_name'      => $account->full_name,
-            'error'          => $account->data['error'] ?? null,
         ];
     }
 
@@ -315,12 +327,22 @@ class IntegrationAccountService
         }
 
         try {
-            // Get user profile using stored API token
-            $profile = $this->wakapiService->setToken($account->data['api_token'])->getUser();
+            // Get user profile and activities using stored API token
+            $profile             = $this->wakapiService->setToken($account->data['api_token'])->getUser();
+            $todayActivities     = $this->wakapiService->setToken($account->data['api_token'])->getDailyActivities('today');
+            $last7DaysActivities = $this->wakapiService->setToken($account->data['api_token'])->getDailyActivities('last_7_days');
 
-            // Update account with profile data only (no stats)
+            // Update account data
             $updatedData = array_merge($account->data, [
-                'last_synced_at' => now()->toISOString(),
+                'today_hours'       => round($todayActivities->total_seconds / 3600, 2),
+                'today_seconds'     => $todayActivities->total_seconds,
+                'week_hours'        => round($last7DaysActivities->total_seconds / 3600, 2),
+                'week_seconds'      => $last7DaysActivities->total_seconds,
+                'languages'         => $todayActivities->languages,
+                'projects'          => $todayActivities->projects,
+                'editors'           => $todayActivities->editors,
+                'operating_systems' => $todayActivities->operating_systems,
+                'last_synced_at'    => now()->toISOString(),
             ]);
 
             // Update the account
@@ -353,13 +375,18 @@ class IntegrationAccountService
         }
 
         return [
-            'display_name'   => $account->data['username'] ?? $account->display_name,
-            'full_name'      => $account->full_name,
-            'api_token'      => $account->data['api_token'] ?? null,
-            'connected_at'   => $account->data['connected_at'] ?? null,
-            'last_synced_at' => $account->data['last_synced_at'] ?? null,
-            'avatar'         => $account->avatar,
-            'error'          => $account->data['error'] ?? null,
+            'display_name'      => $account->data['username'] ?? $account->display_name,
+            'full_name'         => $account->full_name,
+            'today_hours'       => $account->data['today_hours'] ?? 0,
+            'today_seconds'     => $account->data['today_seconds'] ?? 0,
+            'week_hours'        => $account->data['week_hours'] ?? 0,
+            'week_seconds'      => $account->data['week_seconds'] ?? 0,
+            'languages'         => $account->data['languages'] ?? [],
+            'projects'          => $account->data['projects'] ?? [],
+            'editors'           => $account->data['editors'] ?? [],
+            'operating_systems' => $account->data['operating_systems'] ?? [],
+            'last_synced_at'    => $account->data['last_synced_at'] ?? null,
+            'avatar'            => $account->avatar,
         ];
     }
 }
